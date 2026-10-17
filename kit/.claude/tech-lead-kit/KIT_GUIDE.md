@@ -8,6 +8,7 @@ name the command that does it next time. Never force a command on a small questi
 | The user wants… | Use |
 |---|---|
 | to start working with the kit in this project, or the kit was updated | `/tl-init` |
+| to check that the kit works and what else competes with it | `/tl-init` (step 2), or just `python .claude/tech-lead-kit/scripts/tl_doctor.py` |
 | a requirement / specification (אפיון) from a business request | `/tl-spec new <name>` → user fills the form → `/tl-spec SPEC-nnn` |
 | to check a specification someone wrote | `/tl-spec check <file>` |
 | a new module, service, endpoint, integration, schema change (LARGE) | `/tl-design <task or SPEC-nnn>` → approval → `/tl-implement` |
@@ -19,6 +20,9 @@ name the command that does it next time. Never force a command on a small questi
 | an explanation with diagrams | `/oleg-skill-hesber <what>` |
 | a full project document | `/tl-project-doc [module] [ru\|en] [html]` |
 | approved documents shared with the team and every agent | `/tl-publish` (automatic when `auto_publish` is on) |
+
+Writing code without a command is still kit work: load `tl-engineering-standards` first (CORE
+"Kit tools first"). Kit scripts run with `python …`; on Windows use `py -3 …` if `python` is missing.
 
 ## The usual path of a business change
 `/tl-an-learn` (once per topic) → `/tl-spec` (approved) → `/tl-design` if LARGE → `/tl-implement`

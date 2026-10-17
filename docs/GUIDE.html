@@ -502,7 +502,7 @@ td:first-child { width: 42%; }
     </div>
     <div class="skill-body">
       <div class="facts">
-        <div class="fact"><span class="k">Когда включается</span><span class="v">Любая реализация, исправление бага, рефакторинг. Загружается автоматически.</span></div>
+        <div class="fact"><span class="k">Когда включается</span><span class="v">Любая реализация, исправление бага, рефакторинг — с командой или без, SMALL тоже. Claude загружает его до первой правки кода.</span></div>
         <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-implement &lt;задача&gt;</code> или обычный запрос на изменение кода</span></div>
         <div class="fact"><span class="k">Что получаешь</span><span class="v">Код по слоям, тесты, комментарии «почему» на иврите, отчёт на русском</span></div>
       </div>
@@ -991,9 +991,21 @@ td:first-child { width: 42%; }
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — все строки <code>ok</code></span></li>
     <li><code>/mcp</code><span>подключены <code>meet-checkov</code> и <code>meet-chequemis</code></span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_knowledge.py index</code> — создаёт карту <code>KNOWLEDGE.md</code></span></li>
-    <li><code>/tl-init</code><span>созданы <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> и <code>KNOWLEDGE.md</code></span></li>
+    <li><code>/tl-init</code><span>созданы <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> и <code>KNOWLEDGE.md</code>; в отчёте есть самопроверка kit</span></li>
+    <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_doctor.py</code> — 0 ошибок; предупреждения — то, что может работать вместо kit</span></li>
   </ul>
   <p class="note">Если команды не видны, обнови расширение Claude Code в VS Code и начни новую сессию.</p>
+  <div class="callout">
+    <p><strong>Kit, а не что-то другое.</strong> Правило «Kit tools first» в CORE: перед первой правкой кода
+    Claude загружает <code>tl-engineering-standards</code> и файл правил языка, даже для мелкой правки и без команды.
+    Для исследования, ревью и критики он берёт агентов <code>tl-</code>, а не встроенных агентов, чужие skills,
+    плагины или другие MCP. В отчёте <code>/tl-implement</code> первая строка — какие стандарты и агенты kit использованы.</p>
+    <p><code>/tl-init</code> запускает <code>tl_doctor.py</code>. Скрипт проверяет, что kit подключён (CORE, памятка, команды,
+    skills, агенты), и находит, что может перехватить работу: чужие skills, агенты и команды в проекте и в
+    <code>%USERPROFILE%\.claude</code>, одинаковые имена, другие <code>CLAUDE.md</code> и правила, MCP-серверы,
+    плагины, hooks, запреты в настройках. Claude читает найденное, говорит, что пересекается с kit или
+    противоречит ему, и спрашивает, какое правило главное. Сам он чужие файлы не правит.</p>
+  </div>
 </section>
 
 </div>

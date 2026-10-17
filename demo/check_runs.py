@@ -8,10 +8,14 @@ import collections
 import glob
 import json
 import os
+import re
 import subprocess
 import sys
 
 WRITE_TOOLS = ("write_query", "create_table", "append_insight")
+CODE_PATH_RE = re.compile(r"(^|/)(src|tests)/")
+BASH_WRITE_RE = re.compile(r"(src|tests)/\S+\.py.*(open\([^)]*['\"]w|sed -i|>\s*\S*(src|tests)/)|"
+                           r"(sed -i|>)\s*\S*(src|tests)/", re.S)
 ANALYSIS = {"an-learn", "an-improve", "an-verify", "projdoc", "hesber", "debt", "review", "sql", "design"}
 
 
@@ -19,6 +23,9 @@ def scan(work, name):
     tools = collections.Counter()
     agents = collections.Counter()
     mcp_writes = []
+    skills = []           # kit skills loaded, in order (Skill tool or Read of SKILL.md)
+    standards_first = None  # None: no code edit; True/False: tl-engineering-standards loaded before it
+    commits = []
     cost = 0.0
     turns = 0
     for path in sorted(glob.glob(os.path.join(work, "_logs", f"{name}.*.jsonl"))):
@@ -44,6 +51,18 @@ def scan(work, name):
                         agents[inp.get("subagent_type", "?")] += 1
                     if tool.endswith(WRITE_TOOLS):
                         mcp_writes.append(tool)
+                    if tool == "Skill":
+                        skills.append(inp.get("skill", "?"))
+                    elif tool == "Read" and inp.get("file_path", "").endswith("SKILL.md"):
+                        skills.append(inp["file_path"].replace("\\", "/").split("skills/")[-1].split("/")[0])
+                    path = inp.get("file_path", "").replace("\\", "/")
+                    command = inp.get("command", "") if tool == "Bash" else ""
+                    edits_code = (tool in ("Edit", "Write", "MultiEdit") and CODE_PATH_RE.search(path)
+                                  and "/.claude/" not in path) or bool(BASH_WRITE_RE.search(command))
+                    if edits_code and standards_first is None:
+                        standards_first = "tl-engineering-standards" in skills
+                    if re.search(r"\bgit\s+commit\b", command):
+                        commits.append(command[:80])
         if last_result:
             cost += last_result.get("total_cost_usd") or 0
             turns += last_result.get("num_turns") or 0
@@ -53,7 +72,8 @@ def scan(work, name):
     changed = [c for c in changed if c.strip()]
     knowledge = os.path.join(project, ".claude", "tl-memory", "KNOWLEDGE.md")
     return {"cost": cost, "turns": turns, "tools": tools, "agents": agents,
-            "mcp_writes": mcp_writes, "changed": changed,
+            "mcp_writes": mcp_writes, "changed": changed, "skills": list(dict.fromkeys(skills)),
+            "standards_first": standards_first, "commits": commits,
             "knowledge": sum(1 for line in open(knowledge, encoding="utf-8") if line.startswith("| ") and "---" not in line) - 1
             if os.path.exists(knowledge) else None,
             "agents_md": os.path.exists(os.path.join(project, "AGENTS.md"))}
@@ -70,7 +90,9 @@ def main(argv):
         mcp = sum(v for k, v in r["tools"].items() if k.startswith("mcp__"))
         print(f"== {name}: ${r['cost']:.2f}, {r['turns']} turns, MCP calls {mcp}, "
               f"subagents {dict(r['agents']) or '-'}")
-        print(f"   MCP writes: {r['mcp_writes'] or 'none'}")
+        print(f"   MCP writes: {r['mcp_writes'] or 'none'} · git commit: {r['commits'] or 'none'}")
+        first = {None: "no code edits", True: "yes", False: "NO"}[r["standards_first"]]
+        print(f"   skills: {r['skills'] or '-'} · standards before first code edit: {first}")
         print(f"   changed files: {r['changed'] or 'none'}")
         print(f"   KNOWLEDGE.md rows: {r['knowledge'] if r['knowledge'] is not None else 'no file'} · "
               f"AGENTS.md: {'yes' if r['agents_md'] else 'no'}")
