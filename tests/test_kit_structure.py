@@ -139,6 +139,14 @@ class CoreAndDocsTests(unittest.TestCase):
         lines = read(os.path.join(KIT, "tech-lead-kit", "CORE.md")).splitlines()
         self.assertLessEqual(len(lines), 120, "CORE.md is loaded always — keep it short")
 
+    def test_kit_guide_is_imported_and_complete(self):
+        core = read(os.path.join(KIT, "tech-lead-kit", "CORE.md"))
+        self.assertIn("\n@KIT_GUIDE.md\n", core, "KIT_GUIDE.md must be imported on its own line")
+        guide = read(os.path.join(KIT, "tech-lead-kit", "KIT_GUIDE.md"))
+        for path in kit_files("commands", r".+\.md"):
+            with self.subTest(cmd=path):
+                self.assertIn("/" + os.path.basename(path)[:-3], guide)
+
     def test_version_is_semver(self):
         self.assertRegex(read(os.path.join(KIT, "tech-lead-kit", "VERSION")).strip(), r"^\d+\.\d+\.\d+$")
 
@@ -172,6 +180,20 @@ class InstallerTests(unittest.TestCase):
             self.assertIn(pattern, self.text)
         for skill in EXPLICIT_SKILLS:
             self.assertIn(f".claude/skills/{skill}/", self.text)
+
+    def test_gui_installer(self):
+        with open(os.path.join(ROOT, "installer", "install-gui.ps1"), "rb") as f:
+            raw = f.read()
+        self.assertTrue(raw.startswith(b"\xef\xbb\xbf"), "PowerShell 5.1 needs a BOM for Russian text")
+        self.assertNotIn(b"\n", raw.replace(b"\r\n", b""), "install-gui.ps1 must use CRLF only")
+        ps1 = raw.decode("utf-8-sig")
+        for needle in ("install.cmd", "publish.json", "auto_publish", "docs_root", "TechLeadKit",
+                       "FolderBrowserDialog", "TLK_FROM_GUI"):
+            self.assertIn(needle, ps1)
+        self.assertIn("installer\\install-gui.ps1", self.text)
+        self.assertIn("TLK_FROM_GUI", self.text)
+        self.assertIn("TechLeadKit\\projects.txt", self.text)
+        self.assertIn('"auto_publish": true', self.text)
 
     def test_memory_folders(self):
         for sub in ("adr", "design", "analysis", "spec"):

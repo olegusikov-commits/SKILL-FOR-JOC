@@ -90,18 +90,19 @@ They are connected to both **PROD** and **TEST**.
   `oleg-skill-hesber` (explanation documents with diagrams: "הסבר", "схема", guides).
 - Commands: `/tl-init`, `/tl-spec`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`,
   `/tl-debt`, `/tl-project-doc`, `/tl-an-learn`, `/tl-an`, `/tl-publish`.
-- Project memory (local, not committed) `.claude/tl-memory/`: `PROJECT_CONTEXT.md`,
-  `KNOWLEDGE.md`, `spec/`, `design/`, `adr/`, `analysis/`, `project-doc/`, `hesber/`, `TECH_DEBT.md`.
-- **At the start of every task** read `PROJECT_CONTEXT.md` (missing → suggest `/tl-init`) and
-  `KNOWLEDGE.md` (missing → run the index below) — the map of all specs, ADRs, designs and
+- **At the start of every task** read `.claude/tl-memory/PROJECT_CONTEXT.md` (missing → suggest
+  `/tl-init`) and `.claude/tl-memory/KNOWLEDGE.md` (missing → run the index below) — the map of all specs, ADRs, designs and
   analyses — and open the documents whose `area` touches the task. An approved spec and an
   accepted ADR are binding: follow them, or say clearly that the task contradicts them. A
   published document is edited at its published path, never recreated locally.
 - Every document the kit writes starts with a `<!-- tl-meta: type=…; id=…; status=…; date=…;
   area=…; title=… -->` line (no `;` inside values); after writing one, run
   `python .claude/tech-lead-kit/scripts/tl_knowledge.py index` (or `py -3 …`).
-- **Publishing:** approved documents go into the project (`/tl-publish`): moved to its `docs/`,
-  listed in a knowledge block in `AGENTS.md` that every agent reads. The kit never commits.
+- **Publishing:** approved documents go into the project (`/tl-publish`; immediately after
+  approval when `publish.json` has `"auto_publish": true`): moved to its `docs/`, listed in a
+  knowledge block in `AGENTS.md` that every agent reads. The kit never commits.
+- Which command for which request, the usual path, where documents live:
+@KIT_GUIDE.md
 
 ## Definition of done (check before saying "done")
 - [ ] Task classified; LARGE tasks have an approved design.

@@ -27,7 +27,9 @@ Tool: `python .claude/tech-lead-kit/scripts/tl_knowledge.py` (or `py -3 …`).
 3. **Select** the documents: those named in the arguments; otherwise the local specs, ADRs and
    designs in `KNOWLEDGE.md` with status `approved` / `accepted`. Other kinds (analysis reports,
    explanations, the project document, the debt register) only when the user names them; a draft
-   only when the user asks for it explicitly. Show the list and **STOP** until the user says yes.
+   only when the user asks for it explicitly. Show the list and **STOP** until the user says yes —
+   except in auto mode (`"auto_publish": true`, called right after an approval): then publish the
+   approved document directly and report what moved.
 4. **Make each one fit for the team** — run `tl_knowledge.py check <file>` and fix every issue in
    the document itself: links to local-only files (queries, topic files) → inline the needed
    content or drop the link; mentions of kit commands → plain words; rows of PROD data → only

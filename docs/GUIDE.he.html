@@ -135,6 +135,7 @@ td:first-child { width: 42%; }
   td:first-child { width: auto; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+.callout { border-inline-start: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 4px; max-width: 80ch; display: grid; gap: 8px; }
 </style>
 </head>
 <body>
@@ -287,6 +288,15 @@ td:first-child { width: 42%; }
   </div>
   <p>מתקינים בכל פרויקט בנפרד. העדכון נעשה באותה פקודה: קבצי ה-kit מוחלפים, וזיכרון הפרויקט
   נשאר כפי שהוא.</p>
+  <div class="callout">
+    <p><b>חלון ההתקנה.</b> לחיצה כפולה על <code>install.cmd</code> פותחת חלון: רשימת הפרויקטים שבהם ה-kit כבר מותקן,
+    עם הגרסאות; כפתור "הוספת פרויקט..."; מצב המסמכים ("מסמכים מאושרים הופכים מיד לחלק מהפרויקט": תיקיית
+    <code>docs</code> ו-<code>AGENTS.md</code>, את ה-commit אתה עושה); וכפתור "התקנה / עדכון" לכל הפרויקטים המסומנים. בעדכון,
+    פרויקטים עם גרסה ישנה כבר מסומנים. אם PowerShell חסום במדיניות, עובד מצב טקסט:
+    <code>install.cmd "C:\work\project"</code>.</p>
+    <p>אחרי ההתקנה Claude בפרויקט רואה תמיד את <code>KIT_GUIDE.md</code>: אילו פקודות יש, מתי להציע כל אחת והיכן
+    נמצאים המסמכים. ההרצה הראשונה של <code>/tl-init</code> בונה את המבנה: מפת הפרויקט, מפת המסמכים ו-<code>AGENTS.md</code>.</p>
+  </div>
 
   <figure class="plate" style="margin:0">
     <svg viewBox="0 0 1000 380" role="img" aria-label="שלבי ההתקנה: GitHub, USB, המחשב בעבודה, install.cmd, VS Code">

@@ -19,6 +19,7 @@ kit/.claude/            ← то, что install.cmd копирует в <про
   tech-lead-kit/scripts/  tl_knowledge.py — карта знаний KNOWLEDGE.md и публикация в проект
   skills/ commands/ agents/
 install.cmd, uninstall.cmd   Windows-установщик (CRLF!)
+installer/install-gui.ps1    окно установки (PowerShell 5.1, UTF-8 с BOM, CRLF)
 docs/                   BRIEF.md, ANALYST_DESIGN.md, SPEC_DESIGN.md, GUIDE.html, GUIDE.he.html
 tests/                  автотесты (stdlib unittest), в ZIP не входят
 demo/                   учебный проект + прогон всех команд в headless Claude Code, в ZIP не входит
@@ -64,6 +65,6 @@ python demo/check_runs.py /tmp/demo
 ## Выпуск ZIP для USB
 ```
 git archive --format=zip --prefix=tech-lead-kit-<VERSION>/ -o tech-lead-kit-<VERSION>.zip HEAD \
-    install.cmd uninstall.cmd README.md .gitattributes kit docs
+    install.cmd uninstall.cmd installer README.md .gitattributes kit docs
 ```
 Проверить в распакованном архиве: `install.cmd` с CRLF, `VERSION`, `an_stats.py --selftest`.

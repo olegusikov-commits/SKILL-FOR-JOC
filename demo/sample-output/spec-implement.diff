@@ -1,0 +1,66 @@
+diff --git a/src/chequeflow/config.py b/src/chequeflow/config.py
+index 191f2b6..3f7ad59 100644
+--- a/src/chequeflow/config.py
++++ b/src/chequeflow/config.py
+@@ -18,4 +18,17 @@ MIN_PAYER_HISTORY = 3
+ # ערוצים שמהם מותר אישור אוטומטי (MOBILE לא מותר — איכות סריקה נמוכה)
+ AUTO_APPROVE_CHANNELS = frozenset({"BRANCH_SCAN", "ATM"})
+ 
++# --- מושך קבוע (SPEC-001) ---
++# סוגי מושך שנחשבים מוסדיים
++RECURRING_PAYER_TYPES = frozenset({"COMPANY", "GOVERNMENT"})
++
++# מספר מינימלי של שיקים קודמים כדי להיחשב מושך קבוע (6 כולל; סף 3 נכשל בבדיקת הנתונים)
++RECURRING_PAYER_MIN_PREV_CHEQUES = 6
++
++# סכום מקסימלי (₪, כולל) לאישור אוטומטי של מושך קבוע
++RECURRING_PAYER_MAX_AMOUNT = 5000.0
++
++# מתג חזרה לאחור בלי פריסת קוד: False = התנהגות כמו לפני SPEC-001
++RECURRING_PAYER_ENABLED = True
++
+ DB_PATH = "chequemis.db"
+diff --git a/src/chequeflow/rules.py b/src/chequeflow/rules.py
+index 95f9cfd..fffd6d1 100644
+--- a/src/chequeflow/rules.py
++++ b/src/chequeflow/rules.py
+@@ -9,6 +9,20 @@ AUTO_APPROVED = "AUTO_APPROVED"
+ TO_CLERK = "TO_CLERK"
+ 
+ 
++def is_recurring_payer(cheque: Cheque, payer: Payer) -> bool:
++    """מושך קבוע לפי SPEC-001 (הפרדיקט היחיד, משמש גם את עצירת הסכום וגם את האישור).
++
++    הספים נקראים מ-config בזמן הקריאה כדי שבדיקות יוכלו לשנות אותם.
++    תנאי "הסכום מעל 1000" נבדק אצל הקורא, לא כאן.
++    """
++    return (
++        config.RECURRING_PAYER_ENABLED
++        and payer.payer_type in config.RECURRING_PAYER_TYPES
++        and cheque.payer_prev_cheques >= config.RECURRING_PAYER_MIN_PREV_CHEQUES
++        and cheque.ocr_amount <= config.RECURRING_PAYER_MAX_AMOUNT
++    )
++
++
+ def decide(cheque: Cheque, account: Account, payer: Payer) -> Decision:
+     # עצירות קשיחות: אסור לאשר אוטומטית בשום מקרה
+     if account.status != "ACTIVE":
+@@ -18,7 +32,9 @@ def decide(cheque: Cheque, account: Account, payer: Payer) -> Decision:
+ 
+     if cheque.channel not in config.AUTO_APPROVE_CHANNELS:
+         return Decision(TO_CLERK, "CHANNEL_NOT_ALLOWED")
+-    if cheque.ocr_amount > config.AUTO_APPROVE_MAX_AMOUNT:
++    over_limit = cheque.ocr_amount > config.AUTO_APPROVE_MAX_AMOUNT
++    # מעל הסף האוטומטי עוברים רק מושכים קבועים; שאר הבדיקות (OCR/חתימה) עדיין חלות עליהם
++    if over_limit and not is_recurring_payer(cheque, payer):
+         return Decision(TO_CLERK, "AMOUNT_LIMIT")
+     if cheque.ocr_amount_conf < config.OCR_AMOUNT_MIN_CONF:
+         return Decision(TO_CLERK, "LOW_OCR_AMOUNT")
+@@ -29,4 +45,7 @@ def decide(cheque: Cheque, account: Account, payer: Payer) -> Decision:
+     if cheque.payer_prev_cheques < config.MIN_PAYER_HISTORY:
+         return Decision(TO_CLERK, "NEW_PAYER")
+ 
++    # שורה 4 כבר סיננה את כל השאר; התנאי נכתב במפורש לפי DT-1 #9
++    if over_limit and is_recurring_payer(cheque, payer):
++        return Decision(AUTO_APPROVED, "AUTO_RECURRING_PAYER")
+     return Decision(AUTO_APPROVED, "OK")

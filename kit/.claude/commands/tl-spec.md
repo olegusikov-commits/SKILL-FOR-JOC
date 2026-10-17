@@ -37,5 +37,6 @@ Read `.claude/tl-memory/PROJECT_CONTEXT.md` and `.claude/tl-memory/KNOWLEDGE.md`
      skeptic changed, at most 5 questions with proposed answers, the paths of `SPEC.md` and
      `SPEC.html`.
   7. **STOP.** Wait for approval ("утверждаю" / "approved"). On approval: status `approved`,
-     version 1.0, history row, render again, refresh the index, and offer `/tl-publish` and the
+     version 1.0, history row, render again, refresh the index, publish it (automatically when
+     `auto_publish` is on, otherwise offer `/tl-publish`) and offer the
      next step (`/tl-design` for a LARGE change, `/tl-implement` for a SMALL one).

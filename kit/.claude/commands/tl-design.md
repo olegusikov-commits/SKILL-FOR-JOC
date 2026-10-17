@@ -24,5 +24,6 @@ database, also use the `tl-sql-engineering` skill and inspect the real schema th
    open questions, and the paths of the files you wrote.
 5. **STOP. Do not modify production code.** Wait for the user's explicit approval
    (e.g. "утверждаю" / "approved" / "go"). When approved, set the ADR status to `Accepted`
-   (`tl-meta status=accepted`, design `status=approved`), rebuild the index, offer `/tl-publish`,
+   (`tl-meta status=accepted`, design `status=approved`), rebuild the index, publish (automatic
+   when `auto_publish` is on, otherwise offer `/tl-publish`),
    and continue with `/tl-implement`.

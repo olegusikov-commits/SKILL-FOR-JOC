@@ -76,7 +76,11 @@ SCENARIOS = {
         ("put", "spec-mobile-small.md", "docs/specs/mobile-small-cheques.md"),
         "/tl-spec check docs/specs/mobile-small-cheques.md"]),
     "publish": ("spec-build", None, ["/tl-publish", "Настройки по умолчанию подходят. Публикуй."]),
-    "spec-implement": ("publish", None, ["/tl-implement SPEC-001"]),
+    # /tl-implement may classify the change as LARGE and stop after a design — then it is approved
+    "spec-implement": ("publish", None, [
+        "/tl-implement SPEC-001",
+        "Если ты остановился на дизайне — утверждаю; имя кода причины бери из утверждённой אפיון. "
+        "Доведи реализацию до конца."]),
     "spec-verify": ("spec-implement", None, [
         "/tl-an Проверь реализацию SPEC-001 (изменения в рабочей копии, git diff): отвечает ли код "
         "אפיון и как он повлияет на автоматизацию и ошибку."]),

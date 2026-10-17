@@ -34,6 +34,7 @@ DEFAULTS = {
                 "tech-debt": "."},
     "agents_file": "AGENTS.md",
     "claude_md_import": True,
+    "auto_publish": False,  # true: documents are published right after approval (CORE "Publishing")
 }
 TYPE_LABELS = {"spec": "אפיון", "request": "טופס דרישה", "spec-check": "בדיקת אפיון", "adr": "ADR",
                "design": "תכנון", "project-doc": "מסמך פרויקט", "explain": "הסבר",

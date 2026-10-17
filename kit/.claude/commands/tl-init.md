@@ -41,6 +41,8 @@ Steps:
    and "PROD is read-only", key conventions. No secrets, host names or connection strings.
 5. Rebuild the knowledge map: `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`. If it lists documents without `tl-meta` (e.g.
    written by an older kit version), add the line to each — type by folder, status and `area`
-   from the content — and rebuild. Also run this after every kit update.
+   from the content — and rebuild. Also run this after every kit update. If `publish.json` has
+   `"auto_publish": true`, also run `tl_knowledge.py block` so `AGENTS.md` gets the project facts
+   from the first day, and tell the user which files to commit.
 6. Report to the user in Russian: a short summary, the questions you need answered, and the
    top 3–5 observations (risks / debt candidates — add them to TECH_DEBT.md).

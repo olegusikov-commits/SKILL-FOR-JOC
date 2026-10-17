@@ -157,6 +157,7 @@ td:first-child { width: 42%; }
   td:first-child { width: auto; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+.callout { border-inline-start: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 4px; max-width: 80ch; display: grid; gap: 8px; }
 </style>
 </head>
 <body>
@@ -319,6 +320,16 @@ td:first-child { width: 42%; }
   </div>
   <p>Ставится в каждый проект отдельно. Обновление выполняется той же командой: файлы kit
   заменяются, а память проекта не трогается.</p>
+  <div class="callout">
+    <p><b>Окно установки.</b> Двойной клик по <code>install.cmd</code> открывает окно: список проектов, где kit уже стоит,
+    с версиями; кнопка «Добавить проект…»; режим документов («утверждённые документы сразу становятся частью
+    проекта»: папка <code>docs</code> и <code>AGENTS.md</code>, commit делаешь ты) и кнопка «Установить / обновить» для всех
+    отмеченных проектов. При обновлении проекты со старой версией уже отмечены. Если PowerShell закрыт политикой,
+    работает текстовый режим: <code>install.cmd "C:\work\проект"</code>.</p>
+    <p>После установки Claude в проекте всегда видит памятку <code>KIT_GUIDE.md</code>: какие есть команды, когда какую
+    предлагать и где лежат документы. Первый запуск <code>/tl-init</code> создаёт структуру: карту проекта, карту документов
+    и <code>AGENTS.md</code>.</p>
+  </div>
 
   <figure class="plate" style="margin:0">
     <svg viewBox="0 0 1000 380" role="img" aria-label="Шаги установки: GitHub, USB, рабочий ПК, install.cmd, VS Code">
