@@ -4,6 +4,7 @@ File: `analysis/<topic>/reports/YYYY-MM-DD-<subject>.md`, Russian. Answer first,
 Optional illustrated HTML version: the `oleg-skill-hesber` skill, in Russian.
 
 ```markdown
+<!-- tl-meta: type=analysis-report; id=<topic-slug>; status=final; date=<YYYY-MM-DD>; area=<таблицы, модули, термины>; title=<вопрос отчёта> -->
 # <Вопрос, на который отвечает отчёт>
 Дата: … · Тема: … · Период данных: … · Источник: <сервер / среда>
 

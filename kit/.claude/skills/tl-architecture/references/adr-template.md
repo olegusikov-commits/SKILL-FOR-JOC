@@ -4,6 +4,7 @@ Save as `.claude/tl-memory/adr/ADR-NNN-<short-name>.md`; NNN = next number after
 existing ADR. One decision per ADR. Never rewrite an accepted ADR — supersede it with a new one.
 
 ```markdown
+<!-- tl-meta: type=adr; id=ADR-NNN; status=proposed; date=<YYYY-MM-DD>; area=<רכיבים, טבלאות, ממשקים>; title=<כותרת> -->
 # ADR-NNN: <כותרת ההחלטה>
 
 **סטטוס:** Proposed | Accepted | Deprecated | Superseded by ADR-XXX

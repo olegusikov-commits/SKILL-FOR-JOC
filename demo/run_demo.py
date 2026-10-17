@@ -7,10 +7,16 @@ Each scenario runs in its own copy of the project, so scenarios do not influence
 
   python run_demo.py setup WORK            # project copy + data + kit install + git → WORK/base
   python run_demo.py run WORK SCENARIO     # copy the scenario's start state, run, save transcript
+  python run_demo.py run-all WORK [JOBS]   # every scenario, in dependency order, JOBS in parallel
   python run_demo.py list
+
+A scenario step is a prompt (str) or a file operation done by the "user" between prompts:
+("put", file in demo/inputs, destination in the project — may contain one *), ("rm", path).
 
 Results: WORK/<scenario>/ (project state after the run) and WORK/_logs/<scenario>.*.jsonl
 """
+import concurrent.futures
+import glob
 import json
 import os
 import shutil
@@ -27,6 +33,9 @@ LEARN_PROMPT = ("/tl-an-learn чеки — Тема: автоматическо�
                 "допустимая ошибка до 2%. Процесс описан в docs/process.docx. Данные в meet-chequemis.")
 LEARN_ANSWER = ("План запросов одобряю (это TEST). На твои вопросы: принимаю предложенные тобой ответы. "
                 "Продолжай и доведи изучение темы до конца.")
+SPEC_ANSWER = ("На вопросы: принимаю твои предложенные ответы. Утверждаю אפיון — переведи его в статус "
+               "approved и закончи по своей процедуре.")
+CHANGE_LIMIT = "Подними лимит суммы для постоянных плательщиков-организаций до 8 000 ₪."
 
 SCENARIOS = {
     # name: (start state, patch or None, [prompts...])
@@ -54,6 +63,26 @@ SCENARIOS = {
         "/tl-an Разработчик реализовал задачу docs/tasks/CHQ-512.md — изменения в рабочей копии "
         "(git diff). Проверь, отвечает ли код задаче, и оцени, как он повлияет на автоматизацию и "
         "ошибку."]),
+    # systems analyst: the request form is filled by the "user" between the two commands;
+    # CHQ-512.md is removed so the analyst cannot copy a ready, precise task text
+    "spec-build": ("an-learn", None, [
+        ("rm", "docs/tasks/CHQ-512.md"),
+        "/tl-spec new אישור אוטומטי לשיקים של מושכים קבועים",
+        ("put", "request-recurring-payers.md", ".claude/tl-memory/spec/SPEC-001-*/REQUEST.md"),
+        "/tl-spec SPEC-001 — я заполнил טופס דרישה.",
+        SPEC_ANSWER]),
+    "spec-check": ("init", None, [
+        ("put", "spec-mobile-small.md", "docs/specs/mobile-small-cheques.md"),
+        "/tl-spec check docs/specs/mobile-small-cheques.md"]),
+    "publish": ("spec-build", None, ["/tl-publish", "Настройки по умолчанию подходят. Публикуй."]),
+    "spec-implement": ("publish", None, ["/tl-implement SPEC-001"]),
+    "spec-verify": ("spec-implement", None, [
+        "/tl-an Проверь реализацию SPEC-001 (изменения в рабочей копии, git diff): отвечает ли код "
+        "אפיון и как он повлияет на автоматизацию и ошибку."]),
+    # a plain request (no command) that contradicts the approved, published spec
+    "own-session": ("spec-implement", None, [CHANGE_LIMIT]),
+    # a teammate without the kit: only what was published into the project is left
+    "teammate": ("spec-implement", None, [("rm", ".claude"), CHANGE_LIMIT]),
 }
 
 
@@ -64,7 +93,7 @@ def sh(cmd, cwd=None, check=True):
 def install_kit(project):
     """Linux equivalent of install.cmd."""
     shutil.copytree(KIT, os.path.join(project, ".claude"), dirs_exist_ok=True)
-    for sub in ("adr", "design", "analysis"):
+    for sub in ("adr", "design", "analysis", "spec"):
         os.makedirs(os.path.join(project, ".claude", "tl-memory", sub), exist_ok=True)
     claude_md = os.path.join(project, ".claude", "CLAUDE.md")
     if not os.path.exists(claude_md):
@@ -117,7 +146,13 @@ def run(work, name):
     cfg = mcp_config(dst)
     session = None
     total_cost = 0.0
-    for i, prompt in enumerate(prompts, 1):
+    turn = 0
+    for step in prompts:
+        if isinstance(step, tuple):
+            file_op(dst, step)
+            continue
+        turn += 1
+        i, prompt = turn, step
         cmd = ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
                "--mcp-config", cfg, "--strict-mcp-config",
                "--setting-sources", "project,local",
@@ -148,11 +183,59 @@ def run(work, name):
     print(f"{name}: total cost ${total_cost:.2f}")
 
 
+def file_op(project, step):
+    """What the user does between prompts: put a prepared file, or remove one."""
+    if step[0] == "rm":
+        path = os.path.join(project, step[1])
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            os.remove(path)
+        print(f"  (user) removed {step[1]}")
+        return
+    _, src, pattern = step
+    matches = sorted(glob.glob(os.path.join(project, pattern)))
+    dst = matches[0] if matches else os.path.join(project, pattern.replace("*", "request"))
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    shutil.copyfile(os.path.join(HERE, "inputs", src), dst)
+    print(f"  (user) put {src} -> {os.path.relpath(dst, project)}")
+
+
+def run_all(work, jobs):
+    done, failed, running = {"base"}, set(), {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        while True:
+            for name, (start, _, _) in SCENARIOS.items():
+                if name in done | failed or name in running.values():
+                    continue
+                if start in failed:
+                    failed.add(name)
+                    print(f"{name}: skipped, {start} failed")
+                elif start in done:
+                    running[pool.submit(run, work, name)] = name
+            if not running:
+                break
+            finished, _ = concurrent.futures.wait(running, return_when=concurrent.futures.FIRST_COMPLETED)
+            for future in finished:
+                name = running.pop(future)
+                try:
+                    future.result()
+                    done.add(name)
+                except BaseException as exc:  # run() exits via SystemExit on a failed turn
+                    failed.add(name)
+                    print(f"{name}: FAILED {exc}")
+    print(f"done: {len(done) - 1}, failed: {sorted(failed) or '-'}")
+    return 1 if failed else 0
+
+
 def main(argv):
     if len(argv) >= 2 and argv[1] == "list":
         for k, (start, patch, prompts) in SCENARIOS.items():
-            print(f"{k:12} from {start:9} patch={patch or '-'}  {prompts[0][:70]}")
+            first = next(p for p in prompts if isinstance(p, str))
+            print(f"{k:14} from {start:14} patch={patch or '-'}  {first[:60]}")
         return 0
+    if len(argv) in (3, 4) and argv[1] == "run-all":
+        return run_all(os.path.abspath(argv[2]), int(argv[3]) if len(argv) == 4 else 3)
     if len(argv) == 3 and argv[1] == "setup":
         setup(os.path.abspath(argv[2]))
         return 0

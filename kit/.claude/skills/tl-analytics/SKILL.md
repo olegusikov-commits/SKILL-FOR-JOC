@@ -91,7 +91,7 @@ SQL patterns: `references/backtest-sql.md`. Statistics: `references/statistics.m
 - **Database** via SQL MCP (`meet-checkov`, `meet-chequemis`): catalog first, then data.
 - No internet. Do not claim facts you did not see in one of these sources.
 
-Heavy reading (large code areas, catalogs, many documents) goes to the `tl-an-researcher`
+Heavy reading (large code areas, catalogs, many documents) goes to the `tl-researcher`
 subagent so the main context stays clean. You may run several researchers in parallel with
 different focus (`code`, `data`, `docs`).
 

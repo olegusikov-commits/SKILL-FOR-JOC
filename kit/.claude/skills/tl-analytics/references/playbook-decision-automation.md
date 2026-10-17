@@ -82,7 +82,7 @@ Accepted rules overlap. Compute the **union** with one query (rule1 OR rule2 OR 
 and total error, then the verdict on the union. Never add up gains of separate rules.
 
 ## 8. Evaluate a given code change
-1. `tl-an-researcher` (focus `code`) builds the decision table of the **new** code and of the
+1. `tl-researcher` (focus `code`) builds the decision table of the **new** code and of the
    current code, with file:line for each condition.
 2. Translate each condition into SQL, row by row; keep the mapping table
    (code condition → SQL expression) in the report.

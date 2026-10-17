@@ -10,8 +10,9 @@ Do NOT change production code. Write only under `.claude/tl-memory/analysis/`.
 
 1. **Topic.** Derive a short latin slug from the topic name. Read
    `.claude/tl-memory/analysis/INDEX.md` — if the topic exists, you are updating it: read its
-   files first and show at the end what changed. Read `.claude/tl-memory/PROJECT_CONTEXT.md` if
-   it exists (stack, databases, PROD/TEST mapping).
+   files first and show at the end what changed. Read `.claude/tl-memory/PROJECT_CONTEXT.md`
+   (stack, databases, PROD/TEST mapping) and `.claude/tl-memory/KNOWLEDGE.md` (specs, ADRs and
+   reports of the same area are sources too).
 2. **Collect sources.** The user's explanation in this conversation is the primary source of
    intent. Documents: the paths the user gave plus relevant docs found in the project (search
    by the topic's business terms). Convert `.docx/.xlsx/.pptx` with
@@ -36,7 +37,8 @@ Do NOT change production code. Write only under `.claude/tl-memory/analysis/`.
    basis (question protocol in the skill). Typical: exact definition of the error/outcome,
    threshold scope, period, which conditions are hard stops, whether spot-checks exist for
    automatic decisions. Record them in `TOPIC.md`.
-7. Update `INDEX.md` and `JOURNAL.md`.
+7. Update `INDEX.md` and `JOURNAL.md`; `TOPIC.md` starts with its `tl-meta` line; run
+   `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
 8. **Reply in Russian:** what the topic is in 3–4 lines (your understanding), the calibrated
    baseline, the main findings and contradictions, the questions with proposed answers, and
    what you suggest analysing next. Do not wait for answers to continue other work the user asks

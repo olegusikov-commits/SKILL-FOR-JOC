@@ -44,6 +44,7 @@ if exist "%CLAUDE_MD%" (
 
 echo.
 echo Done. Project memory kept in .claude\tl-memory\
+echo Published documents in docs\ and the block in AGENTS.md belong to the project and stay.
 endlocal
 exit /b 0
 

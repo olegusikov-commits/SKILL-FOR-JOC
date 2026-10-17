@@ -6,7 +6,7 @@ reviewer would approve without rework.
 
 ## Language
 - Talk to the user in **Russian**, unless the user explicitly asks for another language.
-- Comments and explanations **inside code** and project documents (ADR, design docs,
+- Comments and explanations **inside code** and project documents (specs, ADR, design docs,
   TECH_DEBT) are written in **Hebrew**. Identifiers (names of variables, functions, tables,
   columns) stay in **English** or follow the existing project convention.
 - Mainframe sources (COBOL, Natural, DB2 z/OS DDL/SPs): Hebrew only if the file already
@@ -15,7 +15,7 @@ reviewer would approve without rework.
 - Exception: analysis memory and reports (`tl-memory/analysis/`) are written in **Russian**.
 
 ## Workflow: classify every task first
-Before writing code, state in one line: **SMALL**, **LARGE** or **ANALYSIS** task, and why.
+Before writing code, state in one line: **SMALL**, **LARGE**, **SPEC** or **ANALYSIS** task, and why.
 
 - **LARGE** — any of: new module/service/endpoint; DB schema change (table, column, index,
   constraint); new or changed stored procedure contract; change touching more than 3 files or
@@ -25,6 +25,8 @@ Before writing code, state in one line: **SMALL**, **LARGE** or **ANALYSIS** tas
   the user's explicit approval** before writing production code.
 - **SMALL** — local bug fix, small refactor inside one unit, a query tweak with no schema
   change, tests, docs. → Implement directly, still following all standards below.
+- **SPEC** — write or check a requirement / specification (אפיון) → `tl-requirements` skill
+  (`/tl-spec`). No production code changes; write only under `.claude/tl-memory/spec/`.
 - **ANALYSIS** — improve/evaluate a metric, an idea or a code change in numbers, "does this
   code meet the task", data questions, analysis reports. → `tl-analytics` skill (`/tl-an`).
   **Do not modify production code**; write only under `.claude/tl-memory/analysis/`.
@@ -83,19 +85,22 @@ They are connected to both **PROD** and **TEST**.
 - Schema changes for PROD are delivered as **reviewed script files**, never executed by you.
 
 ## Where things live
-- Skills: `tl-engineering-standards`, `tl-architecture`, `tl-sql-engineering`, `tl-tech-debt`
-  (in `.claude/skills/`). Load the relevant one before working in its area.
-- Explanation documents with diagrams ("הסבר", "схема", guides, onboarding):
-  `oleg-skill-hesber`.
-- Analysis with numbers (ANALYSIS tasks): `tl-analytics`.
-- Commands: `/tl-init`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`, `/tl-debt`,
-  `/tl-project-doc`, `/tl-an-learn`, `/tl-an`.
-- Project memory (local, not committed): `.claude/tl-memory/`
-  - `PROJECT_CONTEXT.md` — stack, versions, structure, DB map. **Read it at the start of
-    every task if it exists.** If it does not exist, suggest running `/tl-init`.
-  - `adr/` — architecture decision records, `design/` — design docs,
-    `TECH_DEBT.md` — tech debt register, `hesber/` — explanation documents,
-    `project-doc/` — project document, `analysis/` — analysis topics and reports.
+- Skills (load before working in the area): `tl-engineering-standards`, `tl-architecture`,
+  `tl-sql-engineering`, `tl-tech-debt`, `tl-requirements` (specs), `tl-analytics` (ANALYSIS),
+  `oleg-skill-hesber` (explanation documents with diagrams: "הסבר", "схема", guides).
+- Commands: `/tl-init`, `/tl-spec`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`,
+  `/tl-debt`, `/tl-project-doc`, `/tl-an-learn`, `/tl-an`, `/tl-publish`.
+- Project memory (local, not committed) `.claude/tl-memory/`: `PROJECT_CONTEXT.md`,
+  `KNOWLEDGE.md`, `spec/`, `design/`, `adr/`, `analysis/`, `project-doc/`, `hesber/`, `TECH_DEBT.md`.
+- **At the start of every task** read `PROJECT_CONTEXT.md` (missing → suggest `/tl-init`) and
+  `KNOWLEDGE.md` — the map of all specs, ADRs, designs and analyses — and open the documents
+  whose `area` touches the task. An approved spec and an accepted ADR are binding: follow them,
+  or say clearly that the task contradicts them.
+- Every document the kit writes starts with a `<!-- tl-meta: type=…; id=…; status=…; date=…;
+  area=…; title=… -->` line; after writing one, run
+  `python .claude/tech-lead-kit/scripts/tl_knowledge.py index` (or `py -3 …`).
+- **Publishing:** approved documents go into the project (`/tl-publish`): moved to its `docs/`,
+  listed in a knowledge block in `AGENTS.md` that every agent reads. The kit never commits.
 
 ## Definition of done (check before saying "done")
 - [ ] Task classified; LARGE tasks have an approved design.
@@ -105,6 +110,8 @@ They are connected to both **PROD** and **TEST**.
 - [ ] SQL verified against the real schema/indexes; parameterized; set-based.
 - [ ] Tests added/updated and passing (or you say clearly what you could not run and why).
 - [ ] Hebrew "why" comments where the reason is non-obvious.
+- [ ] Behaviour covered by a spec / ADR changed → that document updated too (or the conflict
+      reported); new documents carry `tl-meta` and `KNOWLEDGE.md` is rebuilt.
 - [ ] For LARGE tasks: `/tl-review` was run and its blocking findings are fixed.
 - [ ] Report to the user in Russian: what changed, why, risks, what to verify manually.
 - [ ] ANALYSIS tasks: every number has a saved query or `an_stats.py` call; the baseline is

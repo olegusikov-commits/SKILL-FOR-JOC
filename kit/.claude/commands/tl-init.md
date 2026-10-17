@@ -10,7 +10,8 @@ that every future task reads first. If it already exists, update it instead of o
 show what changed.
 
 Steps:
-1. Create folders if missing: `.claude/tl-memory/adr/`, `.claude/tl-memory/design/`.
+1. Create folders if missing: `.claude/tl-memory/adr/`, `.claude/tl-memory/design/`,
+   `.claude/tl-memory/spec/`.
    Create `.claude/tl-memory/TECH_DEBT.md` from the template in the `tl-tech-debt` skill if missing.
 2. Explore the repository (read-only):
    - Languages, frameworks and **exact versions** (`*.csproj`/`*.sln`, `pyproject.toml`/
@@ -33,5 +34,10 @@ Steps:
    sections: Overview · Stack & versions · Structure & modules · Entry points · Build/Test
    commands · Conventions · Databases (server → engine/version/compat level/environment/
    databases/main schemas) · Integrations · Known risks & observations · Open questions.
-5. Report to the user in Russian: a short summary, the questions you need answered, and the
+   End it with a block for **all agents** (it is copied into `AGENTS.md` by `/tl-publish`):
+   `<!-- tl-agents:begin -->` … `<!-- tl-agents:end -->`, at most 12 lines in Hebrew — what the
+   project is, build/test commands, where the main code is, database aliases (MCP server names)
+   and "PROD is read-only", key conventions. No secrets, host names or connection strings.
+5. Rebuild the knowledge map: `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
+6. Report to the user in Russian: a short summary, the questions you need answered, and the
    top 3–5 observations (risks / debt candidates — add them to TECH_DEBT.md).

@@ -14,6 +14,7 @@ Every item has a stable id `TD-NNN`. Never delete items — mark them `Resolved`
 how they were resolved.
 
 ```markdown
+<!-- tl-meta: type=tech-debt; id=; status=living; date=<YYYY-MM-DD>; area=whole project; title=רישום חוב טכני -->
 # רישום חוב טכני
 
 | ID | כותרת | קטגוריה | מיקום | השפעה (1-5) | סיכון (1-5) | מאמץ (1-5) | עדיפות | סטטוס | נוצר | הערות |

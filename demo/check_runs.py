@@ -47,8 +47,12 @@ def scan(work, name):
     changed = subprocess.run(["git", "status", "--short"], cwd=project, capture_output=True,
                              text=True).stdout.split("\n") if os.path.isdir(project) else []
     changed = [c for c in changed if c.strip()]
+    knowledge = os.path.join(project, ".claude", "tl-memory", "KNOWLEDGE.md")
     return {"cost": cost, "turns": turns, "tools": tools, "agents": agents,
-            "mcp_writes": mcp_writes, "changed": changed}
+            "mcp_writes": mcp_writes, "changed": changed,
+            "knowledge": sum(1 for line in open(knowledge, encoding="utf-8") if line.startswith("| ") and "---" not in line) - 1
+            if os.path.exists(knowledge) else None,
+            "agents_md": os.path.exists(os.path.join(project, "AGENTS.md"))}
 
 
 def main(argv):
@@ -64,6 +68,8 @@ def main(argv):
               f"subagents {dict(r['agents']) or '-'}")
         print(f"   MCP writes: {r['mcp_writes'] or 'none'}")
         print(f"   changed files: {r['changed'] or 'none'}")
+        print(f"   KNOWLEDGE.md rows: {r['knowledge'] if r['knowledge'] is not None else 'no file'} · "
+              f"AGENTS.md: {'yes' if r['agents_md'] else 'no'}")
     print(f"TOTAL ${total:.2f}")
 
 

@@ -55,6 +55,7 @@ rem ---- 2. memory folders (created once, content preserved) ----
 if not exist "%TARGET%\.claude\tl-memory\adr\"    mkdir "%TARGET%\.claude\tl-memory\adr"
 if not exist "%TARGET%\.claude\tl-memory\design\" mkdir "%TARGET%\.claude\tl-memory\design"
 if not exist "%TARGET%\.claude\tl-memory\analysis\" mkdir "%TARGET%\.claude\tl-memory\analysis"
+if not exist "%TARGET%\.claude\tl-memory\spec\" mkdir "%TARGET%\.claude\tl-memory\spec"
 echo [OK] Project memory folder: .claude\tl-memory\
 
 rem ---- 3. connect CORE.md via .claude\CLAUDE.md ----
@@ -108,11 +109,13 @@ echo [OK] Kit hidden from git via .git\info\exclude (local, not committed)
 echo.
 echo Done. Next steps:
 echo   1. Open the project in VS Code and start a new Claude Code session.
-echo   2. Type /  - you should see /tl-init, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
+echo   2. Type /  - you should see /tl-init, /tl-spec, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
 echo   3. Run /tl-init once to build the project map (.claude\tl-memory\PROJECT_CONTEXT.md).
 echo   4. Explanation documents with diagrams: /oleg-skill-hesber ^<what to explain^>
 echo   5. Project document: /tl-project-doc
 echo   6. Analyst: /tl-an-learn ^<topic^>, then /tl-an ^<task^>
+echo   7. Specification: /tl-spec new ^<name^> - fill the form - /tl-spec SPEC-001
+echo   8. Share approved documents with the team and all agents: /tl-publish
 echo.
 endlocal
 exit /b 0

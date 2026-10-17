@@ -12,8 +12,8 @@ Read-only work on the project: do not modify production code. Output goes to
    Language: Hebrew by default (project documents rule in CORE.md); Russian or English if
    asked. Audience: a developer who joins the team.
 2. **Start from what is known:** `.claude/tl-memory/PROJECT_CONTEXT.md` (if missing, say that
-   `/tl-init` would help, and continue), ADRs, design docs, `TECH_DEBT.md`, analysis topics
-   (`analysis/INDEX.md`), README and docs in the repository. If a previous version of the
+   `/tl-init` would help, and continue), `KNOWLEDGE.md` and the documents it lists (specs, ADRs,
+   designs, analyses), `TECH_DEBT.md`, README and docs in the repository. If a previous version of the
    project document exists, update it and list what changed.
 3. **Research in parallel** — `tl-researcher` subagents in one message:
    - focus `code` (project-wide): modules and responsibilities, layers, entry points, the 3–5
@@ -31,5 +31,6 @@ Read-only work on the project: do not modify production code. Output goes to
    architecture, flow and data diagrams based on the same facts.
 6. **Self-check before finishing:** pick 5 random statements from the document and re-verify
    each against its evidence; fix what does not hold.
-7. **Reply in Russian:** where the files are, the sections, the 3–5 most important
-   observations (risks, surprises), and the open questions.
+7. Both files start with a `tl-meta` line (`type=project-doc`); run `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
+8. **Reply in Russian:** where the files are, the sections, the 3–5 most important
+   observations (risks, surprises), the open questions, and an offer to `/tl-publish` it.
