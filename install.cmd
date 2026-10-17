@@ -54,6 +54,7 @@ echo [OK] Kit files copied to .claude\
 rem ---- 2. memory folders (created once, content preserved) ----
 if not exist "%TARGET%\.claude\tl-memory\adr\"    mkdir "%TARGET%\.claude\tl-memory\adr"
 if not exist "%TARGET%\.claude\tl-memory\design\" mkdir "%TARGET%\.claude\tl-memory\design"
+if not exist "%TARGET%\.claude\tl-memory\analysis\" mkdir "%TARGET%\.claude\tl-memory\analysis"
 echo [OK] Project memory folder: .claude\tl-memory\
 
 rem ---- 3. connect CORE.md via .claude\CLAUDE.md ----
@@ -71,12 +72,7 @@ if not exist "%CLAUDE_MD%" (
         >>"%CLAUDE_MD%" echo.
         >>"%CLAUDE_MD%" echo %IMPORT_LINE%
         echo [OK] Added the kit import line to existing .claude\CLAUDE.md
-        call :add_exclude
-findstr /L /X /C:"%~1" "%EXCLUDE%" >nul 2>&1
-if errorlevel 1 >>"%EXCLUDE%" echo %~1
-goto :eof
-
-:warn_if_tracked
+        call :warn_if_tracked
     ) else (
         echo [OK] .claude\CLAUDE.md already imports the kit
     )
@@ -115,6 +111,8 @@ echo   1. Open the project in VS Code and start a new Claude Code session.
 echo   2. Type /  - you should see /tl-init, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
 echo   3. Run /tl-init once to build the project map (.claude\tl-memory\PROJECT_CONTEXT.md).
 echo   4. Explanation documents with diagrams: /oleg-skill-hesber ^<what to explain^>
+echo   5. Project document: /tl-project-doc
+echo   6. Analyst: /tl-an-learn ^<topic^>, then /tl-an ^<task^>
 echo.
 endlocal
 exit /b 0

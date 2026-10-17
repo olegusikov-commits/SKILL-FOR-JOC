@@ -12,9 +12,10 @@ reviewer would approve without rework.
 - Mainframe sources (COBOL, Natural, DB2 z/OS DDL/SPs): Hebrew only if the file already
   contains Hebrew and its encoding supports it (EBCDIC CCSID 424 / 12712). Otherwise write
   comments in English and say so. Never change a file's encoding.
+- Exception: analysis memory and reports (`tl-memory/analysis/`) are written in **Russian**.
 
 ## Workflow: classify every task first
-Before writing code, state in one line: **SMALL** or **LARGE** task, and why.
+Before writing code, state in one line: **SMALL**, **LARGE** or **ANALYSIS** task, and why.
 
 - **LARGE** — any of: new module/service/endpoint; DB schema change (table, column, index,
   constraint); new or changed stored procedure contract; change touching more than 3 files or
@@ -24,6 +25,9 @@ Before writing code, state in one line: **SMALL** or **LARGE** task, and why.
   the user's explicit approval** before writing production code.
 - **SMALL** — local bug fix, small refactor inside one unit, a query tweak with no schema
   change, tests, docs. → Implement directly, still following all standards below.
+- **ANALYSIS** — improve/evaluate a metric, an idea or a code change in numbers, "does this
+  code meet the task", data questions, analysis reports. → `tl-analytics` skill (`/tl-an`).
+  **Do not modify production code**; write only under `.claude/tl-memory/analysis/`.
 
 When in doubt, it is LARGE.
 
@@ -61,6 +65,8 @@ When in doubt, it is LARGE.
 The project may have SQL MCP servers: **`meet-checkov`** and **`meet-chequemis`**.
 They are connected to both **PROD** and **TEST**.
 
+- **Databases are accessed only through the SQL MCP servers** — never by opening database
+  files or connecting with drivers from scripts, even if that looks easier.
 - **Before the first query, identify the target environment** (PROD or TEST) and engine
   (SQL Server or DB2 z/OS). If you cannot tell, **treat it as PROD**.
 - **PROD: read-only, always.** Only `SELECT` against catalog/metadata and small, bounded
@@ -71,6 +77,9 @@ They are connected to both **PROD** and **TEST**.
   than a handful of rows, ALTER on existing tables) require explicit user confirmation.
 - Never run heavy queries (full scans of large tables, cross joins, unbounded result sets) on
   any environment without saying why and getting a yes.
+- **Analytical reads** (bounded, aggregated `SELECT`s over history for ANALYSIS tasks) follow
+  `tl-analytics/references/analytical-read-safety.md`: TEST first if its data is fresh enough;
+  on PROD the query plan is approved once per topic, then queries within it need no new approval.
 - Schema changes for PROD are delivered as **reviewed script files**, never executed by you.
 
 ## Where things live
@@ -78,12 +87,15 @@ They are connected to both **PROD** and **TEST**.
   (in `.claude/skills/`). Load the relevant one before working in its area.
 - Explanation documents with diagrams ("הסבר", "схема", guides, onboarding):
   `oleg-skill-hesber`.
-- Commands: `/tl-init`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`, `/tl-debt`.
+- Analysis with numbers (ANALYSIS tasks): `tl-analytics`.
+- Commands: `/tl-init`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`, `/tl-debt`,
+  `/tl-project-doc`, `/tl-an-learn`, `/tl-an`.
 - Project memory (local, not committed): `.claude/tl-memory/`
   - `PROJECT_CONTEXT.md` — stack, versions, structure, DB map. **Read it at the start of
     every task if it exists.** If it does not exist, suggest running `/tl-init`.
   - `adr/` — architecture decision records, `design/` — design docs,
-    `TECH_DEBT.md` — tech debt register, `hesber/` — explanation documents.
+    `TECH_DEBT.md` — tech debt register, `hesber/` — explanation documents,
+    `project-doc/` — project document, `analysis/` — analysis topics and reports.
 
 ## Definition of done (check before saying "done")
 - [ ] Task classified; LARGE tasks have an approved design.
@@ -95,3 +107,5 @@ They are connected to both **PROD** and **TEST**.
 - [ ] Hebrew "why" comments where the reason is non-obvious.
 - [ ] For LARGE tasks: `/tl-review` was run and its blocking findings are fixed.
 - [ ] Report to the user in Russian: what changed, why, risks, what to verify manually.
+- [ ] ANALYSIS tasks: every number has a saved query or `an_stats.py` call; the baseline is
+      calibrated; `tl-an-skeptic` reviewed the conclusions; no production code changed.

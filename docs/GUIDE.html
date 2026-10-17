@@ -164,7 +164,7 @@ td:first-child { width: 42%; }
 <div class="page">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · версия 1.1.0</div>
+  <div class="eyebrow">Tech Lead Kit · версия 1.2.0</div>
   <h1>Путеводитель Tech Lead Kit</h1>
   <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
   в Claude Code в VS Code.</p>
@@ -174,6 +174,7 @@ td:first-child { width: 42%; }
     <a href="#flow">Путь задачи</a>
     <a href="#when">Что писать в какой ситуации</a>
     <a href="#skills">Работа с каждым skill</a>
+    <a href="#analyst">Аналитик</a>
     <a href="#review">Ревьюеры</a>
     <a href="#check">Проверка установки</a>
   </nav>
@@ -189,7 +190,7 @@ td:first-child { width: 42%; }
   правила действуют всегда, а подробные справочники не тратят контекст, пока они не нужны.</p>
 
   <figure class="plate" style="margin:0">
-    <svg viewBox="0 0 1000 720" role="img" aria-label="Схема компонентов kit: CORE, команды, skills, справочники, ревьюеры, SQL MCP и память проекта">
+    <svg viewBox="0 0 1000 740" role="img" aria-label="Схема компонентов kit: CORE, команды, skills, справочники, ревьюеры, SQL MCP и память проекта">
       <defs>
         <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
       </defs>
@@ -209,47 +210,61 @@ td:first-child { width: 42%; }
       <rect class="box" x="40" y="160" width="650" height="62" rx="6"/>
       <text class="t-title" x="56" y="184">CORE.md</text>
       <text class="t-mono" x="128" y="184">подключается через .claude/CLAUDE.md</text>
-      <text class="t-sub" x="56" y="206">SMALL/LARGE · 12 инженерных правил · язык (русский / иврит) · протокол MCP · Definition of Done</text>
+      <text class="t-sub" x="56" y="206">SMALL / LARGE / ANALYSIS · 12 инженерных правил · язык · протокол MCP · Definition of Done</text>
 
       <!-- band 2 commands -->
       <text class="t-band" x="40" y="250">2 · ТОЧКИ ВХОДА (ПИШЕШЬ ТЫ)</text>
       <rect class="box" x="40" y="258" width="650" height="50" rx="6"/>
-      <text class="t-mono" x="365" y="288" text-anchor="middle" style="font-size:12.5px">/tl-init   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
+      <text class="t-mono" x="365" y="280" text-anchor="middle" style="font-size:12.5px">/tl-init   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
+      <text class="t-mono" x="365" y="299" text-anchor="middle" style="font-size:12.5px">/tl-project-doc   /tl-an-learn   /tl-an   /oleg-skill-hesber</text>
 
       <!-- band 3 skills -->
       <text class="t-band" x="40" y="336">3 · ЗНАНИЯ ПО ТЕМЕ (КОГДА НУЖНЫ)</text>
-      <rect class="box-accent" x="40" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="101" y="370" text-anchor="middle" style="font-size:13.5px">Стандарты кода</text>
-      <text class="t-mono ltr" x="101" y="388" text-anchor="middle" style="font-size:9.6px">tl-engineering-</text>
-      <text class="t-mono ltr" x="101" y="401" text-anchor="middle" style="font-size:9.6px">standards</text>
-      <rect class="box-accent" x="172" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="233" y="370" text-anchor="middle" style="font-size:13.5px">Архитектура</text>
-      <text class="t-mono ltr" x="233" y="390" text-anchor="middle" style="font-size:9.6px">tl-architecture</text>
-      <rect class="box-accent" x="304" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="365" y="370" text-anchor="middle" style="font-size:13.5px">Тех. долг</text>
-      <text class="t-mono ltr" x="365" y="390" text-anchor="middle" style="font-size:9.6px">tl-tech-debt</text>
-      <rect class="box-accent" x="436" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="497" y="370" text-anchor="middle" style="font-size:13.5px">Документы</text>
-      <text class="t-mono ltr" x="497" y="390" text-anchor="middle" style="font-size:9.6px">oleg-skill-hesber</text>
-      <rect class="box-accent" x="568" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="629" y="370" text-anchor="middle" style="font-size:13.5px">SQL уровня DBA</text>
-      <text class="t-mono ltr" x="629" y="390" text-anchor="middle" style="font-size:9.6px">tl-sql-engineering</text>
+      <rect class="box-accent" x="40" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="90" y="370" text-anchor="middle" style="font-size:11px">Стандарты кода</text>
+      <text class="t-mono ltr" x="90" y="388" text-anchor="middle" style="font-size:9px">tl-engineering-</text>
+      <text class="t-mono ltr" x="90" y="401" text-anchor="middle" style="font-size:9px">standards</text>
+      <rect class="box-accent" x="150" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="200" y="370" text-anchor="middle" style="font-size:12px">Архитектура</text>
+      <text class="t-mono ltr" x="200" y="388" text-anchor="middle" style="font-size:9px">tl-architecture</text>
+      <rect class="box-accent" x="260" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="310" y="370" text-anchor="middle" style="font-size:12px">Тех. долг</text>
+      <text class="t-mono ltr" x="310" y="388" text-anchor="middle" style="font-size:9px">tl-tech-debt</text>
+      <rect class="box-accent" x="370" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="420" y="370" text-anchor="middle" style="font-size:12px">Документы</text>
+      <text class="t-mono ltr" x="420" y="388" text-anchor="middle" style="font-size:9px">oleg-skill-hesber</text>
+      <rect class="box-accent" x="480" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="530" y="370" text-anchor="middle" style="font-size:12px">SQL уровня DBA</text>
+      <text class="t-mono ltr" x="530" y="388" text-anchor="middle" style="font-size:9px">tl-sql-</text>
+      <text class="t-mono ltr" x="530" y="401" text-anchor="middle" style="font-size:9px">engineering</text>
+      <rect class="box-accent" x="590" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="640" y="370" text-anchor="middle" style="font-size:12px">Аналитик</text>
+      <text class="t-mono ltr" x="640" y="388" text-anchor="middle" style="font-size:9px">tl-analytics</text>
       <path class="wire" d="M365,308 L365,340" marker-end="url(#ah)"/>
 
       <!-- band 4 references -->
       <text class="t-band" x="40" y="442">4 · СПРАВОЧНИКИ (ТОЛЬКО ПО НЕОБХОДИМОСТИ)</text>
       <rect class="box" x="40" y="450" width="650" height="46" rx="6"/>
-      <text class="t-sub" x="56" y="478">references/*.md: правила по языкам · SQL Server · DB2 z/OS · процедуры · индексы · шаблоны ADR</text>
+      <text class="t-sub" x="56" y="478">references/*.md и scripts/: языки · SQL Server · DB2 · ADR · бэктест и статистика · an_stats.py</text>
       <path class="wire" d="M365,414 L365,446" marker-end="url(#ah)"/>
 
       <!-- band 5 reviewers -->
-      <text class="t-band" x="40" y="524">5 · НЕЗАВИСИМОЕ РЕВЬЮ (SUBAGENTS, ТОЛЬКО ЧТЕНИЕ)</text>
-      <rect class="box" x="40" y="532" width="320" height="50" rx="6"/>
-      <text class="t-title" x="200" y="554" text-anchor="middle">Архитектор</text>
-      <text class="t-mono" x="200" y="572" text-anchor="middle">tl-architect-reviewer</text>
-      <rect class="box" x="370" y="532" width="320" height="50" rx="6"/>
-      <text class="t-title" x="530" y="554" text-anchor="middle">DBA</text>
-      <text class="t-mono" x="530" y="572" text-anchor="middle">tl-sql-reviewer</text>
+      <text class="t-band" x="40" y="524">5 · SUBAGENTS (ТОЛЬКО ЧТЕНИЕ)</text>
+      <rect class="box" x="40" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="117" y="554" text-anchor="middle" style="font-size:13px">Архитектор</text>
+      <text class="t-mono" x="117" y="572" text-anchor="middle" style="font-size:10px">tl-architect-reviewer</text>
+
+      <rect class="box" x="205" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="282" y="554" text-anchor="middle" style="font-size:13px">DBA</text>
+      <text class="t-mono" x="282" y="572" text-anchor="middle" style="font-size:10px">tl-sql-reviewer</text>
+
+      <rect class="box" x="370" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="447" y="554" text-anchor="middle" style="font-size:13px">Исследователь</text>
+      <text class="t-mono" x="447" y="572" text-anchor="middle" style="font-size:10px">tl-researcher</text>
+
+      <rect class="box" x="535" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="612" y="554" text-anchor="middle" style="font-size:13px">Критик</text>
+      <text class="t-mono" x="612" y="572" text-anchor="middle" style="font-size:10px">tl-an-skeptic</text>
 
       <!-- MCP column -->
       <text class="t-band" x="745" y="336">SQL MCP</text>
@@ -262,6 +277,7 @@ td:first-child { width: 42%; }
       <rect class="box-ok" x="745" y="512" width="235" height="56" rx="6"/>
       <text class="t-title t-ok" x="862" y="536" text-anchor="middle">TEST</text>
       <text class="t-sub" x="862" y="556" text-anchor="middle">изменения с подтверждением</text>
+      <text class="t-sub" x="862" y="592" text-anchor="middle">аналитика: только чтение, сначала TEST</text>
       <path class="wire" d="M690,379 L741,379" marker-end="url(#ah)"/>
       <path class="wire-dash" d="M690,557 L715,557 L715,400 L741,400" marker-end="url(#ah)"/>
       <path class="wire" d="M862,414 L862,436" marker-end="url(#ah)"/>
@@ -270,11 +286,12 @@ td:first-child { width: 42%; }
       <path class="wire" d="M365,598 L365,634" marker-start="url(#ah)" marker-end="url(#ah)"/>
       <text class="t-label" x="376" y="622">читает и пишет</text>
       <text class="t-band" x="20" y="630">ПАМЯТЬ ПРОЕКТА · ЛОКАЛЬНО, НЕ В GIT</text>
-      <rect class="box" x="20" y="638" width="960" height="62" rx="6"/>
+      <rect class="box" x="20" y="638" width="960" height="84" rx="6"/>
       <text class="t-mono" x="40" y="664" style="font-size:12px">.claude/tl-memory/</text>
       <text class="t-sub" x="40" y="686">PROJECT_CONTEXT.md: карта проекта · adr/: решения · design/: дизайны · TECH_DEBT.md: реестр долга · hesber/: документы-объяснения</text>
+      <text class="t-sub" x="40" y="708">project-doc/: документ проекта · analysis/: темы аналитика (карта данных, гипотезы, запросы, отчёты)</text>
     </svg>
-    <figcaption>Сплошные стрелки показывают основной поток. SQL-skill и DBA-ревьюер (пунктир) смотрят реальную схему и индексы через MCP.</figcaption>
+    <figcaption>Сплошные стрелки показывают основной поток. SQL-skill, DBA-ревьюер и аналитик (пунктир) смотрят реальные данные через MCP; аналитик только читает: сначала TEST, на PROD — по одобренному плану.</figcaption>
   </figure>
 </section>
 
@@ -428,6 +445,10 @@ td:first-child { width: 42%; }
         <tr><td>Перед коммитом или сдачей</td><td><code>/tl-review</code> (без аргументов проверяет незакоммиченные изменения)</td></tr>
         <tr><td>Раз в спринт или перед рефакторингом</td><td><code>/tl-debt &lt;папка или модуль&gt;</code></td></tr>
         <tr><td>Нужно объяснить модуль, процесс или систему со схемами</td><td><code>/oleg-skill-hesber &lt;что объяснить&gt;</code></td></tr>
+        <tr><td>Нужен полный документ проекта</td><td><code>/tl-project-doc</code> (по умолчанию иврит; <code>ru</code> / <code>en</code>, <code>html</code> — со схемами)</td></tr>
+        <tr><td>Новая тема для анализа (процесс, метрика)</td><td><code>/tl-an-learn &lt;тема&gt; &lt;объяснение, документы&gt;</code> — один раз на тему</td></tr>
+        <tr><td>Как улучшить метрику, оценить идею в цифрах</td><td><code>/tl-an &lt;вопрос&gt;</code></td></tr>
+        <tr><td>Отвечает ли код задаче и что он даст</td><td><code>/tl-an Проверь, что git diff отвечает задаче &lt;файл задачи&gt;, и оцени эффект</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -610,6 +631,138 @@ td:first-child { width: 42%; }
       skill выносит в отдельный блок «הנחות», чтобы ты их подтвердил.</p>
     </div>
   </article>
+
+  <article class="skill" aria-labelledby="s6">
+    <div class="skill-id">
+      <h3 id="s6">Аналитик</h3>
+      <div class="name">tl-analytics</div>
+      <div class="note">Отвечает числами, а не мнениями. Работает по темам; подробнее — раздел «Аналитик».</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда включается</span><span class="v">«как улучшить», «оцени идею», «насколько код улучшит», «отвечает ли код задаче», вопросы по данным</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-an-learn &lt;тема&gt;</code> один раз, дальше <code>/tl-an &lt;задача&gt;</code></span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v">Отчёт на русском: ответ с границей ошибки и вердиктом, что отклонено и почему, внедрение, задача для <code>/tl-design</code></span></div>
+      </div>
+      <div class="steps" aria-label="Шаги">
+        <span class="step">Изучение темы</span><span class="arr">→</span>
+        <span class="step">Калибровка</span><span class="arr">→</span>
+        <span class="step">Гипотезы</span><span class="arr">→</span>
+        <span class="step">Бэктест</span><span class="arr">→</span>
+        <span class="step">Критик</span><span class="arr">→</span>
+        <span class="step">Отчёт</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-an Как поднять автоматическое разрешение чеков выше 8% при ошибке до 2%?</div>
+      <p class="note">Код проекта аналитик не меняет. Данные только читает: сначала TEST, на PROD — агрегаты
+      без блокировок по плану запросов, который ты одобряешь один раз на тему.</p>
+    </div>
+  </article>
+
+  <article class="skill" aria-labelledby="s7">
+    <div class="skill-id">
+      <h3 id="s7">Документ проекта</h3>
+      <div class="name">/tl-project-doc</div>
+      <div class="note">Полное описание проекта по реальному коду, базам и документам.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда</span><span class="v">Новый человек в команде, передача проекта, аудит, «как это всё устроено»</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-project-doc [модуль] [ru|en] [html]</code></span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v"><code>tl-memory/project-doc/PROJECT_DOC.md</code> (иврит по умолчанию) и по желанию HTML со схемами</span></div>
+      </div>
+      <div class="steps" aria-label="Шаги">
+        <span class="step">Что уже известно</span><span class="arr">→</span>
+        <span class="step">Исследователи: код / данные / документы</span><span class="arr">→</span>
+        <span class="step">13 разделов</span><span class="arr">→</span>
+        <span class="step">HTML</span><span class="arr">→</span>
+        <span class="step">Самопроверка 5 утверждений</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-project-doc ru html</div>
+      <p class="note">Разделы: назначение, архитектура, модули, главные процессы, модель данных, интеграции,
+      конфигурация (без секретов), сборка и тесты, эксплуатация, безопасность, риски, глоссарий,
+      открытые вопросы. У каждого утверждения есть доказательство: файл, таблица или документ.</p>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 5b. ANALYST ============ -->
+<section id="analyst">
+  <div class="section-head">
+    <div class="eyebrow">ANALYSIS</div>
+    <h2>Как работает аналитик</h2>
+  </div>
+  <p>Аналитик сначала изучает тему сам и только потом задаёт вопросы — каждый с предложенным ответом.
+  Всё изученное хранится в памяти темы, поэтому следующий запуск продолжает работу, а не начинает заново.</p>
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 430" role="img" aria-label="Поток аналитика: изучение темы, память темы, анализ, критик, отчёт">
+      <defs>
+        <marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <text class="t-band" x="20" y="24">1 · ИЗУЧЕНИЕ ТЕМЫ (ОДИН РАЗ)</text>
+      <rect class="box-accent" x="20" y="34" width="200" height="60" rx="6"/>
+      <text class="t-title" x="120" y="60" text-anchor="middle">/tl-an-learn</text>
+      <text class="t-sub" x="120" y="80" text-anchor="middle">объяснение + документы</text>
+      <path class="wire" d="M220,64 L262,64" marker-end="url(#ah5)"/>
+      <rect class="box" x="266" y="34" width="150" height="60" rx="6"/>
+      <text class="t-title" x="341" y="58" text-anchor="middle" style="font-size:13px">Документы</text>
+      <text class="t-mono" x="341" y="78" text-anchor="middle" style="font-size:10px">docx · xlsx · pdf</text>
+      <rect class="box" x="426" y="34" width="150" height="60" rx="6"/>
+      <text class="t-title" x="501" y="58" text-anchor="middle" style="font-size:13px">Код</text>
+      <text class="t-mono" x="501" y="78" text-anchor="middle" style="font-size:10px">логика, файл:строка</text>
+      <rect class="box" x="586" y="34" width="150" height="60" rx="6"/>
+      <text class="t-title" x="661" y="58" text-anchor="middle" style="font-size:13px">Данные</text>
+      <text class="t-mono" x="661" y="78" text-anchor="middle" style="font-size:10px">SQL MCP, только чтение</text>
+      <text class="t-label" x="501" y="112" text-anchor="middle">три исследователя tl-researcher параллельно</text>
+      <path class="wire" d="M736,64 L778,64" marker-end="url(#ah5)"/>
+      <rect class="box-ok" x="782" y="34" width="198" height="60" rx="6"/>
+      <text class="t-title t-ok" x="881" y="58" text-anchor="middle" style="font-size:13px">Калибровка</text>
+      <text class="t-sub" x="881" y="78" text-anchor="middle">«8%» воспроизведено?</text>
+
+      <path class="wire" d="M881,94 L881,150" marker-end="url(#ah5)"/>
+      <text class="t-band" x="20" y="146">ПАМЯТЬ ТЕМЫ · .claude/tl-memory/analysis/&lt;тема&gt;/</text>
+      <rect class="box" x="20" y="154" width="960" height="54" rx="6"/>
+      <text class="t-sub" x="36" y="186">TOPIC (профиль, вопросы) · DATA_MAP (поля «известны в момент решения») · LOGIC_AS_IS · BASELINE · HYPOTHESES · JOURNAL · queries/</text>
+
+      <text class="t-band" x="76" y="240">2 · ЗАДАЧА (СКОЛЬКО УГОДНО РАЗ)</text>
+      <rect class="box-accent" x="20" y="250" width="200" height="60" rx="6"/>
+      <text class="t-title" x="120" y="276" text-anchor="middle">/tl-an</text>
+      <text class="t-sub" x="120" y="296" text-anchor="middle">задача своими словами</text>
+      <path class="wire" d="M220,280 L262,280" marker-end="url(#ah5)"/>
+      <rect class="box" x="266" y="250" width="190" height="60" rx="6"/>
+      <text class="t-title" x="361" y="274" text-anchor="middle" style="font-size:13px">Гипотезы</text>
+      <text class="t-sub" x="361" y="294" text-anchor="middle">данные · идеи · код</text>
+      <path class="wire" d="M456,280 L498,280" marker-end="url(#ah5)"/>
+      <rect class="box" x="502" y="250" width="200" height="60" rx="6"/>
+      <text class="t-title" x="602" y="274" text-anchor="middle" style="font-size:13px">Бэктест</text>
+      <text class="t-sub" x="602" y="294" text-anchor="middle">поиск A → подтверждение B</text>
+      <path class="wire" d="M702,280 L744,280" marker-end="url(#ah5)"/>
+      <rect class="box-stop" x="748" y="250" width="232" height="60" rx="6"/>
+      <text class="t-title t-stop" x="864" y="274" text-anchor="middle" style="font-size:13px">Критик tl-an-skeptic</text>
+      <text class="t-sub" x="864" y="294" text-anchor="middle">пересчитывает, ищет утечки</text>
+      <path class="wire-dash" d="M60,208 L60,246" marker-end="url(#ah5)"/>
+
+      <path class="wire" d="M864,310 L864,346" marker-end="url(#ah5)"/>
+      <rect class="box-ok" x="502" y="350" width="478" height="62" rx="6"/>
+      <text class="t-title t-ok" x="741" y="374" text-anchor="middle" style="font-size:13px">Отчёт: PASS / FAIL / МАЛО ДАННЫХ</text>
+      <text class="t-sub" x="741" y="396" text-anchor="middle">граница ошибки · по месяцам · внедрение · задача для /tl-design</text>
+      <rect class="box" x="20" y="350" width="436" height="62" rx="6"/>
+      <text class="t-title" x="238" y="374" text-anchor="middle" style="font-size:13px">Вердикт по верхней границе</text>
+      <text class="t-mono" x="238" y="396" text-anchor="middle" style="font-size:10.5px">an_stats.py verdict --k 10 --n 1000 --threshold 0.02</text>
+    </svg>
+    <figcaption>Числа считают только SQL и an_stats.py. Отчёт ссылается на сохранённые запросы, поэтому любое число можно воспроизвести.</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Вердикт</th><th>Когда (порог 2%)</th></tr></thead>
+      <tbody>
+        <tr><td><code>PASS</code></td><td>Верхняя граница ошибки ≤ 2%. Пример: 10 ошибок из 1000 → граница 1,67%</td></tr>
+        <tr><td><code>МАЛО ДАННЫХ</code></td><td>Наблюдаемая ошибка ≤ 2%, но граница выше. Пример: 5 из 500 → 2,04%</td></tr>
+        <tr><td><code>FAIL</code></td><td>Наблюдаемая ошибка > 2%. Пример: 40 из 1000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Проверено на демо (<code>demo/RESULTS.md</code>): аналитик нашёл все спрятанные ловушки, его числа совпали
+  с эталоном, в коде задачи CHQ-512 нашёл все 4 дефекта.</p>
 </section>
 
 <!-- ============ 6. REVIEW ============ -->
@@ -627,6 +780,8 @@ td:first-child { width: 42%; }
       <tbody>
         <tr><td><code>tl-architect-reviewer</code></td><td>Логику и крайние случаи, слои и границы, контракты API/процедур/copybooks, ошибки и логи, безопасность, тесты</td></tr>
         <tr><td><code>tl-sql-reviewer</code></td><td>Каждый запрос сверяется с реальными индексами через MCP, плюс типы параметров, NULL, транзакции, блокировки, совместимость 2019/2022, влияние на пакеты DB2</td></tr>
+        <tr><td><code>tl-researcher</code></td><td>Изучает одну область — код, данные или документы — и возвращает факты с доказательствами. Используют аналитик и <code>/tl-project-doc</code></td></tr>
+        <tr><td><code>tl-an-skeptic</code></td><td>Пытается опровергнуть выводы аналитика: пересчитывает ключевые числа своим SQL, ищет утечки из будущего, переобучение, нестабильные месяцы</td></tr>
       </tbody>
     </table>
   </div>
@@ -641,10 +796,11 @@ td:first-child { width: 42%; }
     <h2>Проверка, что всё работает</h2>
   </div>
   <ul class="checklist">
-    <li><code>/</code><span>видны команды <code>/tl-init</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code></span></li>
-    <li><code>/skills</code><span>в списке четыре skills <code>tl-</code> и <code>oleg-skill-hesber</code></span></li>
+    <li><code>/</code><span>видны команды <code>/tl-init</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code>, <code>/tl-project-doc</code>, <code>/tl-an-learn</code>, <code>/tl-an</code></span></li>
+    <li><code>/skills</code><span>в списке пять skills <code>tl-</code> (включая <code>tl-analytics</code>) и <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md</span></li>
-    <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code> и <code>tl-sql-reviewer</code></span></li>
+    <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code></span></li>
+    <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — все строки <code>ok</code></span></li>
     <li><code>/mcp</code><span>подключены <code>meet-checkov</code> и <code>meet-chequemis</code></span></li>
     <li><code>/tl-init</code><span>создан <code>.claude/tl-memory/PROJECT_CONTEXT.md</code></span></li>
   </ul>

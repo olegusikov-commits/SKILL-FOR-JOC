@@ -142,7 +142,7 @@ td:first-child { width: 42%; }
 <div class="page" dir="rtl" lang="he">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · גרסה 1.1.0</div>
+  <div class="eyebrow">Tech Lead Kit · גרסה 1.2.0</div>
   <h1>מדריך Tech Lead Kit</h1>
   <p class="lede">איך ה-kit בנוי, איך מתקינים ומעדכנים אותו דרך USB, ואיך עובדים עם כל skill
   ב-Claude Code בתוך VS Code.</p>
@@ -152,6 +152,7 @@ td:first-child { width: 42%; }
     <a href="#flow">מסלול משימה</a>
     <a href="#when">מה לכתוב בכל מצב</a>
     <a href="#skills">עבודה עם כל skill</a>
+    <a href="#analyst">אנליסט</a>
     <a href="#review">סוקרים</a>
     <a href="#check">בדיקת ההתקנה</a>
   </nav>
@@ -167,7 +168,7 @@ td:first-child { width: 42%; }
   כך הכללים פועלים תמיד, והמדריכים המפורטים לא תופסים מקום בהקשר עד שצריך אותם.</p>
 
   <figure class="plate" style="margin:0">
-    <svg viewBox="0 0 1000 720" role="img" aria-label="תרשים רכיבי ה-kit: CORE, פקודות, skills, מדריכים, סוקרים, SQL MCP וזיכרון הפרויקט">
+    <svg viewBox="0 0 1000 740" role="img" aria-label="תרשים רכיבי ה-kit: CORE, פקודות, skills, מדריכים, סוקרים, SQL MCP וזיכרון הפרויקט">
       <defs>
         <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
       </defs>
@@ -184,43 +185,57 @@ td:first-child { width: 42%; }
       <rect class="box" x="310" y="160" width="650" height="62" rx="6"/>
       <text class="t-title ltr" x="944" y="184" text-anchor="end">CORE.md</text>
       <text class="t-sub" x="870" y="184">מתחבר דרך ⁦.claude/CLAUDE.md⁩</text>
-      <text class="t-sub" x="944" y="206">⁦SMALL/LARGE⁩ · 12 כללים הנדסיים · רוסית בצ'אט, עברית בקוד · פרוטוקול MCP · Definition of Done</text>
+      <text class="t-sub" x="944" y="206">⁦SMALL/LARGE/ANALYSIS⁩ · 12 כללים הנדסיים · רוסית בצ'אט, עברית בקוד · פרוטוקול MCP · Definition of Done</text>
 
       <text class="t-band" x="960" y="250">2 · נקודות כניסה (אתה כותב)</text>
       <rect class="box" x="310" y="258" width="650" height="50" rx="6"/>
-      <text class="t-mono ltr" x="635" y="288" text-anchor="middle" style="font-size:12.5px">/tl-init   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
+      <text class="t-mono ltr" x="635" y="280" text-anchor="middle" style="font-size:12.5px">/tl-init   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
+      <text class="t-mono ltr" x="635" y="299" text-anchor="middle" style="font-size:12.5px">/tl-project-doc   /tl-an-learn   /tl-an   /oleg-skill-hesber</text>
 
       <text class="t-band" x="960" y="336">3 · ידע לפי נושא (נטען כשצריך)</text>
-      <rect class="box-accent" x="838" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="899" y="370" text-anchor="middle" style="font-size:14px">תקני קוד</text>
-      <text class="t-mono ltr" x="899" y="388" text-anchor="middle" style="font-size:9.6px">tl-engineering-</text>
-      <text class="t-mono ltr" x="899" y="401" text-anchor="middle" style="font-size:9.6px">standards</text>
-      <rect class="box-accent" x="706" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="767" y="370" text-anchor="middle" style="font-size:14px">ארכיטקטורה</text>
-      <text class="t-mono ltr" x="767" y="390" text-anchor="middle" style="font-size:9.6px">tl-architecture</text>
-      <rect class="box-accent" x="574" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="635" y="370" text-anchor="middle" style="font-size:14px">חוב טכני</text>
-      <text class="t-mono ltr" x="635" y="390" text-anchor="middle" style="font-size:9.6px">tl-tech-debt</text>
-      <rect class="box-accent" x="442" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="503" y="370" text-anchor="middle" style="font-size:14px">מסמכי הסבר</text>
-      <text class="t-mono ltr" x="503" y="390" text-anchor="middle" style="font-size:9.6px">oleg-skill-hesber</text>
-      <rect class="box-accent" x="310" y="344" width="122" height="70" rx="6"/>
-      <text class="t-title" x="371" y="370" text-anchor="middle" style="font-size:14px">SQL ברמת DBA</text>
-      <text class="t-mono ltr" x="371" y="390" text-anchor="middle" style="font-size:9.6px">tl-sql-engineering</text>
+      <rect class="box-accent" x="860" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="910" y="370" text-anchor="middle" style="font-size:12.5px">תקני קוד</text>
+      <text class="t-mono ltr" x="910" y="388" text-anchor="middle" style="font-size:9px">tl-engineering-</text>
+      <text class="t-mono ltr" x="910" y="401" text-anchor="middle" style="font-size:9px">standards</text>
+      <rect class="box-accent" x="750" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="800" y="370" text-anchor="middle" style="font-size:12.5px">ארכיטקטורה</text>
+      <text class="t-mono ltr" x="800" y="388" text-anchor="middle" style="font-size:9px">tl-architecture</text>
+      <rect class="box-accent" x="640" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="690" y="370" text-anchor="middle" style="font-size:12.5px">חוב טכני</text>
+      <text class="t-mono ltr" x="690" y="388" text-anchor="middle" style="font-size:9px">tl-tech-debt</text>
+      <rect class="box-accent" x="530" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="580" y="370" text-anchor="middle" style="font-size:12.5px">מסמכי הסבר</text>
+      <text class="t-mono ltr" x="580" y="388" text-anchor="middle" style="font-size:9px">oleg-skill-hesber</text>
+      <rect class="box-accent" x="420" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="470" y="370" text-anchor="middle" style="font-size:12.5px">SQL ברמת DBA</text>
+      <text class="t-mono ltr" x="470" y="388" text-anchor="middle" style="font-size:9px">tl-sql-</text>
+      <text class="t-mono ltr" x="470" y="401" text-anchor="middle" style="font-size:9px">engineering</text>
+      <rect class="box-accent" x="310" y="344" width="100" height="70" rx="6"/>
+      <text class="t-title" x="360" y="370" text-anchor="middle" style="font-size:12.5px">אנליסט</text>
+      <text class="t-mono ltr" x="360" y="388" text-anchor="middle" style="font-size:9px">tl-analytics</text>
       <path class="wire" d="M 635,308 L 635,340" marker-end="url(#ah)"/>
 
       <text class="t-band" x="960" y="442">4 · מדריכים (רק כשצריך)</text>
       <rect class="box" x="310" y="450" width="650" height="46" rx="6"/>
-      <text class="t-sub" x="944" y="478">⁦references/*.md⁩: כללים לכל שפה · SQL Server · DB2 z/OS · פרוצדורות · אינדקסים · תבניות ADR</text>
+      <text class="t-sub" x="944" y="478">⁦references/*.md⁩ ו-⁦scripts/⁩: שפות · SQL Server · DB2 · ADR · בקטסט וסטטיסטיקה · ⁦an_stats.py⁩</text>
       <path class="wire" d="M 635,414 L 635,446" marker-end="url(#ah)"/>
 
-      <text class="t-band" x="960" y="524">5 · סקירה בלתי תלויה (subagents, קריאה בלבד)</text>
-      <rect class="box" x="640" y="532" width="320" height="50" rx="6"/>
-      <text class="t-title" x="800" y="554" text-anchor="middle">ארכיטקט</text>
-      <text class="t-mono ltr" x="800" y="572" text-anchor="middle">tl-architect-reviewer</text>
-      <rect class="box" x="310" y="532" width="320" height="50" rx="6"/>
-      <text class="t-title ltr" x="470" y="554" text-anchor="middle">DBA</text>
-      <text class="t-mono ltr" x="470" y="572" text-anchor="middle">tl-sql-reviewer</text>
+      <text class="t-band" x="960" y="524">5 · subagents (קריאה בלבד)</text>
+      <rect class="box" x="805" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="882" y="554" text-anchor="middle" style="font-size:13px">ארכיטקט</text>
+      <text class="t-mono ltr" x="882" y="572" text-anchor="middle" style="font-size:10px">tl-architect-reviewer</text>
+
+      <rect class="box" x="640" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="717" y="554" text-anchor="middle" style="font-size:13px">DBA</text>
+      <text class="t-mono ltr" x="717" y="572" text-anchor="middle" style="font-size:10px">tl-sql-reviewer</text>
+
+      <rect class="box" x="475" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="552" y="554" text-anchor="middle" style="font-size:13px">חוקר</text>
+      <text class="t-mono ltr" x="552" y="572" text-anchor="middle" style="font-size:10px">tl-researcher</text>
+
+      <rect class="box" x="310" y="532" width="155" height="50" rx="6"/>
+      <text class="t-title" x="387" y="554" text-anchor="middle" style="font-size:13px">מבקר</text>
+      <text class="t-mono ltr" x="387" y="572" text-anchor="middle" style="font-size:10px">tl-an-skeptic</text>
 
       <text class="t-band ltr" x="255" y="336" text-anchor="end">SQL MCP</text>
       <rect class="box" x="20" y="344" width="235" height="70" rx="6"/>
@@ -232,6 +247,7 @@ td:first-child { width: 42%; }
       <rect class="box-ok" x="20" y="512" width="235" height="56" rx="6"/>
       <text class="t-title t-ok ltr" x="138" y="536" text-anchor="middle">TEST</text>
       <text class="t-sub" x="138" y="556" text-anchor="middle">שינויים באישור</text>
+      <text class="t-sub" x="138" y="592" text-anchor="middle">אנליסט: קריאה בלבד, קודם TEST</text>
       <path class="wire" d="M 310,379 L 259,379" marker-end="url(#ah)"/>
       <path class="wire-dash" d="M 310,557 L 285,557 L 285,400 L 259,400" marker-end="url(#ah)"/>
       <path class="wire" d="M 138,414 L 138,436" marker-end="url(#ah)"/>
@@ -239,11 +255,12 @@ td:first-child { width: 42%; }
       <path class="wire" d="M 635,598 L 635,634" marker-start="url(#ah)" marker-end="url(#ah)"/>
       <text class="t-label" x="622" y="622">קורא וכותב</text>
       <text class="t-band" x="980" y="630">זיכרון הפרויקט · מקומי, לא ב-git</text>
-      <rect class="box" x="20" y="638" width="960" height="62" rx="6"/>
+      <rect class="box" x="20" y="638" width="960" height="84" rx="6"/>
       <text class="t-mono ltr" x="960" y="664" style="font-size:12px" text-anchor="end">.claude/tl-memory/</text>
       <text class="t-sub" x="960" y="686">⁦PROJECT_CONTEXT.md⁩: מפת הפרויקט · ⁦adr/⁩: החלטות · ⁦design/⁩: תכנונים · ⁦TECH_DEBT.md⁩: רישום חוב · ⁦hesber/⁩: מסמכי הסבר</text>
+      <text class="t-sub" x="960" y="708">⁦project-doc/⁩: מסמך הפרויקט · ⁦analysis/⁩: נושאי האנליסט (מפת נתונים, השערות, שאילתות, דוחות)</text>
     </svg>
-    <figcaption>חצים רציפים מראים את הזרימה העיקרית. ה-skill של SQL וסוקר ה-DBA (קו מקווקו) בודקים את הסכמה והאינדקסים האמיתיים דרך MCP.</figcaption>
+    <figcaption>חצים רציפים מראים את הזרימה העיקרית. ה-skill של SQL, סוקר ה-DBA והאנליסט (קו מקווקו) בודקים נתונים אמיתיים דרך MCP. האנליסט רק קורא: קודם TEST, וב-PROD לפי תוכנית שאילתות מאושרת.</figcaption>
   </figure>
 </section>
 
@@ -389,6 +406,10 @@ td:first-child { width: 42%; }
         <tr><td>לפני commit או מסירה</td><td><code>/tl-review</code> (בלי פרמטרים בודק את השינויים שעוד לא נכנסו ל-commit)</td></tr>
         <tr><td>פעם בספרינט או לפני refactoring</td><td><code>/tl-debt &lt;תיקייה או מודול&gt;</code></td></tr>
         <tr><td>צריך להסביר מודול, תהליך או מערכת עם תרשימים</td><td><code>/oleg-skill-hesber &lt;מה להסביר&gt;</code></td></tr>
+        <tr><td>צריך מסמך פרויקט מלא</td><td><code>/tl-project-doc</code> (עברית כברירת מחדל; <code>ru</code> / <code>en</code>, <code>html</code> — עם תרשימים)</td></tr>
+        <tr><td>נושא חדש לניתוח (תהליך, מדד)</td><td><code>/tl-an-learn &lt;נושא&gt; &lt;הסבר, מסמכים&gt;</code> — פעם אחת לכל נושא</td></tr>
+        <tr><td>איך לשפר מדד, להעריך רעיון במספרים</td><td><code>/tl-an &lt;שאלה&gt;</code></td></tr>
+        <tr><td>האם הקוד עונה למשימה ומה הוא ייתן</td><td><code>/tl-an בדוק שה-git diff עונה למשימה &lt;קובץ משימה&gt; והערך את ההשפעה</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -571,6 +592,137 @@ td:first-child { width: 42%; }
       בבלוק "הנחות" נפרד, כדי שתאשר אותן.</p>
     </div>
   </article>
+
+  <article class="skill" aria-labelledby="s6">
+    <div class="skill-id">
+      <h3 id="s6">אנליסט</h3>
+      <div class="name">tl-analytics</div>
+      <div class="note">עונה במספרים, לא בדעות. עובד לפי נושאים; פירוט בפרק "אנליסט".</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">מתי נכנס לפעולה</span><span class="v">"איך לשפר", "תעריך רעיון", "כמה הקוד ישפר", "האם הקוד עונה למשימה", שאלות על נתונים</span></div>
+        <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-an-learn &lt;נושא&gt;</code> פעם אחת, אחר כך <code>/tl-an &lt;משימה&gt;</code></span></div>
+        <div class="fact"><span class="k">מה מקבלים</span><span class="v">דוח ברוסית: תשובה עם גבול טעות ופסק דין, מה נדחה ולמה, הטמעה, משימה מוכנה ל-<code>/tl-design</code></span></div>
+      </div>
+      <div class="steps" aria-label="שלבים">
+        <span class="step">לימוד הנושא</span><span class="arr">←</span>
+        <span class="step">כיול</span><span class="arr">←</span>
+        <span class="step">השערות</span><span class="arr">←</span>
+        <span class="step">בקטסט</span><span class="arr">←</span>
+        <span class="step">מבקר</span><span class="arr">←</span>
+        <span class="step">דוח</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-an איך להעלות אישור אוטומטי של שיקים מעל 8% עם טעות עד 2%?</div>
+      <p class="note">האנליסט לא משנה את קוד הפרויקט. נתונים הוא רק קורא: קודם TEST, וב-PROD — אגרגציות
+      בלי נעילות לפי תוכנית שאילתות שאתה מאשר פעם אחת לכל נושא.</p>
+    </div>
+  </article>
+
+  <article class="skill" aria-labelledby="s7">
+    <div class="skill-id">
+      <h3 id="s7">מסמך פרויקט</h3>
+      <div class="name">/tl-project-doc</div>
+      <div class="note">תיאור מלא של הפרויקט לפי הקוד, בסיסי הנתונים והמסמכים האמיתיים.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">מתי</span><span class="v">איש צוות חדש, העברת פרויקט, ביקורת, "איך כל זה בנוי"</span></div>
+        <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-project-doc [מודול] [ru|en] [html]</code></span></div>
+        <div class="fact"><span class="k">מה מקבלים</span><span class="v"><code>tl-memory/project-doc/PROJECT_DOC.md</code> (עברית כברירת מחדל), ולפי בקשה HTML עם תרשימים</span></div>
+      </div>
+      <div class="steps" aria-label="שלבים">
+        <span class="step">מה כבר ידוע</span><span class="arr">←</span>
+        <span class="step">חוקרים: קוד / נתונים / מסמכים</span><span class="arr">←</span>
+        <span class="step">13 פרקים</span><span class="arr">←</span>
+        <span class="step">HTML</span><span class="arr">←</span>
+        <span class="step">בדיקה עצמית של 5 טענות</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-project-doc html</div>
+      <p class="note">פרקים: מטרה, ארכיטקטורה, מודולים, תהליכים עיקריים, מודל נתונים, אינטגרציות, תצורה (בלי סודות),
+      בנייה ובדיקות, תפעול, אבטחה, סיכונים, מילון מונחים, שאלות פתוחות. לכל טענה יש הוכחה: קובץ, טבלה או מסמך.</p>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 5b. ANALYST ============ -->
+<section id="analyst">
+  <div class="section-head">
+    <div class="eyebrow">ANALYSIS</div>
+    <h2>איך האנליסט עובד</h2>
+  </div>
+  <p>האנליסט קודם לומד את הנושא בעצמו, ורק אחר כך שואל שאלות — כל אחת עם תשובה מוצעת. כל מה שנלמד
+  נשמר בזיכרון הנושא, ולכן ההפעלה הבאה ממשיכה את העבודה ולא מתחילה מחדש.</p>
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 430" role="img" aria-label="זרימת האנליסט: לימוד הנושא, זיכרון הנושא, ניתוח, מבקר, דוח">
+      <defs>
+        <marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <text class="t-band" x="980" y="24">1 · לימוד הנושא (פעם אחת)</text>
+      <rect class="box-accent" x="780" y="34" width="200" height="60" rx="6"/>
+      <text class="t-title ltr" x="880" y="60" text-anchor="middle">/tl-an-learn</text>
+      <text class="t-sub" x="880" y="80" text-anchor="middle">הסבר + מסמכים</text>
+      <path class="wire" d="M 780,64 L 738,64" marker-end="url(#ah5)"/>
+      <rect class="box" x="584" y="34" width="150" height="60" rx="6"/>
+      <text class="t-title" x="659" y="58" text-anchor="middle" style="font-size:13px">מסמכים</text>
+      <text class="t-mono ltr" x="659" y="78" text-anchor="middle" style="font-size:10px">docx · xlsx · pdf</text>
+      <rect class="box" x="424" y="34" width="150" height="60" rx="6"/>
+      <text class="t-title" x="499" y="58" text-anchor="middle" style="font-size:13px">קוד</text>
+      <text class="t-sub" x="499" y="78" text-anchor="middle" style="font-size:11px">לוגיקה, קובץ:שורה</text>
+      <rect class="box" x="264" y="34" width="150" height="60" rx="6"/>
+      <text class="t-title" x="339" y="58" text-anchor="middle" style="font-size:13px">נתונים</text>
+      <text class="t-sub" x="339" y="78" text-anchor="middle" style="font-size:11px">SQL MCP, קריאה בלבד</text>
+      <text class="t-label" x="499" y="112" text-anchor="middle">שלושה חוקרים tl-researcher במקביל</text>
+      <path class="wire" d="M 264,64 L 222,64" marker-end="url(#ah5)"/>
+      <rect class="box-ok" x="20" y="34" width="198" height="60" rx="6"/>
+      <text class="t-title t-ok" x="119" y="58" text-anchor="middle" style="font-size:13px">כיול</text>
+      <text class="t-sub" x="119" y="78" text-anchor="middle">"8%" שוחזר?</text>
+
+      <path class="wire" d="M 119,94 L 119,150" marker-end="url(#ah5)"/>
+      <text class="t-band" x="980" y="146">זיכרון הנושא · ⁦.claude/tl-memory/analysis/⁩</text>
+      <rect class="box" x="20" y="154" width="960" height="54" rx="6"/>
+      <text class="t-sub" x="964" y="186">⁦TOPIC⁩ (פרופיל, שאלות) · ⁦DATA_MAP⁩ (שדות "ידועים ברגע ההחלטה") · ⁦LOGIC_AS_IS · BASELINE · HYPOTHESES · JOURNAL · queries/⁩</text>
+
+      <text class="t-band" x="924" y="240">2 · משימה (כמה פעמים שרוצים)</text>
+      <path class="wire-dash" d="M 940,208 L 940,246" marker-end="url(#ah5)"/>
+      <rect class="box-accent" x="780" y="250" width="200" height="60" rx="6"/>
+      <text class="t-title ltr" x="880" y="276" text-anchor="middle">/tl-an</text>
+      <text class="t-sub" x="880" y="296" text-anchor="middle">משימה במילים שלך</text>
+      <path class="wire" d="M 780,280 L 738,280" marker-end="url(#ah5)"/>
+      <rect class="box" x="544" y="250" width="190" height="60" rx="6"/>
+      <text class="t-title" x="639" y="274" text-anchor="middle" style="font-size:13px">השערות</text>
+      <text class="t-sub" x="639" y="294" text-anchor="middle">נתונים · רעיונות · קוד</text>
+      <path class="wire" d="M 544,280 L 502,280" marker-end="url(#ah5)"/>
+      <rect class="box" x="298" y="250" width="200" height="60" rx="6"/>
+      <text class="t-title" x="398" y="274" text-anchor="middle" style="font-size:13px">בקטסט</text>
+      <text class="t-sub" x="398" y="294" text-anchor="middle">חיפוש A ← אישור B</text>
+      <path class="wire" d="M 298,280 L 256,280" marker-end="url(#ah5)"/>
+      <rect class="box-stop" x="20" y="250" width="232" height="60" rx="6"/>
+      <text class="t-title t-stop" x="136" y="274" text-anchor="middle" style="font-size:13px">מבקר ⁦tl-an-skeptic⁩</text>
+      <text class="t-sub" x="136" y="294" text-anchor="middle">מחשב מחדש, מחפש דליפות</text>
+
+      <path class="wire" d="M 136,310 L 136,346" marker-end="url(#ah5)"/>
+      <rect class="box-ok" x="20" y="350" width="478" height="62" rx="6"/>
+      <text class="t-title t-ok" x="259" y="374" text-anchor="middle" style="font-size:13px">דוח: PASS / FAIL / מעט נתונים</text>
+      <text class="t-sub" x="259" y="396" text-anchor="middle">גבול טעות · לפי חודשים · הטמעה · משימה ל-⁦/tl-design⁩</text>
+      <rect class="box" x="544" y="350" width="436" height="62" rx="6"/>
+      <text class="t-title" x="762" y="374" text-anchor="middle" style="font-size:13px">פסק דין לפי הגבול העליון</text>
+      <text class="t-mono ltr" x="762" y="396" text-anchor="middle" style="font-size:10.5px">an_stats.py verdict --k 10 --n 1000 --threshold 0.02</text>
+    </svg>
+    <figcaption>את המספרים מחשבים רק SQL ו-an_stats.py. הדוח מפנה לשאילתות השמורות, כך שאפשר לשחזר כל מספר.</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>פסק דין</th><th>מתי (סף 2%)</th></tr></thead>
+      <tbody>
+        <tr><td><code>PASS</code></td><td>הגבול העליון של הטעות ≤ 2%. דוגמה: 10 טעויות מתוך 1000 ← גבול 1.67%</td></tr>
+        <tr><td><code>מעט נתונים</code></td><td>הטעות שנצפתה ≤ 2%, אבל הגבול גבוה יותר. דוגמה: 5 מתוך 500 ← 2.04%</td></tr>
+        <tr><td><code>FAIL</code></td><td>הטעות שנצפתה > 2%. דוגמה: 40 מתוך 1000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">נבדק בהדגמה (<code>demo/RESULTS.md</code>): האנליסט מצא את כל המלכודות שהוסתרו, המספרים שלו
+  תאמו את הערכים הנכונים, ובקוד של המשימה CHQ-512 הוא מצא את כל 4 הפגמים.</p>
 </section>
 
 <!-- ============ 6. REVIEW ============ -->
@@ -587,6 +739,8 @@ td:first-child { width: 42%; }
       <tbody>
         <tr><td><code>tl-architect-reviewer</code></td><td>לוגיקה ומקרי קצה, שכבות וגבולות, חוזים של API, פרוצדורות ו-copybooks, שגיאות ולוגים, אבטחה, בדיקות</td></tr>
         <tr><td><code>tl-sql-reviewer</code></td><td>כל שאילתה מושווית לאינדקסים האמיתיים דרך MCP, וגם טיפוסי פרמטרים, NULL, טרנזקציות, נעילות, תאימות 2019/2022 והשפעה על packages ב-DB2</td></tr>
+        <tr><td><code>tl-researcher</code></td><td>חוקר תחום אחד — קוד, נתונים או מסמכים — ומחזיר עובדות עם הוכחות. משמש את האנליסט ואת <code>/tl-project-doc</code></td></tr>
+        <tr><td><code>tl-an-skeptic</code></td><td>מנסה להפריך את מסקנות האנליסט: מחשב מחדש את המספרים העיקריים ב-SQL משלו, מחפש דליפות מהעתיד, התאמת־יתר וחודשים לא יציבים</td></tr>
       </tbody>
     </table>
   </div>
@@ -601,10 +755,11 @@ td:first-child { width: 42%; }
     <h2>בדיקה שהכול עובד</h2>
   </div>
   <ul class="checklist">
-    <li><code>/</code><span>רואים את הפקודות <code>/tl-init</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code></span></li>
-    <li><code>/skills</code><span>ברשימה יש את ארבעת ה-skills של <code>tl-</code> ואת <code>oleg-skill-hesber</code></span></li>
+    <li><code>/</code><span>רואים את הפקודות <code>/tl-init</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code>, <code>/tl-project-doc</code>, <code>/tl-an-learn</code>, <code>/tl-an</code></span></li>
+    <li><code>/skills</code><span>ברשימה יש את חמשת ה-skills של <code>tl-</code> (כולל <code>tl-analytics</code>) ואת <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>ברשימה יש <code>.claude/CLAUDE.md</code> עם ייבוא של CORE.md</span></li>
-    <li><code>/agents</code><span>יש <code>tl-architect-reviewer</code> ו-<code>tl-sql-reviewer</code></span></li>
+    <li><code>/agents</code><span>יש <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code></span></li>
+    <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — כל השורות <code>ok</code></span></li>
     <li><code>/mcp</code><span><code>meet-checkov</code> ו-<code>meet-chequemis</code> מחוברים</span></li>
     <li><code>/tl-init</code><span>נוצר הקובץ <code>.claude/tl-memory/PROJECT_CONTEXT.md</code></span></li>
   </ul>
