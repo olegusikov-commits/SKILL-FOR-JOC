@@ -1,0 +1,207 @@
+<!doctype html>
+<!--
+  OLEG-SKILL-HESBER template.
+  Copy this file, set lang/dir, replace the example content. Keep the <style> block as is
+  (extend it if needed, always through the tokens). No external resources.
+  Hebrew: lang="he" dir="rtl" · Russian: lang="ru" dir="ltr" · English: lang="en" dir="ltr"
+-->
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שם המסמך</title>
+<style>
+/* ---- tokens: light ---- */
+:root {
+  --paper: #f5f6f8;
+  --card: #ffffff;
+  --ink: #1c2733;
+  --muted: #5a6776;
+  --line: #c8d0da;
+  --accent: #1d5ea8;
+  --accent-soft: #e4edf8;
+  --stop: #b9450f;
+  --stop-soft: #fbe8dc;
+  --ok: #2b7a4b;
+  --ok-soft: #e1f1e7;
+  --code-bg: #eceff3;
+  --font-body: "Segoe UI", Arial, "Noto Sans Hebrew", "Noto Sans", system-ui, sans-serif;
+  --font-mono: Consolas, "Cascadia Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+/* ---- tokens: dark (system setting) ---- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f151c; --card: #16202a; --ink: #e2e8ef; --muted: #9ba7b5; --line: #2d3b4a;
+    --accent: #6ea8ea; --accent-soft: #19304a; --stop: #f08c52; --stop-soft: #3a2316;
+    --ok: #6cc590; --ok-soft: #16321f; --code-bg: #1d2935; color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+.page { max-width: 1020px; margin: 0 auto; padding: 40px 16px 80px; display: grid; gap: 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 700; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px;
+       direction: ltr; unicode-bidi: isolate; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+header.intro { display: grid; gap: 14px; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.95rem; }
+nav.toc a { text-decoration: none; border-bottom: 1px solid var(--line); }
+section { display: grid; gap: 18px; }
+.section-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.note { font-size: 0.9rem; color: var(--muted); }
+
+/* diagram plate */
+figure.plate { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow-x: auto; }
+figure.plate svg { display: block; width: 100%; min-width: 760px; height: auto; }
+figure.plate figcaption { font-size: 0.85rem; color: var(--muted); padding: 10px 16px; border-top: 1px solid var(--line); }
+
+/* SVG classes — colors only through tokens */
+svg text { font-family: var(--font-body); fill: var(--ink); }
+[dir="rtl"] svg text { direction: rtl; }
+[dir="rtl"] svg text.ltr { direction: ltr; }
+svg .t-title { font-weight: 600; font-size: 15px; }
+svg .t-sub { font-size: 12px; fill: var(--muted); }
+svg .t-mono { font-family: var(--font-mono); font-size: 11px; }
+svg .t-band { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; fill: var(--muted); }
+svg .t-label { font-family: var(--font-mono); font-size: 11px; fill: var(--accent); }
+svg .t-stop { fill: var(--stop); }
+svg .t-ok { fill: var(--ok); }
+svg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.2; }
+svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+svg .box-stop { fill: var(--stop-soft); stroke: var(--stop); stroke-width: 1.5; }
+svg .box-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.2; }
+svg .frame { fill: none; stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 5 4; }
+svg .wire { fill: none; stroke: var(--muted); stroke-width: 1.4; }
+svg .wire-dash { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+svg .wire-stop { fill: none; stroke: var(--stop); stroke-width: 1.4; }
+svg .lifeline { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 3 4; }
+svg .head { fill: var(--muted); }
+svg .head-stop { fill: var(--stop); }
+
+/* table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: start; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+
+/* component card */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+.card-id { padding: 20px; border-inline-end: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.card-id .name { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); direction: ltr; text-align: start; overflow-wrap: anywhere; }
+.card-body { padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.fact { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.fact .k { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.fact .v { font-size: 0.94rem; }
+
+/* steps strip, example, callout, checklist */
+.steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.88rem; }
+.steps .step { background: var(--accent-soft); border: 1px solid var(--line); border-radius: 4px; padding: 3px 9px; }
+.steps .stop { background: var(--stop-soft); border-color: var(--stop); color: var(--stop); font-weight: 600; }
+.steps .arr { color: var(--muted); }
+.example { font-family: var(--font-mono); font-size: 0.85rem; background: var(--code-bg); border-radius: 4px; padding: 10px 12px;
+           white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; text-align: left; }
+.callout { border-inline-start: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 4px; max-width: 75ch; }
+.callout.warn { border-color: var(--stop); background: var(--stop-soft); }
+.checklist { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; max-width: 75ch; }
+.checklist li { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.checklist li code { justify-self: start; }
+
+@media (max-width: 760px) {
+  .card { grid-template-columns: minmax(0, 1fr); }
+  .card-id { border-inline-end: none; border-bottom: 1px solid var(--line); }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .checklist li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="intro">
+  <div class="eyebrow">סוג המסמך · מערכת</div>
+  <h1>שם המסמך</h1>
+  <p class="lede">משפט אחד או שניים: מה מוסבר כאן ולמי.</p>
+  <nav class="toc" aria-label="תוכן עניינים">
+    <a href="#overview">תמונה כללית</a>
+    <a href="#flow">תהליך</a>
+    <a href="#parts">רכיבים</a>
+    <a href="#check">בדיקה</a>
+  </nav>
+</header>
+
+<section id="overview">
+  <div class="section-head">
+    <div class="eyebrow">תרשים 1</div>
+    <h2>תמונה כללית</h2>
+  </div>
+  <p>פסקה קצרה שמסבירה מה הקורא יראה בתרשים ולמה זה חשוב.</p>
+  <figure class="plate">
+    <!-- Example: pattern B (pipeline), drawn left-to-right; mirror for RTL with scripts/mirror_svg.py -->
+    <svg viewBox="0 0 1000 140" role="img" aria-label="תיאור התרשים לקורא מסך">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="box-accent" x="20" y="40" width="200" height="60" rx="6"/>
+      <text class="t-title" x="120" y="66" text-anchor="middle">קלט</text>
+      <text class="t-sub" x="120" y="86" text-anchor="middle">מאיפה מגיעים הנתונים</text>
+      <path class="wire" d="M220,70 L266,70" marker-end="url(#ah)"/>
+      <rect class="box" x="270" y="40" width="200" height="60" rx="6"/>
+      <text class="t-title" x="370" y="66" text-anchor="middle">עיבוד</text>
+      <text class="t-mono ltr" x="370" y="86" text-anchor="middle">OrderService.cs</text>
+      <path class="wire" d="M470,70 L516,70" marker-end="url(#ah)"/>
+      <rect class="box-ok" x="520" y="40" width="200" height="60" rx="6"/>
+      <text class="t-title" x="620" y="66" text-anchor="middle">פלט</text>
+      <text class="t-sub" x="620" y="86" text-anchor="middle">מה נוצר בסוף</text>
+    </svg>
+    <figcaption>איך לקרוא את התרשים: מה מסמנים החצים והצבעים.</figcaption>
+  </figure>
+</section>
+
+<section id="parts">
+  <div class="section-head">
+    <div class="eyebrow">רכיבים</div>
+    <h2>רכיב לדוגמה</h2>
+  </div>
+  <article class="card">
+    <div class="card-id">
+      <h3>שם הרכיב</h3>
+      <div class="name">src/Module/Component.cs</div>
+      <div class="note">תיאור קצר בשורה אחת.</div>
+    </div>
+    <div class="card-body">
+      <div class="facts">
+        <div class="fact"><span class="k">תפקיד</span><span class="v">מה הרכיב עושה</span></div>
+        <div class="fact"><span class="k">קלט / פלט</span><span class="v">מה נכנס ומה יוצא</span></div>
+        <div class="fact"><span class="k">תלויות</span><span class="v">במה הוא תלוי</span></div>
+      </div>
+      <div class="steps"><span class="step">שלב 1</span><span class="arr">←</span><span class="step">שלב 2</span><span class="arr">←</span><span class="step stop">עצירה</span></div>
+      <div class="example">&gt; example command or code line</div>
+    </div>
+  </article>
+  <div class="callout warn"><strong>הנחות:</strong> מה לא נבדק במקור ודורש אישור.</div>
+</section>
+
+<section id="check">
+  <div class="section-head">
+    <div class="eyebrow">בדיקה</div>
+    <h2>רשימת בדיקה</h2>
+  </div>
+  <ul class="checklist">
+    <li><code>command</code><span>מה צריך לראות</span></li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>

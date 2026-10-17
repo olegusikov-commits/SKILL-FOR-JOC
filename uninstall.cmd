@@ -30,6 +30,7 @@ if not exist "%TARGET%\.claude\" (
 set "C=%TARGET%\.claude"
 if exist "%C%\tech-lead-kit\" rmdir /s /q "%C%\tech-lead-kit"
 for /d %%D in ("%C%\skills\tl-*") do rmdir /s /q "%%D"
+if exist "%C%\skills\oleg-skill-hesber\" rmdir /s /q "%C%\skills\oleg-skill-hesber"
 del /q "%C%\commands\tl-*.md" 2>nul
 del /q "%C%\agents\tl-*.md" 2>nul
 echo [OK] Kit files removed

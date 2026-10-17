@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -164,7 +164,7 @@ td:first-child { width: 42%; }
 <div class="page">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · версия 1.0.0</div>
+  <div class="eyebrow">Tech Lead Kit · версия 1.1.0</div>
   <h1>Путеводитель Tech Lead Kit</h1>
   <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
   в Claude Code в VS Code.</p>
@@ -217,19 +217,23 @@ td:first-child { width: 42%; }
       <text class="t-mono" x="365" y="288" text-anchor="middle" style="font-size:12.5px">/tl-init   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
 
       <!-- band 3 skills -->
-      <text class="t-band" x="40" y="336">3 · ЗНАНИЯ ПО ТЕМЕ (ЗАГРУЖАЮТСЯ, КОГДА НУЖНЫ)</text>
-      <rect class="box-accent" x="40" y="344" width="155" height="70" rx="6"/>
-      <text class="t-title" x="117" y="370" text-anchor="middle">Стандарты кода</text>
-      <text class="t-mono" x="117" y="392" text-anchor="middle" style="font-size:9.6px">tl-engineering-standards</text>
-      <rect class="box-accent" x="205" y="344" width="155" height="70" rx="6"/>
-      <text class="t-title" x="282" y="370" text-anchor="middle">Архитектура</text>
-      <text class="t-mono" x="282" y="392" text-anchor="middle" style="font-size:9.6px">tl-architecture</text>
-      <rect class="box-accent" x="370" y="344" width="155" height="70" rx="6"/>
-      <text class="t-title" x="447" y="370" text-anchor="middle">Тех. долг</text>
-      <text class="t-mono" x="447" y="392" text-anchor="middle" style="font-size:9.6px">tl-tech-debt</text>
-      <rect class="box-accent" x="535" y="344" width="155" height="70" rx="6"/>
-      <text class="t-title" x="612" y="370" text-anchor="middle">SQL уровня DBA</text>
-      <text class="t-mono" x="612" y="392" text-anchor="middle" style="font-size:9.6px">tl-sql-engineering</text>
+      <text class="t-band" x="40" y="336">3 · ЗНАНИЯ ПО ТЕМЕ (КОГДА НУЖНЫ)</text>
+      <rect class="box-accent" x="40" y="344" width="122" height="70" rx="6"/>
+      <text class="t-title" x="101" y="370" text-anchor="middle" style="font-size:13.5px">Стандарты кода</text>
+      <text class="t-mono ltr" x="101" y="388" text-anchor="middle" style="font-size:9.6px">tl-engineering-</text>
+      <text class="t-mono ltr" x="101" y="401" text-anchor="middle" style="font-size:9.6px">standards</text>
+      <rect class="box-accent" x="172" y="344" width="122" height="70" rx="6"/>
+      <text class="t-title" x="233" y="370" text-anchor="middle" style="font-size:13.5px">Архитектура</text>
+      <text class="t-mono ltr" x="233" y="390" text-anchor="middle" style="font-size:9.6px">tl-architecture</text>
+      <rect class="box-accent" x="304" y="344" width="122" height="70" rx="6"/>
+      <text class="t-title" x="365" y="370" text-anchor="middle" style="font-size:13.5px">Тех. долг</text>
+      <text class="t-mono ltr" x="365" y="390" text-anchor="middle" style="font-size:9.6px">tl-tech-debt</text>
+      <rect class="box-accent" x="436" y="344" width="122" height="70" rx="6"/>
+      <text class="t-title" x="497" y="370" text-anchor="middle" style="font-size:13.5px">Документы</text>
+      <text class="t-mono ltr" x="497" y="390" text-anchor="middle" style="font-size:9.6px">oleg-skill-hesber</text>
+      <rect class="box-accent" x="568" y="344" width="122" height="70" rx="6"/>
+      <text class="t-title" x="629" y="370" text-anchor="middle" style="font-size:13.5px">SQL уровня DBA</text>
+      <text class="t-mono ltr" x="629" y="390" text-anchor="middle" style="font-size:9.6px">tl-sql-engineering</text>
       <path class="wire" d="M365,308 L365,340" marker-end="url(#ah)"/>
 
       <!-- band 4 references -->
@@ -268,7 +272,7 @@ td:first-child { width: 42%; }
       <text class="t-band" x="20" y="630">ПАМЯТЬ ПРОЕКТА · ЛОКАЛЬНО, НЕ В GIT</text>
       <rect class="box" x="20" y="638" width="960" height="62" rx="6"/>
       <text class="t-mono" x="40" y="664" style="font-size:12px">.claude/tl-memory/</text>
-      <text class="t-sub" x="40" y="686">PROJECT_CONTEXT.md: карта проекта · adr/: решения · design/: дизайны · TECH_DEBT.md: реестр долга</text>
+      <text class="t-sub" x="40" y="686">PROJECT_CONTEXT.md: карта проекта · adr/: решения · design/: дизайны · TECH_DEBT.md: реестр долга · hesber/: документы-объяснения</text>
     </svg>
     <figcaption>Сплошные стрелки показывают основной поток. SQL-skill и DBA-ревьюер (пунктир) смотрят реальную схему и индексы через MCP.</figcaption>
   </figure>
@@ -423,6 +427,7 @@ td:first-child { width: 42%; }
         <tr><td>Медленный запрос, новая процедура, индекс</td><td><code>/tl-sql &lt;задача&gt;</code></td></tr>
         <tr><td>Перед коммитом или сдачей</td><td><code>/tl-review</code> (без аргументов проверяет незакоммиченные изменения)</td></tr>
         <tr><td>Раз в спринт или перед рефакторингом</td><td><code>/tl-debt &lt;папка или модуль&gt;</code></td></tr>
+        <tr><td>Нужно объяснить модуль, процесс или систему со схемами</td><td><code>/oleg-skill-hesber &lt;что объяснить&gt;</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -579,6 +584,32 @@ td:first-child { width: 42%; }
       <p class="note">Проблемы вне текущей задачи Claude не правит молча: он записывает их в реестр и упоминает в отчёте.</p>
     </div>
   </article>
+
+  <article class="skill" aria-labelledby="s5">
+    <div class="skill-id">
+      <h3 id="s5">Документы со схемами</h3>
+      <div class="name">oleg-skill-hesber</div>
+      <div class="note">Документы вроде этого путеводителя: один HTML-файл, по умолчанию на иврите.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда включается</span><span class="v">Просьба объяснить систему, модуль, процесс или установку со схемой: «הסבר», «схема», «guide»</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/oleg-skill-hesber &lt;что объяснить&gt;</code></span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v">HTML в <code>tl-memory/hesber/</code>: 2–5 схем, карточки, шпаргалка; работает без интернета</span></div>
+      </div>
+      <div class="steps" aria-label="Шаги">
+        <span class="step">Бриф: тема, читатель, язык</span><span class="arr">→</span>
+        <span class="step">Факты из кода и MCP</span><span class="arr">→</span>
+        <span class="step">План схем</span><span class="arr">→</span>
+        <span class="step">HTML по шаблону</span><span class="arr">→</span>
+        <span class="step">Зеркалирование для иврита</span><span class="arr">→</span>
+        <span class="step">Самопроверка</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /oleg-skill-hesber объясни, как работает пакетная обработка чеков в модуле Billing</div>
+      <p class="note">Каждый блок на схеме соответствует чему-то реальному в коде или базе. Допущения
+      skill выносит в отдельный блок «הנחות», чтобы ты их подтвердил.</p>
+    </div>
+  </article>
 </section>
 
 <!-- ============ 6. REVIEW ============ -->
@@ -611,6 +642,7 @@ td:first-child { width: 42%; }
   </div>
   <ul class="checklist">
     <li><code>/</code><span>видны команды <code>/tl-init</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code></span></li>
+    <li><code>/skills</code><span>в списке четыре skills <code>tl-</code> и <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md</span></li>
     <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code> и <code>tl-sql-reviewer</code></span></li>
     <li><code>/mcp</code><span>подключены <code>meet-checkov</code> и <code>meet-chequemis</code></span></li>

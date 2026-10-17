@@ -76,12 +76,14 @@ They are connected to both **PROD** and **TEST**.
 ## Where things live
 - Skills: `tl-engineering-standards`, `tl-architecture`, `tl-sql-engineering`, `tl-tech-debt`
   (in `.claude/skills/`). Load the relevant one before working in its area.
+- Explanation documents with diagrams ("הסבר", "схема", guides, onboarding):
+  `oleg-skill-hesber`.
 - Commands: `/tl-init`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`, `/tl-debt`.
 - Project memory (local, not committed): `.claude/tl-memory/`
   - `PROJECT_CONTEXT.md` — stack, versions, structure, DB map. **Read it at the start of
     every task if it exists.** If it does not exist, suggest running `/tl-init`.
   - `adr/` — architecture decision records, `design/` — design docs,
-    `TECH_DEBT.md` — tech debt register.
+    `TECH_DEBT.md` — tech debt register, `hesber/` — explanation documents.
 
 ## Definition of done (check before saying "done")
 - [ ] Task classified; LARGE tasks have an approved design.

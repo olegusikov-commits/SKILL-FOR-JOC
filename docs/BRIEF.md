@@ -40,7 +40,8 @@ DB2 for z/OS, stored procedures, SQL Server 2019 + 2022.
 
 ## Состав
 - `CORE.md`: правила, действующие всегда (классификация задач, 12 инженерных правил, протокол MCP, Definition of Done).
-- Skills: `tl-engineering-standards`, `tl-architecture`, `tl-sql-engineering`, `tl-tech-debt`.
+- Skills: `tl-engineering-standards`, `tl-architecture`, `tl-sql-engineering`, `tl-tech-debt`,
+  `oleg-skill-hesber` (документы-объяснения со схемами, по умолчанию на иврите).
 - Commands: `/tl-init`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`, `/tl-debt`.
 - Agents: `tl-architect-reviewer`, `tl-sql-reviewer`.
 - `install.cmd` / `uninstall.cmd`.

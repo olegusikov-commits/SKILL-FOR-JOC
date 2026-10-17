@@ -71,7 +71,12 @@ if not exist "%CLAUDE_MD%" (
         >>"%CLAUDE_MD%" echo.
         >>"%CLAUDE_MD%" echo %IMPORT_LINE%
         echo [OK] Added the kit import line to existing .claude\CLAUDE.md
-        call :warn_if_tracked
+        call :add_exclude
+findstr /L /X /C:"%~1" "%EXCLUDE%" >nul 2>&1
+if errorlevel 1 >>"%EXCLUDE%" echo %~1
+goto :eof
+
+:warn_if_tracked
     ) else (
         echo [OK] .claude\CLAUDE.md already imports the kit
     )
@@ -88,26 +93,20 @@ goto :done
 
 :do_exclude
 set "EXCLUDE=%TARGET%\.git\info\exclude"
+set "EXCLUDE_HEADER=# tech-lead-kit (local only, not committed)"
 if not exist "%EXCLUDE%" type nul > "%EXCLUDE%"
-findstr /L /C:"# tech-lead-kit" "%EXCLUDE%" >nul 2>&1
-if not errorlevel 1 (
-    echo [OK] git exclude already configured
-    goto :exclude_claude_md
-)
->>"%EXCLUDE%" echo.
->>"%EXCLUDE%" echo # tech-lead-kit (local only, not committed)
->>"%EXCLUDE%" echo .claude/tech-lead-kit/
->>"%EXCLUDE%" echo .claude/skills/tl-*/
->>"%EXCLUDE%" echo .claude/commands/tl-*.md
->>"%EXCLUDE%" echo .claude/agents/tl-*.md
->>"%EXCLUDE%" echo .claude/tl-memory/
+rem each line is added only if missing, so re-installs also add lines of new kit parts
+findstr /L /X /C:"%EXCLUDE_HEADER%" "%EXCLUDE%" >nul 2>&1
+if errorlevel 1 >>"%EXCLUDE%" echo.
+call :add_exclude "%EXCLUDE_HEADER%"
+call :add_exclude ".claude/tech-lead-kit/"
+call :add_exclude ".claude/skills/tl-*/"
+call :add_exclude ".claude/skills/oleg-skill-hesber/"
+call :add_exclude ".claude/commands/tl-*.md"
+call :add_exclude ".claude/agents/tl-*.md"
+call :add_exclude ".claude/tl-memory/"
+if "%CREATED_CLAUDE_MD%"=="1" call :add_exclude ".claude/CLAUDE.md"
 echo [OK] Kit hidden from git via .git\info\exclude (local, not committed)
-
-:exclude_claude_md
-if "%CREATED_CLAUDE_MD%"=="1" (
-    findstr /L /X /C:".claude/CLAUDE.md" "%EXCLUDE%" >nul 2>&1
-    if errorlevel 1 >>"%EXCLUDE%" echo .claude/CLAUDE.md
-)
 
 :done
 echo.
@@ -115,9 +114,15 @@ echo Done. Next steps:
 echo   1. Open the project in VS Code and start a new Claude Code session.
 echo   2. Type /  - you should see /tl-init, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
 echo   3. Run /tl-init once to build the project map (.claude\tl-memory\PROJECT_CONTEXT.md).
+echo   4. Explanation documents with diagrams: /oleg-skill-hesber ^<what to explain^>
 echo.
 endlocal
 exit /b 0
+
+:add_exclude
+findstr /L /X /C:"%~1" "%EXCLUDE%" >nul 2>&1
+if errorlevel 1 >>"%EXCLUDE%" echo %~1
+goto :eof
 
 :warn_if_tracked
 where git >nul 2>&1
