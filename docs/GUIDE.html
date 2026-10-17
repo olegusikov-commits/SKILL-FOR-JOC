@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Путеводитель Tech Lead Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: single reading column (~70ch) with full-width (980px) diagram plates, like an engineering handbook */
+:root {
+  --paper: #f5f6f8;
+  --card: #ffffff;
+  --ink: #1c2733;
+  --muted: #5a6776;
+  --line: #c8d0da;
+  --accent: #1d5ea8;
+  --accent-soft: #e4edf8;
+  --stop: #b9450f;
+  --stop-soft: #fbe8dc;
+  --ok: #2b7a4b;
+  --ok-soft: #e1f1e7;
+  --code-bg: #eceff3;
+  --font-display: "IBM Plex Sans Condensed", "Segoe UI", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, "Cascadia Mono", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f151c; --card: #16202a; --ink: #e2e8ef; --muted: #9ba7b5; --line: #2d3b4a;
+    --accent: #6ea8ea; --accent-soft: #19304a; --stop: #f08c52; --stop-soft: #3a2316;
+    --ok: #6cc590; --ok-soft: #16321f; --code-bg: #1d2935; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f151c; --card: #16202a; --ink: #e2e8ef; --muted: #9ba7b5; --line: #2d3b4a;
+  --accent: #6ea8ea; --accent-soft: #19304a; --stop: #f08c52; --stop-soft: #3a2316;
+  --ok: #6cc590; --ok-soft: #16321f; --code-bg: #1d2935; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.page {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding-block: 40px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 56px;
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.7rem; font-weight: 700; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.eyebrow {
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+header.intro { display: grid; gap: 14px; }
+header.intro .lede { font-size: 1.12rem; color: var(--muted); }
+
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.95rem; }
+nav.toc a { text-decoration: none; border-bottom: 1px solid var(--line); }
+nav.toc a:hover { border-bottom-color: var(--accent); }
+
+section { display: grid; gap: 18px; scroll-margin-top: 16px; }
+.section-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 14px; }
+
+/* diagram plates */
+.plate {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.plate svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.plate figcaption {
+  font-size: 0.85rem; color: var(--muted); padding: 10px 16px; border-top: 1px solid var(--line);
+}
+
+/* SVG styling through tokens */
+svg text { font-family: var(--font-body); fill: var(--ink); }
+svg .t-title { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+svg .t-sub { font-size: 12px; fill: var(--muted); }
+svg .t-mono { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); }
+svg .t-band { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; fill: var(--muted); }
+svg .t-label { font-family: var(--font-mono); font-size: 11px; fill: var(--accent); font-weight: 500; }
+svg .t-stop { fill: var(--stop); }
+svg .t-ok { fill: var(--ok); }
+svg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.2; }
+svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+svg .box-stop { fill: var(--stop-soft); stroke: var(--stop); stroke-width: 1.5; }
+svg .box-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.2; }
+svg .frame { fill: none; stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 5 4; }
+svg .wire { fill: none; stroke: var(--muted); stroke-width: 1.4; }
+svg .wire-dash { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+svg .wire-stop { fill: none; stroke: var(--stop); stroke-width: 1.4; }
+svg .head { fill: var(--muted); }
+svg .head-stop { fill: var(--stop); }
+
+/* situation table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+td:first-child { width: 42%; }
+
+/* skill sheets */
+.skill {
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  display: grid; grid-template-columns: 220px minmax(0, 1fr);
+}
+.skill-id {
+  padding: 20px; border-right: 1px solid var(--line); display: grid; gap: 8px; align-content: start;
+}
+.skill-id .name { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); overflow-wrap: anywhere; }
+.skill-body { padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.fact { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.fact .k { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+.fact .v { font-size: 0.94rem; }
+.steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.88rem; }
+.steps span.step { background: var(--accent-soft); border: 1px solid var(--line); border-radius: 4px; padding: 3px 9px; }
+.steps span.stop { background: var(--stop-soft); border-color: var(--stop); color: var(--stop); font-weight: 600; }
+.steps span.arr { color: var(--muted); }
+.example {
+  font-family: var(--font-mono); font-size: 0.85rem; background: var(--code-bg);
+  border-radius: 4px; padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.example .prompt { color: var(--accent); }
+.note { font-size: 0.9rem; color: var(--muted); }
+
+.checklist { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; max-width: 75ch; }
+.checklist li { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.checklist li code { justify-self: start; }
+
+@media (max-width: 760px) {
+  .skill { grid-template-columns: minmax(0, 1fr); }
+  .skill-id { border-right: none; border-bottom: 1px solid var(--line); }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .checklist li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  td:first-child { width: auto; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<header class="intro">
+  <div class="eyebrow">Tech Lead Kit · версия 1.0.0</div>
+  <h1>Путеводитель Tech Lead Kit</h1>
+  <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
+  в Claude Code в VS Code.</p>
+  <nav class="toc" aria-label="Содержание">
+    <a href="#schema">Общая схема</a>
+    <a href="#install">Установка и обновление</a>
+    <a href="#flow">Путь задачи</a>
+    <a href="#when">Что писать в какой ситуации</a>
+    <a href="#skills">Работа с каждым skill</a>
+    <a href="#review">Ревьюеры</a>
+    <a href="#check">Проверка установки</a>
+  </nav>
+</header>
+
+<!-- ============ 1. SCHEMA ============ -->
+<section id="schema">
+  <div class="section-head">
+    <div class="eyebrow">Схема 1</div>
+    <h2>Общая схема: из чего состоит kit</h2>
+  </div>
+  <p>Kit устроен слоями. Чем ниже слой, тем реже он загружается в контекст Claude. Поэтому
+  правила действуют всегда, а подробные справочники не тратят контекст, пока они не нужны.</p>
+
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 720" role="img" aria-label="Схема компонентов kit: CORE, команды, skills, справочники, ревьюеры, SQL MCP и память проекта">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <!-- user -->
+      <rect class="box-accent" x="330" y="16" width="340" height="50" rx="6"/>
+      <text class="t-title" x="500" y="38" text-anchor="middle">Ты: задача в Claude Code</text>
+      <text class="t-sub" x="500" y="56" text-anchor="middle">VS Code, проект с установленным kit</text>
+      <path class="wire" d="M500,66 L500,104" marker-end="url(#ah)"/>
+
+      <!-- session frame -->
+      <rect class="frame" x="20" y="108" width="690" height="490" rx="8"/>
+      <text class="t-band" x="36" y="128">СЕССИЯ CLAUDE CODE</text>
+
+      <!-- band 1 CORE -->
+      <text class="t-band" x="40" y="152">1 · ВСЕГДА В КОНТЕКСТЕ</text>
+      <rect class="box" x="40" y="160" width="650" height="62" rx="6"/>
+      <text class="t-title" x="56" y="184">CORE.md</text>
+      <text class="t-mono" x="128" y="184">подключается через .claude/CLAUDE.md</text>
+      <text class="t-sub" x="56" y="206">SMALL/LARGE · 12 инженерных правил · язык (русский / иврит) · протокол MCP · Definition of Done</text>
+
+      <!-- band 2 commands -->
+      <text class="t-band" x="40" y="250">2 · ТОЧКИ ВХОДА (ПИШЕШЬ ТЫ)</text>
+      <rect class="box" x="40" y="258" width="650" height="50" rx="6"/>
+      <text class="t-mono" x="365" y="288" text-anchor="middle" style="font-size:12.5px">/tl-init   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
+
+      <!-- band 3 skills -->
+      <text class="t-band" x="40" y="336">3 · ЗНАНИЯ ПО ТЕМЕ (ЗАГРУЖАЮТСЯ, КОГДА НУЖНЫ)</text>
+      <rect class="box-accent" x="40" y="344" width="155" height="70" rx="6"/>
+      <text class="t-title" x="117" y="370" text-anchor="middle">Стандарты кода</text>
+      <text class="t-mono" x="117" y="392" text-anchor="middle" style="font-size:9.6px">tl-engineering-standards</text>
+      <rect class="box-accent" x="205" y="344" width="155" height="70" rx="6"/>
+      <text class="t-title" x="282" y="370" text-anchor="middle">Архитектура</text>
+      <text class="t-mono" x="282" y="392" text-anchor="middle" style="font-size:9.6px">tl-architecture</text>
+      <rect class="box-accent" x="370" y="344" width="155" height="70" rx="6"/>
+      <text class="t-title" x="447" y="370" text-anchor="middle">Тех. долг</text>
+      <text class="t-mono" x="447" y="392" text-anchor="middle" style="font-size:9.6px">tl-tech-debt</text>
+      <rect class="box-accent" x="535" y="344" width="155" height="70" rx="6"/>
+      <text class="t-title" x="612" y="370" text-anchor="middle">SQL уровня DBA</text>
+      <text class="t-mono" x="612" y="392" text-anchor="middle" style="font-size:9.6px">tl-sql-engineering</text>
+      <path class="wire" d="M365,308 L365,340" marker-end="url(#ah)"/>
+
+      <!-- band 4 references -->
+      <text class="t-band" x="40" y="442">4 · СПРАВОЧНИКИ (ТОЛЬКО ПО НЕОБХОДИМОСТИ)</text>
+      <rect class="box" x="40" y="450" width="650" height="46" rx="6"/>
+      <text class="t-sub" x="56" y="478">references/*.md: правила по языкам · SQL Server · DB2 z/OS · процедуры · индексы · шаблоны ADR</text>
+      <path class="wire" d="M365,414 L365,446" marker-end="url(#ah)"/>
+
+      <!-- band 5 reviewers -->
+      <text class="t-band" x="40" y="524">5 · НЕЗАВИСИМОЕ РЕВЬЮ (SUBAGENTS, ТОЛЬКО ЧТЕНИЕ)</text>
+      <rect class="box" x="40" y="532" width="320" height="50" rx="6"/>
+      <text class="t-title" x="200" y="554" text-anchor="middle">Архитектор</text>
+      <text class="t-mono" x="200" y="572" text-anchor="middle">tl-architect-reviewer</text>
+      <rect class="box" x="370" y="532" width="320" height="50" rx="6"/>
+      <text class="t-title" x="530" y="554" text-anchor="middle">DBA</text>
+      <text class="t-mono" x="530" y="572" text-anchor="middle">tl-sql-reviewer</text>
+
+      <!-- MCP column -->
+      <text class="t-band" x="745" y="336">SQL MCP</text>
+      <rect class="box" x="745" y="344" width="235" height="70" rx="6"/>
+      <text class="t-mono" x="862" y="372" text-anchor="middle">meet-checkov</text>
+      <text class="t-mono" x="862" y="394" text-anchor="middle">meet-chequemis</text>
+      <rect class="box-stop" x="745" y="440" width="235" height="56" rx="6"/>
+      <text class="t-title t-stop" x="862" y="464" text-anchor="middle">PROD</text>
+      <text class="t-sub" x="862" y="484" text-anchor="middle">только SELECT</text>
+      <rect class="box-ok" x="745" y="512" width="235" height="56" rx="6"/>
+      <text class="t-title t-ok" x="862" y="536" text-anchor="middle">TEST</text>
+      <text class="t-sub" x="862" y="556" text-anchor="middle">изменения с подтверждением</text>
+      <path class="wire" d="M690,379 L741,379" marker-end="url(#ah)"/>
+      <path class="wire-dash" d="M690,557 L715,557 L715,400 L741,400" marker-end="url(#ah)"/>
+      <path class="wire" d="M862,414 L862,436" marker-end="url(#ah)"/>
+
+      <!-- memory -->
+      <path class="wire" d="M365,598 L365,634" marker-start="url(#ah)" marker-end="url(#ah)"/>
+      <text class="t-label" x="376" y="622">читает и пишет</text>
+      <text class="t-band" x="20" y="630">ПАМЯТЬ ПРОЕКТА · ЛОКАЛЬНО, НЕ В GIT</text>
+      <rect class="box" x="20" y="638" width="960" height="62" rx="6"/>
+      <text class="t-mono" x="40" y="664" style="font-size:12px">.claude/tl-memory/</text>
+      <text class="t-sub" x="40" y="686">PROJECT_CONTEXT.md: карта проекта · adr/: решения · design/: дизайны · TECH_DEBT.md: реестр долга</text>
+    </svg>
+    <figcaption>Сплошные стрелки показывают основной поток. SQL-skill и DBA-ревьюер (пунктир) смотрят реальную схему и индексы через MCP.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 2. INSTALL ============ -->
+<section id="install">
+  <div class="section-head">
+    <div class="eyebrow">Схема 2</div>
+    <h2>Установка и обновление через USB</h2>
+  </div>
+  <p>Ставится в каждый проект отдельно. Обновление выполняется той же командой: файлы kit
+  заменяются, а память проекта не трогается.</p>
+
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 380" role="img" aria-label="Шаги установки: GitHub, USB, рабочий ПК, install.cmd, VS Code">
+      <defs>
+        <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="box" x="20" y="30" width="170" height="74" rx="6"/>
+      <text class="t-title" x="105" y="60" text-anchor="middle">GitHub</text>
+      <text class="t-sub" x="105" y="82" text-anchor="middle">Code → Download ZIP</text>
+
+      <rect class="box" x="215" y="30" width="170" height="74" rx="6"/>
+      <text class="t-title" x="300" y="60" text-anchor="middle">USB</text>
+      <text class="t-sub" x="300" y="82" text-anchor="middle">перенос архива</text>
+
+      <rect class="box" x="410" y="30" width="170" height="74" rx="6"/>
+      <text class="t-title" x="495" y="60" text-anchor="middle">Рабочий ПК</text>
+      <text class="t-mono" x="495" y="82" text-anchor="middle">C:\tools\tech-lead-kit</text>
+
+      <rect class="box-accent" x="605" y="30" width="170" height="74" rx="6"/>
+      <text class="t-title" x="690" y="60" text-anchor="middle">install.cmd</text>
+      <text class="t-mono" x="690" y="82" text-anchor="middle">"C:\work\проект"</text>
+
+      <rect class="box-ok" x="800" y="30" width="180" height="74" rx="6"/>
+      <text class="t-title" x="890" y="60" text-anchor="middle">VS Code</text>
+      <text class="t-sub" x="890" y="82" text-anchor="middle">новая сессия → /tl-init</text>
+
+      <path class="wire" d="M190,67 L211,67" marker-end="url(#ah2)"/>
+      <path class="wire" d="M385,67 L406,67" marker-end="url(#ah2)"/>
+      <path class="wire" d="M580,67 L601,67" marker-end="url(#ah2)"/>
+      <path class="wire" d="M775,67 L796,67" marker-end="url(#ah2)"/>
+
+      <!-- what install does -->
+      <path class="wire-dash" d="M690,104 L690,140"/>
+      <rect class="box" x="300" y="140" width="680" height="128" rx="6"/>
+      <text class="t-band" x="318" y="162">ЧТО ДЕЛАЕТ INSTALL.CMD</text>
+      <text class="t-sub" x="318" y="186">1. Копирует kit\.claude в проект\.claude (чужие файлы не трогает)</text>
+      <text class="t-sub" x="318" y="208">2. Добавляет строку @tech-lead-kit/CORE.md в .claude\CLAUDE.md</text>
+      <text class="t-sub" x="318" y="230">3. Создаёт .claude\tl-memory\ (если уже есть, не перезаписывает)</text>
+      <text class="t-sub" x="318" y="252">4. Скрывает kit от git через локальный .git\info\exclude</text>
+
+      <!-- update loop -->
+      <rect class="box-accent" x="20" y="300" width="960" height="60" rx="6"/>
+      <text class="t-title" x="40" y="326">Обновление</text>
+      <text class="t-sub" x="40" y="347">новый ZIP → USB → снова install.cmd для проекта → файлы kit заменяются, .claude\tl-memory\ остаётся как была</text>
+      <path class="wire-dash" d="M105,296 L105,108" marker-end="url(#ah2)"/>
+    </svg>
+    <figcaption>Удаление: <code>uninstall.cmd "C:\work\проект"</code>. ADR, дизайны и реестр долга сохраняются.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 3. FLOW ============ -->
+<section id="flow">
+  <div class="section-head">
+    <div class="eyebrow">Схема 3</div>
+    <h2>Путь задачи: SMALL и LARGE</h2>
+  </div>
+  <p>Каждую задачу Claude сначала относит к SMALL или LARGE и пишет это одной строкой. LARGE —
+  это новый модуль, сервис или endpoint, изменение схемы БД, интеграция или правка больше чем
+  в 3 файлах. Такая задача без твоего «утверждаю» до кода не дойдёт.</p>
+
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 450" role="img" aria-label="Путь задачи: классификация, ветка SMALL сразу к реализации, ветка LARGE через дизайн, остановку, реализацию и ревью">
+      <defs>
+        <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ah3s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-stop" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <rect class="box-accent" x="20" y="185" width="110" height="50" rx="6"/>
+      <text class="t-title" x="75" y="215" text-anchor="middle">Запрос</text>
+      <path class="wire" d="M130,210 L146,210" marker-end="url(#ah3)"/>
+
+      <polygon class="box" points="230,155 310,210 230,265 150,210"/>
+      <text class="t-title" x="230" y="206" text-anchor="middle">SMALL</text>
+      <text class="t-title" x="230" y="224" text-anchor="middle">или LARGE?</text>
+
+      <!-- SMALL lane -->
+      <path class="wire" d="M230,155 L230,70 L356,70" marker-end="url(#ah3)"/>
+      <text class="t-label" x="240" y="62">SMALL</text>
+      <rect class="box" x="360" y="40" width="170" height="60" rx="6"/>
+      <text class="t-title" x="445" y="65" text-anchor="middle">Реализация</text>
+      <text class="t-sub" x="445" y="85" text-anchor="middle">стандарты + SQL-skill</text>
+      <path class="wire" d="M530,70 L556,70" marker-end="url(#ah3)"/>
+      <rect class="box" x="560" y="40" width="170" height="60" rx="6"/>
+      <text class="t-title" x="645" y="65" text-anchor="middle">Самопроверка</text>
+      <text class="t-sub" x="645" y="85" text-anchor="middle">чек-лист «готово»</text>
+      <path class="wire" d="M730,70 L786,70" marker-end="url(#ah3)"/>
+      <rect class="box-ok" x="790" y="40" width="190" height="60" rx="6"/>
+      <text class="t-title" x="885" y="65" text-anchor="middle">Отчёт</text>
+      <text class="t-sub" x="885" y="85" text-anchor="middle">на русском: что, зачем, риски</text>
+
+      <!-- LARGE lane -->
+      <path class="wire" d="M310,210 L356,210" marker-end="url(#ah3)"/>
+      <text class="t-label" x="314" y="202">LARGE</text>
+      <rect class="box" x="360" y="180" width="170" height="60" rx="6"/>
+      <text class="t-title" x="445" y="205" text-anchor="middle">/tl-design</text>
+      <text class="t-sub" x="445" y="225" text-anchor="middle">дизайн + ADR</text>
+      <path class="wire" d="M530,210 L556,210" marker-end="url(#ah3)"/>
+      <rect class="box-stop" x="560" y="180" width="170" height="60" rx="6"/>
+      <text class="t-title t-stop" x="645" y="205" text-anchor="middle">STOP</text>
+      <text class="t-sub" x="645" y="225" text-anchor="middle">ждёт «утверждаю»</text>
+      <!-- revise loop -->
+      <path class="wire-stop" d="M645,180 L645,150 L445,150 L445,176" marker-end="url(#ah3s)"/>
+      <text class="t-label t-stop" x="470" y="143">нужны правки</text>
+      <!-- approved -->
+      <path class="wire" d="M645,240 L645,282 L445,282 L445,316" marker-end="url(#ah3)"/>
+      <text class="t-label" x="470" y="275">утверждаю</text>
+
+      <rect class="box" x="360" y="320" width="170" height="60" rx="6"/>
+      <text class="t-title" x="445" y="345" text-anchor="middle">/tl-implement</text>
+      <text class="t-sub" x="445" y="365" text-anchor="middle">малые шаги + тесты</text>
+      <path class="wire" d="M530,350 L556,350" marker-end="url(#ah3)"/>
+      <rect class="box" x="560" y="320" width="170" height="60" rx="6"/>
+      <text class="t-title" x="645" y="345" text-anchor="middle">/tl-review</text>
+      <text class="t-sub" x="645" y="365" text-anchor="middle">архитектор + DBA</text>
+      <!-- blocker loop -->
+      <path class="wire-stop" d="M645,380 L645,416 L445,416 L445,384" marker-end="url(#ah3s)"/>
+      <text class="t-label t-stop" x="470" y="436">есть BLOCKER → исправить</text>
+      <!-- to report -->
+      <path class="wire" d="M730,350 L885,350 L885,104" marker-end="url(#ah3)"/>
+      <text class="t-label" x="760" y="342">без BLOCKER</text>
+    </svg>
+    <figcaption>Оранжевым показаны точки, где процесс останавливается или возвращается назад.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 4. WHEN ============ -->
+<section id="when">
+  <div class="section-head">
+    <div class="eyebrow">Шпаргалка</div>
+    <h2>Что писать в какой ситуации</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ситуация</th><th>Что написать Claude</th></tr></thead>
+      <tbody>
+        <tr><td>Первый раз открыл проект с kit</td><td><code>/tl-init</code>. Claude спросит, какой сервер PROD, а какой TEST.</td></tr>
+        <tr><td>Мелкий баг, небольшая правка</td><td>Просто опиши задачу или напиши <code>/tl-implement &lt;задача&gt;</code></td></tr>
+        <tr><td>Новая функция, сервис, endpoint, изменение таблиц</td><td><code>/tl-design &lt;задача&gt;</code> → прочитать → «утверждаю» → <code>/tl-implement &lt;путь к дизайну&gt;</code></td></tr>
+        <tr><td>Медленный запрос, новая процедура, индекс</td><td><code>/tl-sql &lt;задача&gt;</code></td></tr>
+        <tr><td>Перед коммитом или сдачей</td><td><code>/tl-review</code> (без аргументов проверяет незакоммиченные изменения)</td></tr>
+        <tr><td>Раз в спринт или перед рефакторингом</td><td><code>/tl-debt &lt;папка или модуль&gt;</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Команды писать не обязательно: правила из CORE.md действуют всегда, и Claude сам
+  загружает нужный skill. Команды делают процесс явным и предсказуемым.</p>
+</section>
+
+<!-- ============ 5. SKILLS ============ -->
+<section id="skills">
+  <div class="section-head">
+    <div class="eyebrow">Skills</div>
+    <h2>Работа с каждым skill</h2>
+  </div>
+
+  <article class="skill" aria-labelledby="s1">
+    <div class="skill-id">
+      <h3 id="s1">Стандарты кода</h3>
+      <div class="name">tl-engineering-standards</div>
+      <div class="note">C# · C++ · Python · Node.js · COBOL · Natural. У каждого языка свой файл правил.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда включается</span><span class="v">Любая реализация, исправление бага, рефакторинг. Загружается автоматически.</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-implement &lt;задача&gt;</code> или обычный запрос на изменение кода</span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v">Код по слоям, тесты, комментарии «почему» на иврите, отчёт на русском</span></div>
+      </div>
+      <div class="steps" aria-label="Шаги">
+        <span class="step">Ориентация в проекте</span><span class="arr">→</span>
+        <span class="step">SMALL / LARGE</span><span class="arr">→</span>
+        <span class="step">План малыми шагами</span><span class="arr">→</span>
+        <span class="step">Код</span><span class="arr">→</span>
+        <span class="step">Тесты</span><span class="arr">→</span>
+        <span class="step">Самопроверка</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-implement исправить расчёт пени в InvoiceService, когда дата оплаты выпадает на выходной</div>
+      <p class="note">Перед кодом Claude смотрит, как похожие вещи уже сделаны в проекте, и определяет
+      версию языка по файлам проекта (<code>*.csproj</code>, <code>pyproject.toml</code>, <code>package.json</code>).
+      Функций новее этой версии он не использует.</p>
+    </div>
+  </article>
+
+  <article class="skill" aria-labelledby="s2">
+    <div class="skill-id">
+      <h3 id="s2">Архитектура</h3>
+      <div class="name">tl-architecture</div>
+      <div class="note">Основа: system-design + architecture от Anthropic, дополнены под мейнфрейм и SQL Server.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда включается</span><span class="v">LARGE-задачи, выбор технологии или паттерна, ревью дизайна</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-design &lt;задача&gt;</code></span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v">Дизайн в <code>tl-memory/design/</code>, ADR в <code>tl-memory/adr/</code> (на иврите) и короткую сводку на русском</span></div>
+      </div>
+      <div class="steps" aria-label="Шаги">
+        <span class="step">Требования и вопросы</span><span class="arr">→</span>
+        <span class="step">Текущее состояние: код + MCP</span><span class="arr">→</span>
+        <span class="step">Минимум 2 варианта</span><span class="arr">→</span>
+        <span class="step">Решение + ADR</span><span class="arr">→</span>
+        <span class="step stop">STOP</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-design web service для проверки статуса чека из внешней системы, данные в DB2 z/OS
+<span class="prompt">&gt;</span> утверждаю
+<span class="prompt">&gt;</span> /tl-implement .claude/tl-memory/design/2026-10-20-cheque-status.md</div>
+      <p class="note">Один из вариантов всегда «минимальное изменение в существующей структуре».
+      Микросервисы, очереди и новые фреймворки предлагаются только с обоснованием.</p>
+    </div>
+  </article>
+
+  <article class="skill" aria-labelledby="s3">
+    <div class="skill-id">
+      <h3 id="s3">SQL уровня DBA</h3>
+      <div class="name">tl-sql-engineering</div>
+      <div class="note">SQL Server 2019/2022 · DB2 for z/OS · stored procedures · работа через MCP.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда включается</span><span class="v">Любой SQL: запросы, процедуры, индексы, DDL, миграции, SQL внутри C#/Python/Node/COBOL/Natural</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-sql &lt;задача&gt;</code> или автоматически</span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v">Что проверено в каталоге, выбранный индекс, SQL и риски. Для схемы: скрипты forward + rollback, которые Claude сам не выполняет</span></div>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-sql оптимизировать процедуру dbo.GetCustomerCheques: медленно работает на больших клиентах</div>
+    </div>
+  </article>
+
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 290" role="img" aria-label="Шаги SQL-skill и правила для PROD и TEST">
+      <defs>
+        <marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="box-accent" x="20" y="24" width="175" height="96" rx="6"/>
+      <text class="t-title" x="107" y="52" text-anchor="middle">0 · Где я?</text>
+      <text class="t-sub" x="107" y="76" text-anchor="middle">движок и версия,</text>
+      <text class="t-sub" x="107" y="96" text-anchor="middle">PROD или TEST</text>
+
+      <rect class="box-accent" x="216" y="24" width="175" height="96" rx="6"/>
+      <text class="t-title" x="303" y="52" text-anchor="middle">1 · Схема</text>
+      <text class="t-sub" x="303" y="76" text-anchor="middle">типы, ключи,</text>
+      <text class="t-sub" x="303" y="96" text-anchor="middle">все индексы, объём</text>
+
+      <rect class="box-accent" x="412" y="24" width="175" height="96" rx="6"/>
+      <text class="t-title" x="499" y="52" text-anchor="middle">2 · Путь доступа</text>
+      <text class="t-sub" x="499" y="76" text-anchor="middle">какой индекс под</text>
+      <text class="t-sub" x="499" y="96" text-anchor="middle">каждый WHERE и JOIN</text>
+
+      <rect class="box-accent" x="608" y="24" width="175" height="96" rx="6"/>
+      <text class="t-title" x="695" y="52" text-anchor="middle">3 · SQL</text>
+      <text class="t-sub" x="695" y="76" text-anchor="middle">параметры, set-based,</text>
+      <text class="t-sub" x="695" y="96" text-anchor="middle">SARGable</text>
+
+      <rect class="box-accent" x="804" y="24" width="176" height="96" rx="6"/>
+      <text class="t-title" x="892" y="52" text-anchor="middle">4 · Проверка</text>
+      <text class="t-sub" x="892" y="76" text-anchor="middle">план, NULL, пусто,</text>
+      <text class="t-sub" x="892" y="96" text-anchor="middle">дубликаты, границы</text>
+
+      <path class="wire" d="M195,72 L212,72" marker-end="url(#ah4)"/>
+      <path class="wire" d="M391,72 L408,72" marker-end="url(#ah4)"/>
+      <path class="wire" d="M587,72 L604,72" marker-end="url(#ah4)"/>
+      <path class="wire" d="M783,72 L800,72" marker-end="url(#ah4)"/>
+
+      <rect class="box-stop" x="20" y="150" width="470" height="118" rx="6"/>
+      <text class="t-title t-stop" x="38" y="176">PROD: только чтение</text>
+      <text class="t-sub" x="38" y="200">SELECT по каталогу и маленькие выборки (TOP / FETCH FIRST)</text>
+      <text class="t-sub" x="38" y="222">никаких DML, DDL, EXEC, CALL; EXPLAIN тоже нельзя</text>
+      <text class="t-sub" x="38" y="244">изменения схемы приходят только как скрипты на ревью</text>
+
+      <rect class="box-ok" x="510" y="150" width="470" height="118" rx="6"/>
+      <text class="t-title t-ok" x="528" y="176">TEST: изменения с объявлением</text>
+      <text class="t-sub" x="528" y="200">команда показывается до выполнения</text>
+      <text class="t-sub" x="528" y="222">DROP, TRUNCATE, массовые DELETE/UPDATE, ALTER:</text>
+      <text class="t-sub" x="528" y="244">только после твоего подтверждения</text>
+    </svg>
+    <figcaption>Если среда неизвестна, Claude считает её PROD. Привязку серверов к PROD и TEST он записывает в PROJECT_CONTEXT.md при /tl-init.</figcaption>
+  </figure>
+
+  <article class="skill" aria-labelledby="s4">
+    <div class="skill-id">
+      <h3 id="s4">Технический долг</h3>
+      <div class="name">tl-tech-debt</div>
+      <div class="note">Основа: tech-debt от Anthropic плюс постоянный реестр.</div>
+    </div>
+    <div class="skill-body">
+      <div class="facts">
+        <div class="fact"><span class="k">Когда включается</span><span class="v">Аудит, вопрос «что рефакторить», и в каждой задаче, где найден или создан долг</span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-debt &lt;папка или модуль&gt;</code></span></div>
+        <div class="fact"><span class="k">Что получаешь</span><span class="v">Реестр <code>TECH_DEBT.md</code> с номерами TD-NNN, топ-10 и план по фазам</span></div>
+      </div>
+      <div class="steps" aria-label="Расчёт приоритета">
+        <span class="step">Влияние 1–5</span><span class="arr">+</span>
+        <span class="step">Риск 1–5</span><span class="arr">×</span>
+        <span class="step">(6 − Усилие 1–5)</span><span class="arr">=</span>
+        <span class="step">Приоритет 2–50</span>
+      </div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-debt src/Billing</div>
+      <p class="note">Проблемы вне текущей задачи Claude не правит молча: он записывает их в реестр и упоминает в отчёте.</p>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 6. REVIEW ============ -->
+<section id="review">
+  <div class="section-head">
+    <div class="eyebrow">Subagents</div>
+    <h2>Ревьюеры</h2>
+  </div>
+  <p><code>/tl-review</code> запускает двух независимых ревьюеров параллельно. Они не писали этот код,
+  поэтому видят то, что автор пропускает. Оба работают только на чтение: файлы не меняют, в базу
+  не пишут, даже на TEST.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ревьюер</th><th>Что проверяет</th></tr></thead>
+      <tbody>
+        <tr><td><code>tl-architect-reviewer</code></td><td>Логику и крайние случаи, слои и границы, контракты API/процедур/copybooks, ошибки и логи, безопасность, тесты</td></tr>
+        <tr><td><code>tl-sql-reviewer</code></td><td>Каждый запрос сверяется с реальными индексами через MCP, плюс типы параметров, NULL, транзакции, блокировки, совместимость 2019/2022, влияние на пакеты DB2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Результат делится на три уровня. BLOCKER нужно исправить обязательно, MAJOR — в этой же
+  задаче, MINOR можно отложить в реестр долга. В <code>/tl-implement</code> BLOCKER исправляются автоматически.</p>
+</section>
+
+<!-- ============ 7. CHECK ============ -->
+<section id="check">
+  <div class="section-head">
+    <div class="eyebrow">После установки</div>
+    <h2>Проверка, что всё работает</h2>
+  </div>
+  <ul class="checklist">
+    <li><code>/</code><span>видны команды <code>/tl-init</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code></span></li>
+    <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md</span></li>
+    <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code> и <code>tl-sql-reviewer</code></span></li>
+    <li><code>/mcp</code><span>подключены <code>meet-checkov</code> и <code>meet-chequemis</code></span></li>
+    <li><code>/tl-init</code><span>создан <code>.claude/tl-memory/PROJECT_CONTEXT.md</code></span></li>
+  </ul>
+  <p class="note">Если команды не видны, обнови расширение Claude Code в VS Code и начни новую сессию.</p>
+</section>
+
+</div>
+</body>
+</html>
