@@ -461,7 +461,7 @@ td:first-child { width: 42%; }
     </div>
     <div class="skill-body">
       <div class="facts">
-        <div class="fact"><span class="k">מתי נכנס לפעולה</span><span class="v">כל מימוש, תיקון באג או refactoring. נטען אוטומטית.</span></div>
+        <div class="fact"><span class="k">מתי נכנס לפעולה</span><span class="v">כל מימוש, תיקון באג או refactoring — עם פקודה או בלי, גם SMALL. Claude טוען אותו לפני העריכה הראשונה של קוד.</span></div>
         <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-implement &lt;משימה&gt;</code> או בקשה רגילה לשינוי קוד</span></div>
         <div class="fact"><span class="k">מה מקבלים</span><span class="v">קוד לפי שכבות, בדיקות, הערות "למה" בעברית ודוח ברוסית</span></div>
       </div>
@@ -947,9 +947,20 @@ td:first-child { width: 42%; }
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — כל השורות <code>ok</code></span></li>
     <li><code>/mcp</code><span><code>meet-checkov</code> ו-<code>meet-chequemis</code> מחוברים</span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_knowledge.py index</code> — יוצר את המפה <code>KNOWLEDGE.md</code></span></li>
-    <li><code>/tl-init</code><span>נוצרו <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> ו-<code>KNOWLEDGE.md</code></span></li>
+    <li><code>/tl-init</code><span>נוצרו <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> ו-<code>KNOWLEDGE.md</code>; בדוח יש בדיקה עצמית של ה-kit</span></li>
+    <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_doctor.py</code> — 0 שגיאות; אזהרות הן מה שעלול לעבוד במקום ה-kit</span></li>
   </ul>
   <p class="note">אם הפקודות לא מופיעות, צריך לעדכן את התוסף Claude Code ב-VS Code ולפתוח סשן חדש.</p>
+  <div class="callout">
+    <p><strong>ה-kit ולא משהו אחר.</strong> הכלל "Kit tools first" ב-CORE: לפני העריכה הראשונה של קוד Claude טוען את
+    <code>tl-engineering-standards</code> ואת קובץ הכללים של השפה, גם בתיקון קטן וגם בלי פקודה. למחקר, לסקירה
+    ולביקורת הוא משתמש בסוכני <code>tl-</code>, ולא בסוכנים מובנים, ב-skills זרים, בתוספים או ב-MCP אחרים.
+    בדוח של <code>/tl-implement</code> השורה הראשונה אומרת אילו תקנים וסוכנים של ה-kit שימשו.</p>
+    <p><code>/tl-init</code> מריץ את <code>tl_doctor.py</code>. הסקריפט בודק שה-kit מחובר (CORE, המדריך, פקודות, skills,
+    סוכנים) ומוצא מה עלול לקחת את העבודה: skills, סוכנים ופקודות זרים בפרויקט וב-<code>%USERPROFILE%\.claude</code>,
+    שמות זהים, קובצי <code>CLAUDE.md</code> וכללים אחרים, שרתי MCP, תוספים, hooks והגבלות בהגדרות. Claude קורא את
+    מה שנמצא, אומר מה חופף ל-kit או סותר אותו, ושואל איזה כלל קובע. קבצים זרים הוא לא משנה.</p>
+  </div>
 </section>
 
 </div>

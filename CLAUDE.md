@@ -17,6 +17,7 @@ kit/.claude/            ← то, что install.cmd копирует в <про
   tech-lead-kit/CORE.md   правила, загружаются ВСЕГДА — держать ≤ 120 строк
   tech-lead-kit/VERSION   semver; повышать при каждом изменении kit
   tech-lead-kit/scripts/  tl_knowledge.py — карта знаний KNOWLEDGE.md и публикация в проект
+                          tl_doctor.py — самопроверка kit и поиск того, что конкурирует с ним
   skills/ commands/ agents/
 install.cmd, uninstall.cmd   Windows-установщик (CRLF!)
 installer/install-gui.ps1    окно установки (PowerShell 5.1, UTF-8 с BOM, CRLF)
@@ -50,7 +51,7 @@ demo/                   учебный проект + прогон всех ко
 
 ## Проверка перед commit
 ```
-python -m unittest discover -s tests          # структура kit, an_stats, an_doc2text, spec_tool, tl_knowledge
+python -m unittest discover -s tests          # структура kit, an_stats, an_doc2text, spec_tool, tl_knowledge, tl_doctor
 ```
 Большие изменения поведения — прогнать демо (`demo/README.md`) и обновить `demo/RESULTS.md`:
 ```

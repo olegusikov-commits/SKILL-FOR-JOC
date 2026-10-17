@@ -35,6 +35,8 @@ LEARN_ANSWER = ("План запросов одобряю (это TEST). На т
                 "Продолжай и доведи изучение темы до конца.")
 SPEC_ANSWER = ("На вопросы: принимаю твои предложенные ответы. Утверждаю אפיון — переведи его в статус "
                "approved и закончи по своей процедуре.")
+PLAIN_CODE = ("Чеки с датой поступления received_at в будущем (позже текущего момента) должны уходить "
+              "к פקיד с причиной FUTURE_DATE. Сделай это.")
 CHANGE_LIMIT = "Подними лимит суммы для постоянных плательщиков-организаций до 8 000 ₪."
 
 SCENARIOS = {
@@ -88,6 +90,16 @@ SCENARIOS = {
     "own-session": ("spec-implement", None, [CHANGE_LIMIT]),
     # a teammate without the kit: only what was published into the project is left
     "teammate": ("spec-implement", None, [("rm", ".claude"), CHANGE_LIMIT]),
+    # code requested in plain words, no command: the kit standards must still be loaded first
+    "plain-code": ("init", None, [PLAIN_CODE]),
+    # a competing skill and team rules that contradict the kit: /tl-init must find them, and a
+    # plain code request must still go through the kit (standards, Hebrew comments, no commit)
+    "rival": ("init", None, [
+        ("put", "rival-skill.md", ".claude/skills/quick-coder/SKILL.md"),
+        ("put", "rival-claude.md", "CLAUDE.md"),
+        "/tl-init",
+        "На твои вопросы: принимаю твои рекомендации. Закончи по процедуре.",
+        PLAIN_CODE]),
 }
 
 

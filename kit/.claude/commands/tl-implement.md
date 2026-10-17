@@ -5,6 +5,12 @@ argument-hint: "<task description or path to approved design doc>"
 
 Implement: $ARGUMENTS
 
+0. **First action, before reading code or editing anything:** load the `tl-engineering-standards`
+   skill with the Skill tool (if the tool is not available, Read
+   `.claude/skills/tl-engineering-standards/SKILL.md`), then Read its references for the
+   language(s) involved plus `references/testing.md` and `references/error-handling.md`. SMALL
+   tasks are no exception — a one-line fix follows the same standard. For any SQL also load
+   `tl-sql-engineering`.
 1. Read `.claude/tl-memory/PROJECT_CONTEXT.md` and `.claude/tl-memory/KNOWLEDGE.md`. Read the
    design doc / spec the argument points to, and every approved spec and accepted ADR whose
    `area` touches the files you will change.
@@ -17,9 +23,8 @@ Implement: $ARGUMENTS
    - LARGE without an approved design → do not code. Run the `/tl-design` process instead and stop.
    - LARGE with an approved design → implement exactly that design; if reality forces a
      deviation, stop and explain before continuing.
-3. Load the `tl-engineering-standards` skill and the reference file for the language(s) involved.
-   For any SQL, load `tl-sql-engineering` and verify the real schema/indexes via the SQL MCP
-   (read-only on PROD) before writing SQL.
+3. Check that step 0 was done (standards and language reference are in your context). For any
+   SQL verify the real schema/indexes via the SQL MCP (read-only on PROD) before writing SQL.
 4. State the plan as small steps. Implement step by step; each step compiles and keeps tests green.
    Do not mix refactoring with behavior change in the same step.
 5. Add/update tests (bug fix → failing test first). Run the project's build/tests if possible.
@@ -31,6 +36,7 @@ Implement: $ARGUMENTS
 9. If you implemented a spec, fill its traceability section (code `file:line`, tests) — that is
    not a change of the spec: version and status stay; then `spec_tool.py render` it and run
    `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`. If behaviour differs from the spec in any way, say so instead.
-10. Report in Russian: what changed (files), why, tests added and their results (AC coverage when
+10. Report in Russian. Start with one line: `Стандарты kit: <skills and references loaded>; агенты:
+   <kit agents used or "—">`. Then: what changed (files), why, tests added and their results (AC coverage when
    a spec exists), review results, risks, and what the user must verify manually (e.g. on TEST /
    mainframe compile / BIND).
