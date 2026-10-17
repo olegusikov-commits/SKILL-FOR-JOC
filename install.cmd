@@ -71,12 +71,7 @@ if not exist "%CLAUDE_MD%" (
         >>"%CLAUDE_MD%" echo.
         >>"%CLAUDE_MD%" echo %IMPORT_LINE%
         echo [OK] Added the kit import line to existing .claude\CLAUDE.md
-        call :add_exclude
-findstr /L /X /C:"%~1" "%EXCLUDE%" >nul 2>&1
-if errorlevel 1 >>"%EXCLUDE%" echo %~1
-goto :eof
-
-:warn_if_tracked
+        call :warn_if_tracked
     ) else (
         echo [OK] .claude\CLAUDE.md already imports the kit
     )
