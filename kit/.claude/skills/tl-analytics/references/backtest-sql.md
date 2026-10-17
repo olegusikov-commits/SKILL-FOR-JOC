@@ -2,7 +2,7 @@
 
 Templates are written for **SQL Server** (T-SQL). DB2 for z/OS differences are listed at the
 end. Replace `<…>` placeholders with real names from `DATA_MAP.md`. Follow
-`analytical-read-safety.md` for every query on PROD. Save each query that produces a reported
+`analytical-read-safety.md` for every query (TEST or PROD). Save each query that produces a reported
 number to `queries/NNN-name.sql` with a header comment.
 
 All patterns share one **base CTE**: one row per object, only decision-time fields + the

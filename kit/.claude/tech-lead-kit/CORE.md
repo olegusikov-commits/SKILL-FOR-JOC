@@ -78,8 +78,8 @@ They are connected to both **PROD** and **TEST**.
 - Never run heavy queries (full scans of large tables, cross joins, unbounded result sets) on
   any environment without saying why and getting a yes.
 - **Analytical reads** (bounded, aggregated `SELECT`s over history for ANALYSIS tasks) follow
-  `tl-analytics/references/analytical-read-safety.md`: the query plan is approved once per
-  topic, then queries within it need no new approval.
+  `tl-analytics/references/analytical-read-safety.md`: TEST first if its data is fresh enough;
+  on PROD the query plan is approved once per topic, then queries within it need no new approval.
 - Schema changes for PROD are delivered as **reviewed script files**, never executed by you.
 
 ## Where things live

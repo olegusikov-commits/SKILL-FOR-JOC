@@ -28,8 +28,9 @@ disprove yourself, then recommend.**
 7. **ANALYSIS does not change production code.** You may create files only under
    `.claude/tl-memory/analysis/`. If the result should be implemented, end with a ready task
    for `/tl-design`.
-8. **Data safety.** SQL MCP on PROD: only `SELECT`, following
-   `references/analytical-read-safety.md`. Unknown environment = PROD.
+8. **Data safety.** `SELECT` only on every environment, following
+   `references/analytical-read-safety.md`: TEST first if its data is fresh enough; PROD allowed
+   with the once-per-topic query plan approval. Unknown environment = PROD.
 
 ## Topic memory
 Everything you learn is stored per topic, so the next session continues instead of relearning:

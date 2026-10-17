@@ -34,7 +34,7 @@ before management acts on them. You did not do this analysis. Assume nothing; ve
 10. **Selection bias and label noise** acknowledged where relevant.
 11. **Calibration:** baseline reproduces the known business number; logic translation agrees
     with actual decisions.
-12. **Safety:** no write operations were used; queries were bounded.
+12. **Safety:** no write operations; queries were bounded; PROD only within the approved plan.
 13. For "code meets task" verdicts: each ✔ in the matrix really has the code evidence.
 
 ## Output format

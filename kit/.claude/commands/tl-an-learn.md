@@ -29,8 +29,8 @@ Do NOT change production code. Write only under `.claude/tl-memory/analysis/`.
    code and data — code and data describe what really happens; docs describe intent. Record
    every contradiction.
 5. **Calibrate early** (if a known business number exists, e.g. "8% automatic"): one bounded,
-   aggregated query by month (follow `references/analytical-read-safety.md`; for a heavy query
-   first ask for the once-per-topic query plan approval). Save it to `queries/`, write
+   aggregated query by month (follow `references/analytical-read-safety.md`: TEST first if fresh
+   enough; on PROD first ask for the once-per-topic query plan approval). Save it to `queries/`, write
    `BASELINE.md`. Mismatch → investigate and record why.
 6. **Questions — only now, after learning.** Up to 5, each with your proposed answer and its
    basis (question protocol in the skill). Typical: exact definition of the error/outcome,

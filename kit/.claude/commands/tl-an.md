@@ -23,7 +23,7 @@ modify production code; write only under `.claude/tl-memory/analysis/`.
    - data question, "why is X", before/after → generic cycle + `references/statistics.md`.
 3. **Work the cycle** (calibrate → baseline → hypotheses → test → challenge). Every number from a
    saved query or `an_stats.py`. Heavy reading → `tl-researcher` subagents. Respect
-   `references/analytical-read-safety.md`.
+   `references/analytical-read-safety.md` (TEST first; PROD within the approved plan).
 4. **Challenge:** before the final answer, delegate to `tl-an-skeptic` with the conclusions,
    numbers, query files and the topic folder path. Apply its findings: fix, recompute, or
    downgrade verdicts. Mention what the skeptic changed.
