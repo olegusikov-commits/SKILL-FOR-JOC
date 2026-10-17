@@ -9,8 +9,10 @@ Review target: $ARGUMENTS
    - If arguments are given → those files/folders.
    - Otherwise → the uncommitted changes (`git status` / `git diff` and `git diff --staged`).
      If git is not available or there are no changes, ask the user what to review.
-2. Delegate the review to the **`tl-architect-reviewer`** subagent with the list of files and a
-   one-paragraph description of the intent of the change (from the conversation or design doc).
+2. Find in `.claude/tl-memory/KNOWLEDGE.md` the approved specs, accepted ADRs and designs whose
+   `area` touches the changed files. Delegate the review to the **`tl-architect-reviewer`**
+   subagent with the list of files, a one-paragraph description of the intent of the change, and
+   the paths of those documents (the change is reviewed against them).
 3. If the scope contains SQL, stored procedures, DDL, migrations, or embedded SQL (C#, Python,
    Node, COBOL, Natural), also delegate to the **`tl-sql-reviewer`** subagent in parallel.
 4. Merge the results into one report in Russian, grouped by severity:

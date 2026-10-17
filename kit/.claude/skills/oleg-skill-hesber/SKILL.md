@@ -15,12 +15,16 @@ Determine, from the request or by asking only what is truly unclear:
 - **Audience** — developer on the team, new team member, manager, DBA/ops. This decides depth.
 - **Language** — default **Hebrew (RTL)**. Russian or English only if asked.
 - **Output path** — what the user named; otherwise
-  `.claude/tl-memory/hesber/<YYYY-MM-DD>-<slug>.html` (local, not committed).
+  `.claude/tl-memory/hesber/<YYYY-MM-DD>-<slug>.html` (local, not committed). Right after
+  `<!doctype html>` put `<!-- tl-meta: type=explain; id=; status=final; date=<YYYY-MM-DD>;
+  area=<what it explains: modules, tables, process>; title=<title> -->` and then run
+  `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
 
 ## 2. Facts first — never invent
 Collect facts from real sources before drawing anything:
 - Code, configs, build files, copybooks/PDAs, JCL, DDL, existing docs.
-- `.claude/tl-memory/PROJECT_CONTEXT.md`, ADRs and design docs if they exist.
+- `.claude/tl-memory/PROJECT_CONTEXT.md` and the documents listed in `.claude/tl-memory/KNOWLEDGE.md`
+  (specs, ADRs, designs) if they exist.
 - Database structure through the SQL MCP — **read-only catalog queries only** (see the
   `tl-sql-engineering` skill rules for PROD/TEST).
 Every box and arrow in a diagram must correspond to something real. If something is assumed,

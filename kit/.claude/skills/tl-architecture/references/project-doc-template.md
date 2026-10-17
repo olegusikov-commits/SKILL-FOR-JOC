@@ -6,6 +6,7 @@ could not be confirmed goes to "Open questions", never into the body as fact.
 Skip a section that does not apply (say "לא רלוונטי" in one line), do not pad.
 
 ```markdown
+<!-- tl-meta: type=project-doc; id=; status=final; date=<YYYY-MM-DD>; area=<scope: whole project or module path>; title=<Project name> — מסמך פרויקט -->
 # <Project name> — מסמך פרויקט
 גרסה / תאריך · מקורות: קוד (commit/branch), מסדי נתונים (שרת/סביבה), מסמכים
 

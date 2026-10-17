@@ -2,7 +2,8 @@
 rem ============================================================
 rem  Tech Lead Kit for Claude Code - installer (Windows)
 rem  Usage:  install.cmd "C:\path\to\project"
-rem          (without argument the script asks for the path)
+rem          (without argument: the installer window - pick projects,
+rem           install or update; text mode if the window cannot start)
 rem  Copies kit\.claude into <project>\.claude, connects CORE.md
 rem  through .claude\CLAUDE.md and hides the kit from git
 rem  (local .git\info\exclude - nothing is committed).
@@ -19,7 +20,15 @@ if not exist "%SRC%\tech-lead-kit\CORE.md" (
 )
 
 set "TARGET=%~1"
-if not defined TARGET set /p "TARGET=Project folder path: "
+if defined TARGET goto :have_target
+if defined TLK_NO_GUI goto :ask_target
+rem no argument: open the installer window (Windows PowerShell, no internet needed)
+powershell -NoProfile -ExecutionPolicy Bypass -STA -File "%~dp0installer\install-gui.ps1"
+if not errorlevel 1 exit /b 0
+echo [INFO] The installer window could not start - continuing in text mode.
+:ask_target
+set /p "TARGET=Project folder path: "
+:have_target
 if not defined TARGET (
     echo [ERROR] No project folder given.
     goto :fail
@@ -55,7 +64,25 @@ rem ---- 2. memory folders (created once, content preserved) ----
 if not exist "%TARGET%\.claude\tl-memory\adr\"    mkdir "%TARGET%\.claude\tl-memory\adr"
 if not exist "%TARGET%\.claude\tl-memory\design\" mkdir "%TARGET%\.claude\tl-memory\design"
 if not exist "%TARGET%\.claude\tl-memory\analysis\" mkdir "%TARGET%\.claude\tl-memory\analysis"
+if not exist "%TARGET%\.claude\tl-memory\spec\" mkdir "%TARGET%\.claude\tl-memory\spec"
 echo [OK] Project memory folder: .claude\tl-memory\
+
+rem ---- 2b. how kit documents become part of the project (asked once per project) ----
+set "PUBJ=%TARGET%\.claude\tl-memory\publish.json"
+if exist "%PUBJ%" goto :publish_done
+if defined TLK_FROM_GUI goto :publish_done
+echo.
+echo Approved kit documents (specs, ADRs, designs, reports) can become part of the
+echo project automatically: moved to docs\ and listed in AGENTS.md. You commit them.
+choice /C YN /M "Make approved documents part of the project automatically"
+if errorlevel 2 goto :publish_manual
+> "%PUBJ%" echo {"docs_root": "docs", "auto_publish": true}
+echo [OK] Documents: docs\ automatically after approval
+goto :publish_done
+:publish_manual
+> "%PUBJ%" echo {"docs_root": "docs", "auto_publish": false}
+echo [OK] Documents: shared on request with /tl-publish
+:publish_done
 
 rem ---- 3. connect CORE.md via .claude\CLAUDE.md ----
 set "CLAUDE_MD=%TARGET%\.claude\CLAUDE.md"
@@ -105,17 +132,30 @@ if "%CREATED_CLAUDE_MD%"=="1" call :add_exclude ".claude/CLAUDE.md"
 echo [OK] Kit hidden from git via .git\info\exclude (local, not committed)
 
 :done
+call :register
 echo.
 echo Done. Next steps:
 echo   1. Open the project in VS Code and start a new Claude Code session.
-echo   2. Type /  - you should see /tl-init, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
-echo   3. Run /tl-init once to build the project map (.claude\tl-memory\PROJECT_CONTEXT.md).
+echo   2. Type /  - you should see /tl-init, /tl-spec, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
+echo   3. Run /tl-init now - and after every kit update: project map, knowledge map, AGENTS.md.
 echo   4. Explanation documents with diagrams: /oleg-skill-hesber ^<what to explain^>
 echo   5. Project document: /tl-project-doc
 echo   6. Analyst: /tl-an-learn ^<topic^>, then /tl-an ^<task^>
+echo   7. Specification: /tl-spec new ^<name^> - fill the form - /tl-spec SPEC-001
+echo   8. Approved documents go to docs\ + AGENTS.md (automatically, or with /tl-publish)
+echo   Later updates: double-click install.cmd - known projects are listed in the window.
 echo.
 endlocal
 exit /b 0
+
+:register
+if not defined LOCALAPPDATA goto :eof
+if not exist "%LOCALAPPDATA%\TechLeadKit\" mkdir "%LOCALAPPDATA%\TechLeadKit"
+set "REG=%LOCALAPPDATA%\TechLeadKit\projects.txt"
+if not exist "%REG%" type nul > "%REG%"
+findstr /L /X /I /C:"%TARGET%" "%REG%" >nul 2>&1
+if errorlevel 1 >>"%REG%" echo %TARGET%
+goto :eof
 
 :add_exclude
 findstr /L /X /C:"%~1" "%EXCLUDE%" >nul 2>&1

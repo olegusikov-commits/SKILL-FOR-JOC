@@ -73,6 +73,13 @@ RULES = {
     "CHQ-512 as written in the patch (before hard stops, no channel check, prev>6)":
         "payer_type IN ('COMPANY','GOVERNMENT') AND payer_prev_cheques > 6 AND ocr_amount <= 5000 AND "
         "ocr_amount_conf >= 0.95 AND ocr_date_conf >= 0.90 AND ocr_signature_score >= 0.85",
+    "SPEC-001 variant: COMPANY/GOV prev>=3 (the requester's guess), amount<=5000, non-mobile":
+        f"payer_type IN ('COMPANY','GOVERNMENT') AND payer_prev_cheques >= 3 AND ocr_amount <= 5000 AND "
+        f"{soft_except('amount', 'payer')}",
+    "spec-check: MOBILE amount<=500, other checks kept (teammate's spec, REQ 1)":
+        f"channel = 'MOBILE' AND ocr_amount <= 500 AND {soft_except('channel')}",
+    "spec-check: MOBILE amount<=1000, other checks kept (teammate's spec, table)":
+        f"channel = 'MOBILE' AND {soft_except('channel')}",
     "CHQ-512 as the task requires (= R1)":
         f"{HARD} AND payer_type IN ('COMPANY','GOVERNMENT') AND payer_prev_cheques >= 6 AND ocr_amount <= 5000 AND "
         f"{soft_except('amount', 'payer')}",
@@ -122,6 +129,8 @@ def main():
         SELECT COUNT(*), SUM(CASE WHEN result <> 'AUTO_APPROVED' AND decision IS NOT NULL AND is_err = 0
                                   THEN 1 ELSE 0 END) FROM base""").fetchone()
     print(f"- ceiling Apr–Sep: {could}/{n_all} = {100 * could / n_all:.1f}% approved by clerk without correction")
+    mob = db.execute(BASE.format(start="2026-04-01") + "SELECT SUM(channel = 'MOBILE'), COUNT(*) FROM base").fetchone()
+    print(f"- MOBILE share Apr–Sep: {mob[0]}/{mob[1]} = {100 * mob[0] / mob[1]:.1f}%")
     spot = db.execute(BASE.format(start="2026-04-01") + """
         SELECT COUNT(*), SUM(is_err) FROM base WHERE result = 'AUTO_APPROVED' AND is_spot_check = 1""").fetchone()
     print(f"- spot checks of current automatic approvals Apr–Sep: {spot[1]}/{spot[0]} errors")

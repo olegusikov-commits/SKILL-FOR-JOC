@@ -30,6 +30,7 @@ Status: `изучается` · `изучена` · `в анализе` · `от
 
 ## TOPIC.md
 ```markdown
+<!-- tl-meta: type=analysis-topic; id=<topic-slug>; status=<статус из INDEX>; date=<YYYY-MM-DD>; area=<таблицы, модули, термины>; title=<Название темы> -->
 # <Название темы>
 
 ## Профиль

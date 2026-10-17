@@ -9,11 +9,12 @@ Based on Anthropic's `tech-debt` framework, extended with a persistent register 
 categories specific to this environment (SQL/DB2, mainframe, integration).
 
 ## Register
-File: `.claude/tl-memory/TECH_DEBT.md` (Hebrew). Create it from the template below if missing.
+File: the `TECH_DEBT.md` that `.claude/tl-memory/KNOWLEDGE.md` lists (its published path if it was published, else `.claude/tl-memory/TECH_DEBT.md`) (Hebrew). Create it from the template below only if it exists in neither place.
 Every item has a stable id `TD-NNN`. Never delete items — mark them `Resolved` with date and
 how they were resolved.
 
 ```markdown
+<!-- tl-meta: type=tech-debt; id=; status=living; date=<YYYY-MM-DD>; area=whole project; title=רישום חוב טכני -->
 # רישום חוב טכני
 
 | ID | כותרת | קטגוריה | מיקום | השפעה (1-5) | סיכון (1-5) | מאמץ (1-5) | עדיפות | סטטוס | נוצר | הערות |

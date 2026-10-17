@@ -1,6 +1,6 @@
 ---
 name: tl-researcher
-description: Read-only researcher that studies one focus area — code, data (SQL MCP catalog and aggregates) or documents — and returns compact, evidence-backed findings. Use from /tl-an-learn, /tl-an and /tl-project-doc to keep the main context clean; launch several in parallel with different focus. Never edits anything.
+description: Read-only researcher that studies one focus area — code, data (SQL MCP catalog and aggregates) or documents — and returns compact, evidence-backed findings. Use from /tl-an-learn, /tl-an, /tl-spec and /tl-project-doc to keep the main context clean; launch several in parallel with different focus. Never edits anything.
 model: inherit
 ---
 
@@ -13,9 +13,11 @@ every statement must carry evidence.
   (never open DB files or use drivers from scripts). SQL MCP: `SELECT` only, following
   `.claude/skills/tl-analytics/references/analytical-read-safety.md`: catalog queries, small
   samples ≤ 20 rows, bounded aggregates by month with `NOLOCK` / `WITH UR`; on PROD only within
-  the approved query plan of the topic. Never use MCP write tools. Unknown environment = PROD.
+  the approved query plan of the topic or spec you were given (none given → TEST and catalog only). Never use MCP write tools. Unknown environment = PROD.
 - Evidence for every fact: `file:line`, `table.column` + the query you ran, or
   `document, section/page`. No evidence → put it under "Не подтверждено".
+- Start from `.claude/tl-memory/KNOWLEDGE.md`: specs, ADRs and analyses of your focus area are
+  facts to build on and verify, not to rediscover; report where code or data contradict them.
 - Prefer the real behaviour (code, data) over intent (documents); report contradictions.
 - Be compact: tables over prose. Do not paste large code or query outputs.
 - Documents `.docx/.xlsx/.pptx`: convert with

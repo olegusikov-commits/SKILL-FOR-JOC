@@ -10,8 +10,10 @@ that every future task reads first. If it already exists, update it instead of o
 show what changed.
 
 Steps:
-1. Create folders if missing: `.claude/tl-memory/adr/`, `.claude/tl-memory/design/`.
-   Create `.claude/tl-memory/TECH_DEBT.md` from the template in the `tl-tech-debt` skill if missing.
+1. Create folders if missing: `.claude/tl-memory/adr/`, `.claude/tl-memory/design/`,
+   `.claude/tl-memory/spec/`.
+   Create `.claude/tl-memory/TECH_DEBT.md` from the template in the `tl-tech-debt` skill if no
+   debt register exists (check `KNOWLEDGE.md` — it may be published to `docs/`).
 2. Explore the repository (read-only):
    - Languages, frameworks and **exact versions** (`*.csproj`/`*.sln`, `pyproject.toml`/
      `requirements*.txt`, `package.json`/`.nvmrc`, `CMakeLists.txt`/`*.vcxproj`, COBOL/Natural
@@ -33,5 +35,14 @@ Steps:
    sections: Overview · Stack & versions · Structure & modules · Entry points · Build/Test
    commands · Conventions · Databases (server → engine/version/compat level/environment/
    databases/main schemas) · Integrations · Known risks & observations · Open questions.
-5. Report to the user in Russian: a short summary, the questions you need answered, and the
+   End it with a block for **all agents** (it is copied into `AGENTS.md` by `/tl-publish`):
+   `<!-- tl-agents:begin -->` … `<!-- tl-agents:end -->`, at most 12 lines in Hebrew — what the
+   project is, build/test commands, where the main code is, database aliases (MCP server names)
+   and "PROD is read-only", key conventions. No secrets, host names or connection strings.
+5. Rebuild the knowledge map: `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`. If it lists documents without `tl-meta` (e.g.
+   written by an older kit version), add the line to each — type by folder, status and `area`
+   from the content — and rebuild. Also run this after every kit update. If `publish.json` has
+   `"auto_publish": true`, also run `tl_knowledge.py block` so `AGENTS.md` gets the project facts
+   from the first day, and tell the user which files to commit.
+6. Report to the user in Russian: a short summary, the questions you need answered, and the
    top 3–5 observations (risks / debt candidates — add them to TECH_DEBT.md).

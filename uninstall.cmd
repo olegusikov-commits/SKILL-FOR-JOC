@@ -42,8 +42,15 @@ if exist "%CLAUDE_MD%" (
     echo [OK] Import line removed from .claude\CLAUDE.md
 )
 
+set "REG=%LOCALAPPDATA%\TechLeadKit\projects.txt"
+if defined LOCALAPPDATA if exist "%REG%" (
+    findstr /L /V /X /I /C:"%TARGET%" "%REG%" > "%REG%.tmp"
+    move /y "%REG%.tmp" "%REG%" >nul
+)
+
 echo.
 echo Done. Project memory kept in .claude\tl-memory\
+echo Published documents in docs\ and the block in AGENTS.md belong to the project and stay.
 endlocal
 exit /b 0
 

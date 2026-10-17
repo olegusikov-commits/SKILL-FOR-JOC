@@ -27,7 +27,8 @@ more only when the problem needs it.
 - **Open questions** — ask the user now; do not invent business rules.
 
 ### 2. Explore the current state
-- Read `PROJECT_CONTEXT.md`, the relevant code, and existing ADRs in `.claude/tl-memory/adr/`.
+- Read `PROJECT_CONTEXT.md`, the relevant code, and the existing ADRs and specs listed in
+  `.claude/tl-memory/KNOWLEDGE.md` (local and published). An approved spec gives the requirements.
 - Use the SQL MCP (read-only) to inspect the real tables, indexes and procedures involved.
 - Identify who owns which data, and all consumers of what you will change.
 
@@ -47,7 +48,8 @@ performance at expected volume, operability, cost of change later, effort.
 ### 5. ADR
 For significant decisions (technology, pattern, boundary, data ownership, contract style),
 write `.claude/tl-memory/adr/ADR-NNN-<short-name>.md` from `references/adr-template.md`.
-Number sequentially after the last existing ADR. Status: `Proposed` until the user approves.
+The number comes from `python .claude/tech-lead-kit/scripts/tl_knowledge.py next-id ADR` (counts
+local and published ADRs). Status: `Proposed` until the user approves.
 
 ### 6. STOP for approval
 Present the design summary in Russian: the problem, the options, the recommendation, risks,

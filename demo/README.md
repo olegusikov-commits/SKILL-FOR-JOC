@@ -9,6 +9,7 @@
 | `project/` | Учебный проект (Python): правила авто-разрешения чеков, тесты, схема, задача CHQ-512 |
 | `make_demo.py` | Генерирует данные: `chequemis.db` (36 000 чеков), `checkov.db`, `docs/process.docx` на иврите |
 | `patches/` | Изменения для сценариев: реализация CHQ-512 с дефектами, изменение для ревью с проблемами |
+| `inputs/` | Что «пользователь» кладёт в проект между командами: заполненная טופס דרישה (`spec-build`) и אפיון коллеги с 12 спрятанными дырами (`spec-check`) |
 | `reference_answers.py` | Эталонные ответы, посчитанные напрямую по данным |
 | `EXPECTED.md` | Что спрятано и что должен найти каждый сценарий (карточка оценки) |
 | `run_demo.py` | Ставит kit в копию проекта, подключает базы как MCP `meet-chequemis` / `meet-checkov`, запускает команды в headless Claude Code |
@@ -19,6 +20,7 @@
 uv tool install mcp-server-sqlite --with "mcp<2"
 python demo/run_demo.py setup /tmp/demo
 python demo/run_demo.py run /tmp/demo init        # затем любой сценарий: python demo/run_demo.py list
+python demo/run_demo.py run-all /tmp/demo 4        # или все 18 сценариев по зависимостям, 4 параллельно
 python demo/reference_answers.py /tmp/demo/base/chequemis.db
 ```
 Базы в демо — SQLite, а не SQL Server / DB2: аналитик сам адаптирует диалект. Это проверяет и

@@ -18,8 +18,11 @@ developer misses, before it reaches production.
 - If the `tl-engineering-standards` and `tl-architecture` skill content is not already in your
   context, read `.claude/skills/tl-engineering-standards/SKILL.md` and
   `.claude/skills/tl-architecture/SKILL.md`, and the language reference for the files reviewed.
-- Read `.claude/tl-memory/PROJECT_CONTEXT.md` and the related design doc / ADRs if they exist;
-  review the change **against the approved design**.
+- Read `.claude/tl-memory/PROJECT_CONTEXT.md`, `.claude/tl-memory/KNOWLEDGE.md` and the
+  documents whose `area` touches the change: approved specs, accepted ADRs, the design doc. Review
+  the change **against them**: every REQ / decision-table row / AC of the spec is implemented as
+  written (order, boundaries, units, the "אחרת" row) and tested; a deviation from a spec or ADR
+  is a BLOCKER unless the documents were updated.
 - Look at the surrounding code and callers, not only the diff — many problems are in how the
   change fits.
 - Every finding must be concrete and verifiable: file:line, what is wrong, why it matters, how

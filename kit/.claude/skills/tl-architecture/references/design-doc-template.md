@@ -4,9 +4,10 @@ Save as `.claude/tl-memory/design/<YYYY-MM-DD>-<short-name>.md`. Keep each secti
 delete sections that genuinely do not apply (say "לא רלוונטי" if a reviewer would expect it).
 
 ```markdown
+<!-- tl-meta: type=design; id=; status=draft; date=<YYYY-MM-DD>; area=<קבצים, מודולים, טבלאות>; title=<שם> -->
 # מסמך תכנון: <שם>
 
-**תאריך:** <YYYY-MM-DD>   **סטטוס:** טיוטה | מאושר   **ADR קשורים:** ADR-NNN
+**תאריך:** <YYYY-MM-DD>   **סטטוס:** טיוטה | מאושר   **ADR קשורים:** ADR-NNN   **אפיון:** SPEC-NNN (אם יש)
 
 ## 1. רקע ומטרה
 <מה הבעיה העסקית, למי, ולמה עכשיו — 2–3 משפטים>

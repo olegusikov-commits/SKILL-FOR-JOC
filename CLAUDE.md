@@ -16,9 +16,11 @@ Kit переносится на рабочий компьютер через USB
 kit/.claude/            ← то, что install.cmd копирует в <проект>\.claude\
   tech-lead-kit/CORE.md   правила, загружаются ВСЕГДА — держать ≤ 120 строк
   tech-lead-kit/VERSION   semver; повышать при каждом изменении kit
+  tech-lead-kit/scripts/  tl_knowledge.py — карта знаний KNOWLEDGE.md и публикация в проект
   skills/ commands/ agents/
 install.cmd, uninstall.cmd   Windows-установщик (CRLF!)
-docs/                   BRIEF.md, ANALYST_DESIGN.md, GUIDE.html, GUIDE.he.html
+installer/install-gui.ps1    окно установки (PowerShell 5.1, UTF-8 с BOM, CRLF)
+docs/                   BRIEF.md, ANALYST_DESIGN.md, SPEC_DESIGN.md, GUIDE.html, GUIDE.he.html
 tests/                  автотесты (stdlib unittest), в ZIP не входят
 demo/                   учебный проект + прогон всех команд в headless Claude Code, в ZIP не входит
 ```
@@ -36,17 +38,25 @@ demo/                   учебный проект + прогон всех ко
 - **Базы — только через SQL MCP** (`meet-checkov`, `meet-chequemis`). PROD — только чтение;
   аналитик: сначала TEST, на PROD — агрегаты по плану, одобренному один раз на тему.
 - Новая команда → добавить её в `CORE.md` («Where things live»), `README.md`, обе версии GUIDE.
+- **Каждый документ, который пишет kit, начинается со строки `tl-meta`** (type, id, status, date,
+  area, title) — по ней `tl_knowledge.py index` строит `KNOWLEDGE.md`. Новый шаблон документа →
+  строка `tl-meta` в шаблоне + путь в `TemplateMetaTests` (`tests/test_kit_structure.py`); команда,
+  которая пишет документ, в конце запускает `tl_knowledge.py index`.
+- **Kit никогда не делает commit/push** в проекте. В репозиторий проекта попадают только
+  утверждённые документы через `/tl-publish` (`docs/` + блок в `AGENTS.md`), без ссылок на команды
+  kit, `.claude/`, строк PROD и секретов.
 - Любое упомянутое в kit имя файла (`references/…`, `scripts/…`, `.claude/…`) должно существовать
   — это проверяет тест.
 
 ## Проверка перед commit
 ```
-python -m unittest discover -s tests          # структура kit, an_stats, an_doc2text
+python -m unittest discover -s tests          # структура kit, an_stats, an_doc2text, spec_tool, tl_knowledge
 ```
 Большие изменения поведения — прогнать демо (`demo/README.md`) и обновить `demo/RESULTS.md`:
 ```
 uv tool install mcp-server-sqlite --with "mcp<2"
 python demo/run_demo.py setup /tmp/demo && python demo/run_demo.py run /tmp/demo init
+python demo/run_demo.py run-all /tmp/demo 4    # все сценарии по зависимостям, 4 параллельно (~$30)
 python demo/check_runs.py /tmp/demo
 ```
 `demo/EXPECTED.md` и `demo/reference_answers.py` — эталон; в копию проекта для Claude они не
@@ -55,6 +65,6 @@ python demo/check_runs.py /tmp/demo
 ## Выпуск ZIP для USB
 ```
 git archive --format=zip --prefix=tech-lead-kit-<VERSION>/ -o tech-lead-kit-<VERSION>.zip HEAD \
-    install.cmd uninstall.cmd README.md .gitattributes kit docs
+    install.cmd uninstall.cmd installer README.md .gitattributes kit docs
 ```
 Проверить в распакованном архиве: `install.cmd` с CRLF, `VERSION`, `an_stats.py --selftest`.
