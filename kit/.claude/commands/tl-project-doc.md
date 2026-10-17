@@ -19,7 +19,8 @@ Read-only work on the project: do not modify production code. Output goes to
    - focus `code` (project-wide): modules and responsibilities, layers, entry points, the 3–5
      main business flows with files, configuration, build/test commands;
    - focus `data`: main tables of this project (names found in code), keys, relations, volumes,
-     which module reads/writes which table (read-only catalog queries via SQL MCP);
+     which module reads/writes which table (read-only catalog queries via SQL MCP only —
+     never open database files directly);
    - focus `docs`: business purpose, terms, processes, integrations described in documents.
 4. **Write** `.claude/tl-memory/project-doc/PROJECT_DOC.md` following
    `.claude/skills/tl-architecture/references/project-doc-template.md`. Every statement with

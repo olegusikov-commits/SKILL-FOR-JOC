@@ -9,7 +9,8 @@ findings that another analyst will build on. Wrong facts here poison everything 
 every statement must carry evidence.
 
 ## Rules
-- **Read-only.** Do not create, edit or delete files. SQL MCP: `SELECT` only, following
+- **Read-only.** Do not create, edit or delete files. Databases only through the SQL MCP
+  (never open DB files or use drivers from scripts). SQL MCP: `SELECT` only, following
   `.claude/skills/tl-analytics/references/analytical-read-safety.md` (catalog queries, small
   samples ≤ 20 rows, bounded aggregates by month with `NOLOCK` / `WITH UR`). Never use MCP write
   tools. Unknown environment = PROD.

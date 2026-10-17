@@ -65,6 +65,8 @@ When in doubt, it is LARGE.
 The project may have SQL MCP servers: **`meet-checkov`** and **`meet-chequemis`**.
 They are connected to both **PROD** and **TEST**.
 
+- **Databases are accessed only through the SQL MCP servers** — never by opening database
+  files or connecting with drivers from scripts, even if that looks easier.
 - **Before the first query, identify the target environment** (PROD or TEST) and engine
   (SQL Server or DB2 z/OS). If you cannot tell, **treat it as PROD**.
 - **PROD: read-only, always.** Only `SELECT` against catalog/metadata and small, bounded
