@@ -58,7 +58,8 @@ can change safely a year from now.
 - Hebrew, and only for **why**: business rule, non-obvious decision, workaround with reason,
   link to ADR. Do not narrate what the code does.
 - Public APIs (classes, endpoints, procedures, copybooks) get a short contract comment.
-- `TODO` only with a reason and an entry in `.claude/tl-memory/TECH_DEBT.md`.
+- `TODO` only with a reason and an entry in the tech debt register (`TECH_DEBT.md`, location in
+  `.claude/tl-memory/KNOWLEDGE.md`).
 
 ## Refactoring while implementing
 - Do not mix refactoring and behavior change in one step. Refactor first (tests green), then

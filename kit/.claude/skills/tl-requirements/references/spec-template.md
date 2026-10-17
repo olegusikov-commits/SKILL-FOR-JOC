@@ -2,11 +2,11 @@
 
 File: `.claude/tl-memory/spec/SPEC-nnn-<slug>/SPEC.md`. Identifiers, table and column names in
 English. Conventions that `spec_tool.py lint` and `render` rely on:
-- line 1 is the `tl-meta` comment; `area` lists the code paths, modules, tables and business
-  terms the spec covers — this is how any agent later finds the spec for a task;
+- line 1 is the `tl-meta` comment (no `;` inside values); `area` lists the code paths, modules,
+  tables and business terms the spec covers — this is how any agent later finds the spec;
 - requirements are defined as table rows whose first cell is `REQ-nnn`; acceptance criteria as
   rows whose first cell is `AC-nnn` and which name the REQ they verify; open questions as rows
-  whose first cell is `Q-n`;
+  whose first cell is `Q-n`; data queries are `D-n` (`queries/D-n-<name>.sql`, appendix);
 - each decision table has a heading `### טבלת החלטה DT-n: <name>` followed by its table, with an
   "אחרת" (else) row;
 - sources in square brackets: `[מקור: …]`, assumptions `[הנחה]` / `[הנחה — ממתין לאישור]`;
@@ -46,7 +46,7 @@ parentheses when you fill a section.
 - (התנהגות קיימת שנשמרת: עצירות קשיחות, כללים אחרים, דוחות, ממשקים.)
 
 ## 4. מצב קיים
-(התהליך היום בשלבים; לוגיקת ההחלטה היום — טבלה עם file:line; נפחים [מקור: נתונים Q-n].)
+(התהליך היום בשלבים; לוגיקת ההחלטה היום — טבלה עם file:line; נפחים [מקור: נתונים D-n].)
 
 ## 5. דרישות
 | מזהה | דרישה | סוג | עדיפות | מקור | קריטריוני קבלה |
@@ -100,7 +100,7 @@ parentheses when you fill a section.
 ## 13. תרחישי קבלה
 | מזהה | דרישה | בהינתן | כאשר | אז |
 |---|---|---|---|---|
-| AC-001 | REQ-001 | <נתונים מדויקים> | <פעולה> | <תוצאה + קוד סיבה> |
+| AC-001 | REQ-001 | <נתונים מדויקים, סינתטיים> | <פעולה> | <תוצאה + קוד סיבה> |
 (לכל שורה ב-DT לפחות תרחיש אחד; לכל סף — בדיוק על הגבול ומעט מעבר לו; לכל עצירה קשיחה —
 תרחיש שמראה שהיא קודמת לכלל החדש; תרחיש לשורת "אחרת".)
 
@@ -133,5 +133,5 @@ parentheses when you fill a section.
 | 0.1 | YYYY-MM-DD | טיוטה ראשונה | |
 
 ## נספח: שאילתות
-(השאילתות שהפיקו את המספרים — Q-n: מטרה, סביבה ותקופה, SQL.)
+(השאילתות שהפיקו את המספרים — D-n: מטרה, סביבה ותקופה, SQL.)
 ```

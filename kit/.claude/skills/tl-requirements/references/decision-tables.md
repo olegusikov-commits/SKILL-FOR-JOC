@@ -14,7 +14,7 @@ lets you measure each row on real data.
 |---|---|---|---|---|---|
 | 1 | חשבון לא פעיל: `accounts.status <> 'ACTIVE'` | לפקיד | ACCOUNT_BLOCKED | 118 | [מקור: קוד rules.py:14] |
 | 2 | חשד לכפילות: `cheques.is_duplicate_suspect = 1` | לפקיד | DUPLICATE_SUSPECT | 60 | [מקור: קוד rules.py:16] |
-| 3 | (חדש) מושך מוסדי קבוע: `payers.payer_type IN ('COMPANY','GOVERNMENT')` ו-`cheques.payer_prev_cheques >= 6` ו-`ocr_amount <= 5000` ו-בדיקות OCR וחתימה עוברות | אישור אוטומטי | AUTO_RECURRING_PAYER | 280 | [מקור: נתונים Q-4] |
+| 3 | (חדש) מושך מוסדי קבוע: `payers.payer_type IN ('COMPANY','GOVERNMENT')` ו-`cheques.payer_prev_cheques >= 6` ו-`ocr_amount <= 5000` ו-בדיקות OCR וחתימה עוברות | אישור אוטומטי | AUTO_RECURRING_PAYER | 280 | [מקור: נתונים D-4] |
 | … | … | … | … | … | … |
 | 9 | אחרת | אישור אוטומטי | OK | 312 | [מקור: קוד rules.py:32] |
 ```
@@ -42,7 +42,7 @@ lets you measure each row on real data.
 ## Checks against data
 All checks: `SELECT` only, bounded period on an indexed date column, `WITH (NOLOCK)` (SQL Server)
 / `WITH UR` (DB2), aggregates only — `tl-analytics/references/analytical-read-safety.md`.
-Save each query as `queries/Q-n-<name>.sql`. SQL Server shown; DB2 differences are in
+Save each query as `queries/D-n-<name>.sql`. SQL Server shown; DB2 differences are in
 `tl-analytics/references/backtest-sql.md`.
 
 **(a) Calibrate the as-is table** — write today's logic as a `CASE` in the same order and compare

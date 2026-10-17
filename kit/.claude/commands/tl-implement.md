@@ -27,9 +27,10 @@ Implement: $ARGUMENTS
 7. For LARGE tasks: run the independent review — use the `tl-architect-reviewer` subagent on the
    changed files, and `tl-sql-reviewer` if SQL/procedures/DDL changed. Fix all BLOCKER findings,
    then re-check them.
-8. Record any knowingly created or discovered debt in `.claude/tl-memory/TECH_DEBT.md`.
-9. If you implemented a spec, fill its traceability section (code `file:line`, tests) and keep
-   its status; if behaviour differs from the spec in any way, say so instead.
+8. Record any knowingly created or discovered debt in the `TECH_DEBT.md` that `.claude/tl-memory/KNOWLEDGE.md` lists (its published path if it was published, else `.claude/tl-memory/TECH_DEBT.md`).
+9. If you implemented a spec, fill its traceability section (code `file:line`, tests) — that is
+   not a change of the spec: version and status stay; then `spec_tool.py render` it and run
+   `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`. If behaviour differs from the spec in any way, say so instead.
 10. Report in Russian: what changed (files), why, tests added and their results (AC coverage when
    a spec exists), review results, risks, and what the user must verify manually (e.g. on TEST /
    mainframe compile / BIND).

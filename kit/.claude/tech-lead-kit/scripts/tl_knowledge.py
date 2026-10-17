@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Project knowledge for Tech Lead Kit: the map every agent reads, and publishing to the project.
-Standard library only (Python 3.8+). Run from the project root (or pass --root).
+Standard library only (Python 3.8+). The project root is found from the current folder (the
+nearest parent with .claude/tech-lead-kit or .claude/tl-memory); --root overrides it.
 
   index                   rebuild .claude/tl-memory/KNOWLEDGE.md from the tl-meta lines of all
-                          kit documents (local memory + published docs)
-  check FILE...           what would be wrong if FILE were shared with the team: missing metadata,
-                          not approved, links to local-only files, kit commands, secrets
+                          kit documents (local memory + published docs); refreshes the AGENTS.md
+                          block too if it exists
+  next-id PREFIX          next free number for ADR / SPEC, counting local and published files
+  check FILE...           what would be wrong if FILE were shared with the team (judged at its
+                          publish destination): metadata, not approved, links to local-only
+                          files, kit commands, secrets
   publish FILE... [--dry-run] [--force]
-                          move approved documents from .claude/tl-memory/ to the project's docs,
-                          then rebuild the index and the agents block. Never runs git.
+                          move approved documents from .claude/tl-memory/ to the project's docs
+                          (refused if check finds issues, unless --force), then rebuild the index
+                          and the agents block. Never runs git.
   block                   rewrite the managed knowledge block in AGENTS.md (and make CLAUDE.md
                           import it) from the published documents + PROJECT_CONTEXT.md facts
 
@@ -32,12 +37,15 @@ DEFAULTS = {
 }
 TYPE_LABELS = {"spec": "אפיון", "request": "טופס דרישה", "spec-check": "בדיקת אפיון", "adr": "ADR",
                "design": "תכנון", "project-doc": "מסמך פרויקט", "explain": "הסבר",
-               "analysis-topic": "נושא ניתוח", "analysis-report": "דוח ניתוח", "tech-debt": "חוב טכני"}
+               "analysis-topic": "נושא ניתוח", "analysis-report": "דוח ניתוח", "tech-debt": "חוב טכני",
+               "project-context": "הקשר הפרויקט"}
 TYPE_ORDER = list(TYPE_LABELS)
+ID_TYPES = {"ADR": "adr", "SPEC": "spec"}
 FINAL_STATUSES = {"approved", "accepted", "final", "superseded", "deprecated", "living"}
 BLOCK_BEGIN = "<!-- tech-lead-kit:begin -->"
 BLOCK_END = "<!-- tech-lead-kit:end -->"
 META_RE = re.compile(r"<!--\s*tl-meta:\s*(.*?)\s*-->", re.S)
+META_FIELD_RE = re.compile(r"([\w-]+)\s*=\s*(.*?)\s*(?=;\s*[\w-]+\s*=|$)", re.S)
 SECRET_RE = re.compile(r"\b(password|passwd|pwd|secret|api[_-]?key|token)\s*[=:]\s*\S+|"
                        r"\b(server|data source)\s*=\s*[^;\s]+;", re.I)
 KIT_CMD_RE = re.compile(r"(?<![\w/.-])/tl-[a-z][a-z-]*")
@@ -61,11 +69,16 @@ def read_text(path):
         return f.read()
 
 
-def write_text(path, text, like=None):
-    """Write UTF-8; keep the newline style of `like` (the previous content) if given."""
+def has_bom(path):
+    with open(path, "rb") as f:
+        return f.read(3) == b"\xef\xbb\xbf"
+
+
+def write_text(path, text, like=None, bom=False):
+    """Write UTF-8; keep the newline style of `like` (the previous content) and a BOM if asked."""
     if like is not None and "\r\n" in like:
         text = re.sub(r"(?<!\r)\n", "\r\n", text)
-    with open(path, "w", encoding="utf-8", newline="") as f:
+    with open(path, "w", encoding="utf-8-sig" if bom else "utf-8", newline="") as f:
         f.write(text)
 
 
@@ -73,12 +86,7 @@ def parse_meta(text):
     m = META_RE.search("\n".join(text.splitlines()[:40]))
     if not m:
         return None
-    meta = {}
-    for part in m.group(1).split(";"):
-        key, sep, value = part.partition("=")
-        if sep:
-            meta[key.strip().lower()] = value.strip()
-    return meta
+    return {k.lower(): v.strip() for k, v in META_FIELD_RE.findall(m.group(1))}
 
 
 def rel(root, path):
@@ -87,6 +95,17 @@ def rel(root, path):
 
 def memory_dir(root):
     return os.path.join(root, ".claude", "tl-memory")
+
+
+def find_root(start):
+    path = os.path.abspath(start)
+    while True:
+        if any(os.path.isdir(os.path.join(path, ".claude", d)) for d in ("tech-lead-kit", "tl-memory")):
+            return path
+        parent = os.path.dirname(path)
+        if parent == path:
+            return os.path.abspath(start)
+        path = parent
 
 
 def load_config(root):
@@ -100,10 +119,12 @@ def load_config(root):
 
 
 def published_dirs(root, cfg):
-    dirs = {}
-    for doc_type, folder in cfg["folders"].items():
-        dirs[doc_type] = os.path.normpath(os.path.join(root, cfg["docs_root"], folder))
-    return dirs
+    return {t: os.path.normpath(os.path.join(root, cfg["docs_root"], f)) for t, f in cfg["folders"].items()}
+
+
+def inside(path, folder):
+    path, folder = os.path.normcase(os.path.abspath(path)), os.path.normcase(os.path.abspath(folder))
+    return path == folder or path.startswith(folder.rstrip(os.sep) + os.sep)
 
 
 # ------------------------------------------------------------------ scanning
@@ -169,13 +190,13 @@ def collect(root, cfg):
     return entries, missing
 
 
-def cell(text, limit=90):
+def cell(text, limit=None):
     text = text.replace("|", "/").replace("\n", " ")
-    return text if len(text) <= limit else text[:limit - 1] + "…"
+    return text if limit is None or len(text) <= limit else text[:limit - 1] + "…"
 
 
-def cmd_index(args):
-    root = os.path.abspath(args.root)
+def cmd_index(args, quiet_block=False):
+    root = args.root
     cfg = load_config(root)
     entries, missing = collect(root, cfg)
     lines = ["# מפת ידע של הפרויקט",
@@ -183,12 +204,13 @@ def cmd_index(args):
              "",
              "לפני כל משימה: פתח את המסמכים שה\"תחום\" שלהם נוגע במשימה (קבצים, טבלאות, מונחים).",
              "אפיון מאושר (approved) ו-ADR שהתקבל (accepted) מחייבים: פעל לפיהם, או אמור במפורש שהמשימה סותרת אותם.",
+             "מסמך שפורסם עורכים במקום שבו הוא פורסם — לא יוצרים עותק מקומי חדש.",
              "", "| סוג | מזהה | כותרת | סטטוס | תאריך | תחום | מיקום |", "|---|---|---|---|---|---|---|"]
     for e in entries:
         where = e["path"] + (" (+html)" if e["html"] else "")
         where += " · פורסם" if e["location"] == "published" else " · מקומי"
-        lines.append(f"| {TYPE_LABELS.get(e['type'], e['type'])} | {e['id']} | {cell(e['title'], 70)} | "
-                     f"{e['status']} | {e['date']} | {cell(e['area'])} | {where} |")
+        lines.append(f"| {TYPE_LABELS.get(e['type'], e['type'])} | {e['id']} | {cell(e['title'], 80)} | "
+                     f"{e['status']} | {e['date']} | {cell(e['area'], 400)} | {where} |")
     if not entries:
         lines.append("| — | | אין עדיין מסמכים | | | | |")
     if missing:
@@ -199,11 +221,35 @@ def cmd_index(args):
     write_text(path, "\n".join(lines) + "\n")
     print(f"{rel(root, path)}: {len(entries)} documents"
           + (f", {len(missing)} without tl-meta" if missing else ""))
+    agents = os.path.join(root, cfg["agents_file"])
+    if not quiet_block and os.path.exists(agents) and BLOCK_BEGIN in read_text(agents):
+        cmd_block(args)  # a published document changed status → the team's block must follow
+    return 0
+
+
+def cmd_next_id(args):
+    prefix = args.prefix.upper()
+    if prefix not in ID_TYPES:
+        print(f"ERROR: unknown prefix {prefix} (known: {', '.join(ID_TYPES)})", file=sys.stderr)
+        return 2
+    cfg = load_config(args.root)
+    folders = [os.path.join(memory_dir(args.root), ID_TYPES[prefix]),
+               published_dirs(args.root, cfg)[ID_TYPES[prefix]]]
+    numbers = [0]
+    for folder in folders:
+        if os.path.isdir(folder):
+            for name in os.listdir(folder):
+                m = re.match(prefix + r"-(\d+)", name)
+                if m:
+                    numbers.append(int(m.group(1)))
+    print(f"{prefix}-{max(numbers) + 1:03d}")
     return 0
 
 
 # ------------------------------------------------------------------ check
-def check_file(root, path):
+def check_file(root, path, link_base=None):
+    """Issues that make `path` unfit for the team. Links are judged from `link_base` (the folder
+    the file will live in after publishing)."""
     issues = []
     text = read_text(path)
     meta = parse_meta(text)
@@ -215,7 +261,8 @@ def check_file(root, path):
                 issues.append((1, f"tl-meta: '{key}' is empty"))
         if meta.get("status") and meta["status"] not in FINAL_STATUSES:
             issues.append((1, f"status is '{meta['status']}' — publish approved documents only"))
-    base = os.path.dirname(os.path.abspath(path))
+    base = link_base or os.path.dirname(os.path.abspath(path))
+    local = os.path.join(root, ".claude")
     in_fence = False
     for no, line in enumerate(text.splitlines(), 1):
         if line.strip().startswith("```"):
@@ -232,24 +279,14 @@ def check_file(root, path):
             target = m.group(1).split("#")[0]
             if not target or re.match(r"^[a-z]+:", target):
                 continue
-            if not os.path.exists(os.path.normpath(os.path.join(base, target))):
-                issues.append((no, f"link to a file that does not exist here: {target}"))
+            resolved = os.path.normpath(os.path.join(base, target))
+            if inside(resolved, local):
+                issues.append((no, f"link into .claude/ (local only): {target}"))
+            elif not os.path.exists(resolved):
+                issues.append((no, f"link to a file that will not exist for the team: {target}"))
     return issues
 
 
-def cmd_check(args):
-    root = os.path.abspath(args.root)
-    total = 0
-    for path in args.files:
-        issues = check_file(root, path)
-        total += len(issues)
-        print(f"{path}: {'OK' if not issues else str(len(issues)) + ' issue(s)'}")
-        for no, msg in issues:
-            print(f"  line {no:>4}  {msg}")
-    return 1 if total else 0
-
-
-# ------------------------------------------------------------------ publish
 def destination(root, cfg, path, meta):
     folder = published_dirs(root, cfg).get(meta.get("type", ""))
     if folder is None:
@@ -259,18 +296,45 @@ def destination(root, cfg, path, meta):
     if doc_id and not name.startswith(doc_id):
         parent = os.path.basename(os.path.dirname(os.path.abspath(path)))
         ext = os.path.splitext(name)[1]
-        name = parent + ext if parent.startswith(doc_id) else f"{doc_id}-{name}"
+        if meta.get("type") != "spec-check" and parent.startswith(doc_id):
+            name = parent + ext
+        else:
+            name = f"{doc_id}-{name}"
     return os.path.join(folder, name)
 
 
-def cmd_publish(args):
-    root = os.path.abspath(args.root)
+def cmd_check(args):
+    root = args.root
     cfg = load_config(root)
-    mem = os.path.normcase(os.path.abspath(memory_dir(root)))
+    total = 0
+    for path in args.files:
+        base = None
+        if inside(path, memory_dir(root)):
+            dest = destination(root, cfg, path, parse_meta(read_text(path)) or {})
+            base = os.path.dirname(dest) if dest else None
+        issues = check_file(root, path, base)
+        total += len(issues)
+        print(f"{path}: {'OK' if not issues else str(len(issues)) + ' issue(s)'}")
+        for no, msg in issues:
+            print(f"  line {no:>4}  {msg}")
+    return 1 if total else 0
+
+
+# ------------------------------------------------------------------ publish
+def quote(path):
+    return f'"{path}"' if " " in path else path
+
+
+def cmd_publish(args):
+    root = args.root
+    cfg = load_config(root)
     moved, failed = [], 0
     for path in args.files:
         src = os.path.abspath(path)
-        if not os.path.normcase(src).startswith(mem):
+        if not os.path.exists(src):
+            print(f"SKIP {path}: not found (already moved?)")
+            continue
+        if not inside(src, memory_dir(root)):
             print(f"SKIP {path}: not in .claude/tl-memory (already in the project?)")
             continue
         meta = parse_meta(read_text(src)) or {}
@@ -280,33 +344,35 @@ def cmd_publish(args):
                   f"(publishable: {', '.join(sorted(cfg['folders']))})")
             failed += 1
             continue
+        issues = check_file(root, src, os.path.dirname(dest))
+        if issues and not args.force:
+            print(f"ERROR {path}: not fit for the team yet — fix and run again (or --force if the user insists):")
+            for no, msg in issues:
+                print(f"  line {no:>4}  {msg}")
+            failed += 1
+            continue
         pairs = [(src, dest)]
         twin = os.path.splitext(src)[0] + ".html"
         if src.endswith(".md") and os.path.exists(twin):
             pairs.append((twin, os.path.splitext(dest)[0] + ".html"))
+        conflict = [d for s, d in pairs if os.path.exists(d) and read_text(d) != read_text(s)]
+        if conflict and not args.force:
+            print(f"ERROR {rel(root, conflict[0])} exists and differs (someone edited it?) — merge by hand")
+            failed += 1
+            continue
         for s, d in pairs:
-            if os.path.exists(d) and read_text(d) != read_text(s) and not args.force:
-                print(f"ERROR {rel(root, d)} exists and differs (someone edited it?) — merge by hand "
-                      "or use --force")
-                failed += 1
-                break
-        else:
-            for s, d in pairs:
-                print(f"{'would move' if args.dry_run else 'moved'} {rel(root, s)} -> {rel(root, d)}")
-                if not args.dry_run:
-                    os.makedirs(os.path.dirname(d), exist_ok=True)
-                    shutil.move(s, d)
-                    moved.append(d)
+            print(f"{'would move' if args.dry_run else 'moved'} {rel(root, s)} -> {rel(root, d)}")
+            if not args.dry_run:
+                os.makedirs(os.path.dirname(d), exist_ok=True)
+                shutil.move(s, d)
+                moved.append(d)
     if args.dry_run:
         return 1 if failed else 0
-    for d in moved:
-        if d.endswith(".md"):
-            for no, msg in check_file(root, d):
-                print(f"  CHECK {rel(root, d)} line {no}: {msg}")
-    cmd_index(args)
-    cmd_block(args)
+    cmd_index(args, quiet_block=True)
     if moved:
-        print("Review and commit (the kit never commits): git add " + " ".join(rel(root, d) for d in moved))
+        changed = cmd_block(args)
+        to_add = [rel(root, d) for d in moved] + changed
+        print("Review and commit (the kit never commits): git add " + " ".join(quote(p) for p in to_add))
     return 1 if failed else 0
 
 
@@ -331,13 +397,15 @@ def build_block(root, cfg):
     if published:
         out += ["לפני שינוי בקוד או בנתונים — פתח את המסמך שה\"תחום\" שלו נוגע בשינוי.",
                 "אפיון מאושר ו-ADR שהתקבל מחייבים: אם המשימה סותרת אותם — עצור ואמור זאת.",
-                "אם ההתנהגות שמתוארת במסמך משתנה — עדכן גם את המסמך באותו שינוי.", "",
+                "התנהגות שמתוארת באפיון משתנה — עדכן את האפיון באותו שינוי (הוא חוזר לבדיקה); "
+                "ADR שהתקבל לא משנים — מחליפים אותו ב-ADR חדש.",
+                "קובץ html שליד מסמך נוצר ממנו אוטומטית; המקור הוא קובץ ה-md.", "",
                 "| מסמך | סוג | סטטוס | תאריך | תחום |", "|---|---|---|---|---|"]
         for e in published:
             title = cell((e["id"] + ": " if e["id"] else "") + e["title"], 80)
             link = f"[{title}]({e['path']})" + (f" · [html]({e['html']})" if e["html"] else "")
             out.append(f"| {link} | {TYPE_LABELS.get(e['type'], e['type'])} | {e['status']} | {e['date']} | "
-                       f"{cell(e['area'])} |")
+                       f"{cell(e['area'], 400)} |")
         out.append("")
     if facts:
         out += ["### עובדות על הפרויקט", facts, ""]
@@ -346,45 +414,61 @@ def build_block(root, cfg):
 
 
 def upsert_block(path, block):
+    """Returns True if written, False if unchanged; raises ValueError on damaged markers."""
     old = read_text(path) if os.path.exists(path) else None
+    bom = has_bom(path) if old is not None else False
     if old is None:
         new = f"# {os.path.basename(path)}\n\n{block}\n"
-    elif BLOCK_BEGIN in old and BLOCK_END in old:
-        start = old.index(BLOCK_BEGIN)
-        end = old.index(BLOCK_END) + len(BLOCK_END)
-        new = old[:start] + block + old[end:]
     else:
-        new = old.rstrip("\r\n") + "\n\n" + block + "\n"
+        begins, ends = old.count(BLOCK_BEGIN), old.count(BLOCK_END)
+        if begins == ends == 0:
+            new = old.rstrip("\r\n") + "\n\n" + block + "\n"
+        elif begins == ends == 1 and old.index(BLOCK_BEGIN) < old.index(BLOCK_END):
+            start = old.index(BLOCK_BEGIN)
+            end = old.index(BLOCK_END) + len(BLOCK_END)
+            new = old[:start] + block + old[end:]
+        else:
+            raise ValueError(f"{os.path.basename(path)}: the tech-lead-kit begin/end markers are damaged "
+                             f"({begins} begin, {ends} end) — fix them by hand; nothing was written")
     if old is not None and new.replace("\r\n", "\n") == old.replace("\r\n", "\n"):
         return False
-    write_text(path, new, like=old)
+    write_text(path, new, like=old, bom=bom)
     return True
 
 
 def ensure_import(path, target):
-    line = "@" + target
     old = read_text(path) if os.path.exists(path) else None
-    if old is not None and any(l.strip() == line for l in old.splitlines()):
+    wanted = {"@" + target, "@./" + target}
+    if old is not None and any(l.strip() in wanted for l in old.splitlines()):
         return False
+    line = "@" + target
     new = f"# {os.path.basename(path)}\n\n{line}\n" if old is None else old.rstrip("\r\n") + f"\n\n{line}\n"
-    write_text(path, new, like=old)
+    write_text(path, new, like=old, bom=has_bom(path) if old is not None else False)
     return True
 
 
 def cmd_block(args):
-    root = os.path.abspath(args.root)
+    """Returns the list of files it changed (relative to the root)."""
+    root = args.root
     cfg = load_config(root)
     block = build_block(root, cfg)
     if block is None:
         print("block: nothing published and no tl-agents facts in PROJECT_CONTEXT.md — skipped")
-        return 0
+        return []
+    changed = []
     agents = os.path.join(root, cfg["agents_file"])
-    print(f"{cfg['agents_file']}: {'updated' if upsert_block(agents, block) else 'unchanged'}")
+    try:
+        if upsert_block(agents, block):
+            changed.append(cfg["agents_file"])
+    except ValueError as exc:
+        print(f"ERROR {exc}")
+        return changed
+    print(f"{cfg['agents_file']}: {'updated' if changed else 'unchanged'}")
     if cfg.get("claude_md_import") and os.path.basename(agents).upper() != "CLAUDE.MD":
-        claude_md = os.path.join(root, "CLAUDE.md")
-        if ensure_import(claude_md, cfg["agents_file"]):
+        if ensure_import(os.path.join(root, "CLAUDE.md"), cfg["agents_file"]):
             print(f"CLAUDE.md: added @{cfg['agents_file']}")
-    return 0
+            changed.append("CLAUDE.md")
+    return changed
 
 
 def main(argv=None):
@@ -392,17 +476,24 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("index", "block"):
-        sub.add_parser(name).add_argument("--root", default=".")
+        sub.add_parser(name).add_argument("--root")
+    p = sub.add_parser("next-id")
+    p.add_argument("prefix")
+    p.add_argument("--root")
     p = sub.add_parser("check")
     p.add_argument("files", nargs="+")
-    p.add_argument("--root", default=".")
+    p.add_argument("--root")
     p = sub.add_parser("publish")
     p.add_argument("files", nargs="+")
-    p.add_argument("--root", default=".")
+    p.add_argument("--root")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--force", action="store_true")
     args = ap.parse_args(argv)
-    return {"index": cmd_index, "check": cmd_check, "publish": cmd_publish, "block": cmd_block}[args.cmd](args)
+    args.root = os.path.abspath(args.root) if args.root else find_root(os.getcwd())
+    if args.cmd == "block":
+        return 0 if cmd_block(args) is not None else 1
+    return {"index": cmd_index, "next-id": cmd_next_id, "check": cmd_check,
+            "publish": cmd_publish}[args.cmd](args)
 
 
 if __name__ == "__main__":

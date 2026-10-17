@@ -6,7 +6,9 @@ argument-hint: "[scope: whole project or a module/folder] [language: he|ru|en] [
 Build the project document. Arguments: $ARGUMENTS
 
 Read-only work on the project: do not modify production code. Output goes to
-`.claude/tl-memory/project-doc/` (local, not committed) unless the user named another path.
+`.claude/tl-memory/project-doc/` (local, not committed) unless the user named another path — or,
+if `KNOWLEDGE.md` shows the project document as published, to that published file (update it in
+place).
 
 1. **Scope and language.** Scope = the whole project unless a module/folder is given.
    Language: Hebrew by default (project documents rule in CORE.md); Russian or English if

@@ -16,8 +16,8 @@ database, also use the `tl-sql-engineering` skill and inspect the real schema th
 2. Ask clarifying questions first if the business rules or constraints are unclear — do not
    invent them. If only minor details are open, continue and list them as open questions.
 3. Write the design doc to `.claude/tl-memory/design/` (Hebrew) and, for significant decisions,
-   an ADR with status `Proposed` to `.claude/tl-memory/adr/` (ADR numbers continue after the
-   highest one in `KNOWLEDGE.md`, published included). Both start with a `tl-meta` line; then
+   an ADR with status `Proposed` to `.claude/tl-memory/adr/` (number from
+   `tl_knowledge.py next-id ADR`, which counts published ADRs too). Both start with a `tl-meta` line; then
    run `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
 4. Reply in Russian with: the problem in 2 sentences, options compared (short table),
    the recommendation and why, main risks, the implementation plan as numbered small steps,

@@ -40,7 +40,8 @@ what is wrong, evidence (code `file:line`, query, document), and the exact fix (
 
 **Data**
 - [ ] Every business term → `table.column` (or code / document); "לא נמצא" → question.
-- [ ] Every number in the text has a query (Q-n) or a document source; numbers recomputed match.
+- [ ] Every number in the text has a query (D-n) or a document source; numbers recomputed match.
+- [ ] Values in AC and examples are synthetic — no real account numbers, names or ids from samples.
 - [ ] Data changes (columns, codes, config keys) listed, or "אין".
 
 **Impact and operation**

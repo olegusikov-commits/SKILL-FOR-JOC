@@ -24,9 +24,10 @@ the first line of code.
    explicit "אחרת" (else) row, and the measured volume of each row.
 4. **Every requirement is testable:** `REQ-nnn` with acceptance criteria `AC-nnn` (given / when /
    then with concrete values, including values exactly at and just beyond every boundary).
-   No "fast", "reasonable", "etc." without a number.
+   No "fast", "reasonable", "etc." without a number. Values in AC and examples are **synthetic** —
+   never copy account numbers, names or other identifiers from data samples.
 5. **Fill the gaps yourself** where evidence exists — from knowledge, code, data, documents — and
-   label the source of every filled item: `[מקור: קוד src/x.py:21]`, `[מקור: נתונים Q-3]`,
+   label the source of every filled item: `[מקור: קוד src/x.py:21]`, `[מקור: נתונים D-3]`,
    `[מקור: מסמך process.docx §2]`, `[מקור: ADR-002]`, `[מקור: טופס הדרישה]`, or `[הנחה]`.
    Ask the user only what you could not find **and** what changes the spec (question protocol).
 6. **What does not change is part of the spec:** hard stops, other rules, reports and interfaces
@@ -36,12 +37,13 @@ the first line of code.
 8. **A measurable goal is checked on history before code:** replay the to-be decision table on
    past data with the `tl-analytics` method (`backtest-sql.md`, `an_stats.py verdict`, verdict
    by the upper bound). A spec that cannot meet its own goal says so and offers alternatives.
-9. **Every number comes from a saved query** (`queries/Q-n-<name>.sql` in the spec folder; the
-   key queries also go to the spec's appendix) — never from your head.
+9. **Every number comes from a saved query** (`queries/D-n-<name>.sql` in the spec folder — data
+   queries are `D-n`, open questions are `Q-n`; the key queries also go to the spec's appendix) —
+   never from your head.
 10. **No production code changes.** Write only in the spec folder, or in the published spec
     file when you update a published spec. Data: `SELECT` only, per
-    `.claude/skills/tl-analytics/references/analytical-read-safety.md` (TEST first; PROD by the
-    plan approved once per topic).
+    `.claude/skills/tl-analytics/references/analytical-read-safety.md`: TEST first; on PROD only
+    within a query plan the user approved once for this spec (or for its analysis topic).
 11. **Before presenting:** `scripts/spec_tool.py lint`, then the `tl-spec-skeptic` subagent.
     Fix what they find or answer it in the spec.
 
@@ -62,14 +64,19 @@ the first line of code.
   after writing run `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
 
 ## Build a specification
-1. **Folder and id.** A spec folder for this request exists (the user ran `/tl-spec new`) → use
-   it. Otherwise `spec_tool.py new <slug> --title "<name>"`. A filled form elsewhere (a path, a
+1. **Folder and id.** The spec is already published (`KNOWLEDGE.md` shows it under `docs/` · פורסם)
+   → edit that file in place; `REQUEST.md`, `queries/` and notes stay in the local spec folder.
+   A spec folder for this request exists (the user ran `/tl-spec new`) → use it. Otherwise
+   `spec_tool.py new <slug> --title "<name>"`. A filled form elsewhere (a path, a
    `.docx`) → copy its content into the folder's `REQUEST.md`. No form → fill `REQUEST.md`
    yourself from the conversation: it is the record of what was asked.
 2. **Learn.** Read `KNOWLEDGE.md` and the documents of the area: an approved spec or an accepted
    ADR you must respect; an analysis topic (`DATA_MAP.md`, `LOGIC_AS_IS.md`, `BASELINE.md`) saves
-   you re-research. Then `tl-researcher` subagents in parallel (focus `code`, `data`, `docs`)
-   with the request text, the business terms and what each should find. Documents
+   you re-research. If the data you need is only on PROD, first get the query plan approved
+   once (server, tables, period, kinds of queries — see `analytical-read-safety.md`) and record
+   `PROD query plan approved <date>: …` in the spec folder's `NOTES.md`; without it use TEST
+   and the catalog only. Then `tl-researcher` subagents in parallel (focus `code`, `data`, `docs`)
+   with the request text, the business terms, what each should find, and that plan line. Documents
    `.docx/.xlsx/.pptx`: `python .claude/skills/tl-analytics/scripts/an_doc2text.py <file>`.
 3. **Draft `SPEC.md`** from `references/spec-template.md`. Scale it: a small change gets short
    sections and one line "לא רלוונטי" for the rest, but never drop goal and metric, scope
@@ -89,7 +96,8 @@ the first line of code.
    and **STOP** for the user's approval.
 9. **On approval:** status `מאושר` (`status=approved`), version 1.0, history row, render again,
    refresh the index, offer `/tl-publish` (so the team and every agent see it) and the next step:
-   `/tl-design` for a LARGE change, `/tl-implement` for a SMALL one.
+   `/tl-design` for a LARGE change, `/tl-implement` for a SMALL one — classified by the CORE rules
+   (production code files and layers touched; documents to update do not make it LARGE).
 
 ## Check a specification (written by someone else)
 1. Read it: Markdown directly; `.docx/.xlsx/.pptx` through `an_doc2text.py`; PDF directly.
@@ -99,8 +107,9 @@ the first line of code.
    mapping, every threshold and boundary, every data claim (shares, volumes), the order relative
    to hard stops, fields known at decision time, the goal (backtest when decision logic changes).
 4. `tl-spec-skeptic` on your findings.
-5. Write `CHECK-<YYYY-MM-DD>.md` (Hebrew, for the author; `tl-meta type=spec-check`) in the spec
-   folder — a new folder `SPEC-nnn-<slug>` if the spec has none: verdict (מוכן לפיתוח / מוכן אחרי
+5. Write `CHECK-<YYYY-MM-DD>.md` (Hebrew, for the author; `tl-meta type=spec-check; id=<spec id>;
+   status=final; area=` as the spec's) in the spec folder — for a spec that has no folder create
+   one with `spec_tool.py new <slug> --no-form` (no empty request form): verdict (מוכן לפיתוח / מוכן אחרי
    תיקונים / לא מוכן), findings by severity with the location in the spec, evidence and the
    exact replacement text. Reply in Russian with the summary; offer a corrected version in kit
    format.

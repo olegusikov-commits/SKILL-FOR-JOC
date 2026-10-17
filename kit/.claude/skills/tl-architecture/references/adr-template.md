@@ -1,7 +1,7 @@
 # ADR template (write in Hebrew)
 
-Save as `.claude/tl-memory/adr/ADR-NNN-<short-name>.md`; NNN = next number after the highest
-existing ADR. One decision per ADR. Never rewrite an accepted ADR — supersede it with a new one.
+Save as `.claude/tl-memory/adr/ADR-NNN-<short-name>.md`; NNN from
+`python .claude/tech-lead-kit/scripts/tl_knowledge.py next-id ADR` (local and published ADRs). One decision per ADR. Never rewrite an accepted ADR — supersede it with a new one.
 
 ```markdown
 <!-- tl-meta: type=adr; id=ADR-NNN; status=proposed; date=<YYYY-MM-DD>; area=<רכיבים, טבלאות, ממשקים>; title=<כותרת> -->

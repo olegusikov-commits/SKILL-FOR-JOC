@@ -59,6 +59,10 @@ class LintTests(unittest.TestCase):
         self.assertEqual(msgs, [])
         self.assertEqual((summary["req"], summary["ac"], summary["dt"], summary["questions"]), (2, 3, 1, 1))
 
+    def test_semicolon_inside_a_value(self):
+        meta = spec_tool.parse_meta("<!-- tl-meta: type=spec; title=א; ב; area=x -->")
+        self.assertEqual((meta["title"], meta["area"]), ("א; ב", "x"))
+
     def test_missing_meta_is_error(self):
         msgs, _ = messages(sample().split("\n", 1)[1])
         self.assertTrue(any("tl-meta" in m and m.startswith("ERROR") for m in msgs))
@@ -207,6 +211,12 @@ class NewTests(unittest.TestCase):
         self.run_new("a")
         _, path = self.run_new("b")
         self.assertIn("SPEC-006-b", path)
+
+    def test_no_form_creates_only_the_folder(self):
+        code, path = self.run_new("teammate-spec", "--no-form")
+        self.assertEqual(code, 0)
+        self.assertTrue(os.path.isdir(path))
+        self.assertEqual(os.listdir(path), [])
 
     def test_bad_slug(self):
         out = io.StringIO()

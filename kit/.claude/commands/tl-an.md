@@ -11,6 +11,9 @@ modify production code; write only under `.claude/tl-memory/analysis/`.
 1. **Topic.** Read `.claude/tl-memory/analysis/INDEX.md` and find the topic of this task. Read
    `.claude/tl-memory/KNOWLEDGE.md`: an approved spec for the task gives the criteria (REQ / DT /
    AC) — check the code against them, not against your own reading of the task.
+   - Not found, but an approved spec covers the area → it counts as learned: create the topic's
+     `TOPIC.md` with a link to the spec, reuse its glossary, decision tables and `queries/`, and
+     run only the missing `/tl-an-learn` steps (usually calibration).
    - Not found or not learned → do the `/tl-an-learn` steps first (read
      `.claude/commands/tl-an-learn.md`), then continue with the task without waiting for
      answers (use your proposed answers as assumptions).

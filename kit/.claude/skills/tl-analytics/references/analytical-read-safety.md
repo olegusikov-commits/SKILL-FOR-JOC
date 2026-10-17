@@ -32,7 +32,8 @@ environment. These rules extend the SQL MCP safety protocol in `CORE.md`; they n
 Before the first heavy query of a topic on PROD, show the user in one short message:
 server / database, tables, period and estimated rows; the kinds of queries (baseline by month,
 funnel, segment scans, backtests); that all are SELECT, bounded, aggregated, `NOLOCK` / `WITH UR`.
-After the user agrees, record "План запросов PROD одобрен <дата>" in `TOPIC.md` and work within it
+After the user agrees, record "План запросов PROD одобрен <дата>" in `TOPIC.md` (for `/tl-spec`:
+in the spec folder's `NOTES.md`) and work within it
 without asking again. A new table, a longer period or a new kind of query → ask again.
 
 ## While running

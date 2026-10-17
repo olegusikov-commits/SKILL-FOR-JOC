@@ -22,6 +22,7 @@ def scan(work, name):
     cost = 0.0
     turns = 0
     for path in sorted(glob.glob(os.path.join(work, "_logs", f"{name}.*.jsonl"))):
+        last_result = None
         with open(path, encoding="utf-8") as f:
             for line in f:
                 try:
@@ -29,8 +30,8 @@ def scan(work, name):
                 except json.JSONDecodeError:
                     continue
                 if msg.get("type") == "result":
-                    cost += msg.get("total_cost_usd") or 0
-                    turns += msg.get("num_turns") or 0
+                    last_result = msg  # a turn may log more than one result line; the last one counts
+                    continue
                 if msg.get("type") != "assistant":
                     continue
                 for block in msg.get("message", {}).get("content", []):
@@ -43,6 +44,9 @@ def scan(work, name):
                         agents[inp.get("subagent_type", "?")] += 1
                     if tool.endswith(WRITE_TOOLS):
                         mcp_writes.append(tool)
+        if last_result:
+            cost += last_result.get("total_cost_usd") or 0
+            turns += last_result.get("num_turns") or 0
     project = os.path.join(work, name)
     changed = subprocess.run(["git", "status", "--short"], cwd=project, capture_output=True,
                              text=True).stdout.split("\n") if os.path.isdir(project) else []

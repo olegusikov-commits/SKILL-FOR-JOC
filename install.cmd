@@ -110,7 +110,7 @@ echo.
 echo Done. Next steps:
 echo   1. Open the project in VS Code and start a new Claude Code session.
 echo   2. Type /  - you should see /tl-init, /tl-spec, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
-echo   3. Run /tl-init once to build the project map (.claude\tl-memory\PROJECT_CONTEXT.md).
+echo   3. Run /tl-init once to build the project map - and again after every kit update.
 echo   4. Explanation documents with diagrams: /oleg-skill-hesber ^<what to explain^>
 echo   5. Project document: /tl-project-doc
 echo   6. Analyst: /tl-an-learn ^<topic^>, then /tl-an ^<task^>

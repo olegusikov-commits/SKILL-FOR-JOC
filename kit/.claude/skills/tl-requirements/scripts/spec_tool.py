@@ -2,14 +2,18 @@
 """Specification tool for the tl-requirements skill. Standard library only (Python 3.8+).
 
 Commands:
-  new SLUG [--title T] [--root DIR]      create .claude/tl-memory/spec/SPEC-nnn-SLUG/REQUEST.md
-                                         from references/intake-form.md (next free SPEC number)
+  new SLUG [--title T] [--no-form] [--root DIR]
+                                         create .claude/tl-memory/spec/SPEC-nnn-SLUG/ with REQUEST.md
+                                         from references/intake-form.md (next free SPEC number);
+                                         --no-form: the folder only (for checking someone's spec)
   lint FILE [--json]                     ids, traceability REQ <-> AC, decision tables, open
                                          questions, placeholders, vague words; exit 1 on errors
   render FILE [--out HTML] [--lang L]    self-contained HTML: RTL for Hebrew, light/dark, print,
                                          no external resources; Word can open and save it
 
-Conventions (see references/spec-template.md): line 1 `<!-- tl-meta: k=v; ... -->`; requirements
+The project root is the nearest parent of the current folder with .claude/tech-lead-kit or
+.claude/tl-memory (--root overrides). Conventions (references/spec-template.md): line 1
+`<!-- tl-meta: k=v; ... -->`; data queries are D-n; requirements
 are table rows whose first cell is REQ-nnn, acceptance criteria rows start with AC-nnn and name
 their REQ, questions start with Q-n; a decision table follows a heading containing DT-n and has
 an "else" (אחרת) row.
@@ -26,7 +30,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 INTAKE = os.path.join(HERE, "..", "references", "intake-form.md")
 
 META_RE = re.compile(r"<!--\s*tl-meta:\s*(.*?)\s*-->", re.S)
-ID_RE = re.compile(r"(?<![\w-])(REQ-\d{3}|AC-\d{3}|DT-\d+|Q-\d+|ADR-\d{3}|SPEC-\d{3})(?![\w-])")
+META_FIELD_RE = re.compile(r"([\w-]+)\s*=\s*(.*?)\s*(?=;\s*[\w-]+\s*=|$)", re.S)
+ID_RE = re.compile(r"(?<![\w-])(REQ-\d{3}|AC-\d{3}|DT-\d+|Q-\d+|D-\d+|ADR-\d{3}|SPEC-\d{3})(?![\w-])")
 ELSE_RE = re.compile(r"(?<!\w)(אחרת|כל מקרה אחר|כל השאר|else|otherwise)(?!\w)", re.I)
 VAGUE_WORDS = ["מהיר", "בערך", "סביר", "וכו'", "וכד'", "לפי הצורך", "במידת הצורך", "במידת האפשר",
                "בדרך כלל", "גמיש", "ידידותי", "fast", "reasonable", "appropriate",
@@ -61,12 +66,18 @@ def parse_meta(text):
     m = META_RE.search("\n".join(text.splitlines()[:40]))
     if not m:
         return None
-    meta = {}
-    for part in m.group(1).split(";"):
-        key, sep, value = part.partition("=")
-        if sep:
-            meta[key.strip().lower()] = value.strip()
-    return meta
+    return {k.lower(): v.strip() for k, v in META_FIELD_RE.findall(m.group(1))}
+
+
+def find_root(start):
+    path = os.path.abspath(start)
+    while True:
+        if any(os.path.isdir(os.path.join(path, ".claude", d)) for d in ("tech-lead-kit", "tl-memory")):
+            return path
+        parent = os.path.dirname(path)
+        if parent == path:
+            return os.path.abspath(start)
+        path = parent
 
 
 # ------------------------------------------------------------------ markdown structure
@@ -172,7 +183,7 @@ def next_spec_number(root):
 
 
 def cmd_new(args):
-    root = os.path.abspath(args.root)
+    root = os.path.abspath(args.root) if args.root else find_root(os.getcwd())
     slug = re.sub(r"[^a-z0-9]+", "-", args.slug.lower()).strip("-")
     if not slug:
         print("ERROR: slug must contain latin letters or digits", file=sys.stderr)
@@ -185,6 +196,9 @@ def cmd_new(args):
     spec_id = f"SPEC-{next_spec_number(root):03d}"
     folder = os.path.join(root, ".claude", "tl-memory", "spec", f"{spec_id}-{slug}")
     os.makedirs(folder, exist_ok=True)
+    if args.no_form:
+        print(folder)
+        return 0
     path = os.path.join(folder, "REQUEST.md")
     if os.path.exists(path):
         print(f"ERROR: {path} already exists", file=sys.stderr)
@@ -388,6 +402,7 @@ table.facts td:first-child{width:180px;color:var(--muted)}
 .id-ac{background:var(--ok-soft);color:var(--ok)}
 .id-dt{background:var(--warn-soft);color:var(--warn)}
 .id-q{background:var(--stop-soft);color:var(--stop)}
+.id-d{background:var(--code-bg);color:var(--muted)}
 .src{font-size:.78rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px;white-space:normal}
 .assume{font-size:.78rem;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:0 5px}
 .filled{font-size:.78rem;color:var(--accent);border:1px dashed var(--accent);border-radius:4px;padding:0 5px}
@@ -685,7 +700,8 @@ def main(argv=None):
     p = sub.add_parser("new")
     p.add_argument("slug")
     p.add_argument("--title")
-    p.add_argument("--root", default=".")
+    p.add_argument("--no-form", action="store_true")
+    p.add_argument("--root")
     p = sub.add_parser("lint")
     p.add_argument("file")
     p.add_argument("--json", action="store_true")

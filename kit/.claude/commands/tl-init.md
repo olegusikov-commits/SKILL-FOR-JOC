@@ -12,7 +12,8 @@ show what changed.
 Steps:
 1. Create folders if missing: `.claude/tl-memory/adr/`, `.claude/tl-memory/design/`,
    `.claude/tl-memory/spec/`.
-   Create `.claude/tl-memory/TECH_DEBT.md` from the template in the `tl-tech-debt` skill if missing.
+   Create `.claude/tl-memory/TECH_DEBT.md` from the template in the `tl-tech-debt` skill if no
+   debt register exists (check `KNOWLEDGE.md` — it may be published to `docs/`).
 2. Explore the repository (read-only):
    - Languages, frameworks and **exact versions** (`*.csproj`/`*.sln`, `pyproject.toml`/
      `requirements*.txt`, `package.json`/`.nvmrc`, `CMakeLists.txt`/`*.vcxproj`, COBOL/Natural
@@ -38,6 +39,8 @@ Steps:
    `<!-- tl-agents:begin -->` … `<!-- tl-agents:end -->`, at most 12 lines in Hebrew — what the
    project is, build/test commands, where the main code is, database aliases (MCP server names)
    and "PROD is read-only", key conventions. No secrets, host names or connection strings.
-5. Rebuild the knowledge map: `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
+5. Rebuild the knowledge map: `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`. If it lists documents without `tl-meta` (e.g.
+   written by an older kit version), add the line to each — type by folder, status and `area`
+   from the content — and rebuild. Also run this after every kit update.
 6. Report to the user in Russian: a short summary, the questions you need answered, and the
    top 3–5 observations (risks / debt candidates — add them to TECH_DEBT.md).

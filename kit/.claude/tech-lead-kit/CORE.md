@@ -26,7 +26,7 @@ Before writing code, state in one line: **SMALL**, **LARGE**, **SPEC** or **ANAL
 - **SMALL** — local bug fix, small refactor inside one unit, a query tweak with no schema
   change, tests, docs. → Implement directly, still following all standards below.
 - **SPEC** — write or check a requirement / specification (אפיון) → `tl-requirements` skill
-  (`/tl-spec`). No production code changes; write only under `.claude/tl-memory/spec/`.
+  (`/tl-spec`). No production code changes; write only in the spec folder or the published spec.
 - **ANALYSIS** — improve/evaluate a metric, an idea or a code change in numbers, "does this
   code meet the task", data questions, analysis reports. → `tl-analytics` skill (`/tl-an`).
   **Do not modify production code**; write only under `.claude/tl-memory/analysis/`.
@@ -93,11 +93,12 @@ They are connected to both **PROD** and **TEST**.
 - Project memory (local, not committed) `.claude/tl-memory/`: `PROJECT_CONTEXT.md`,
   `KNOWLEDGE.md`, `spec/`, `design/`, `adr/`, `analysis/`, `project-doc/`, `hesber/`, `TECH_DEBT.md`.
 - **At the start of every task** read `PROJECT_CONTEXT.md` (missing → suggest `/tl-init`) and
-  `KNOWLEDGE.md` — the map of all specs, ADRs, designs and analyses — and open the documents
-  whose `area` touches the task. An approved spec and an accepted ADR are binding: follow them,
-  or say clearly that the task contradicts them.
+  `KNOWLEDGE.md` (missing → run the index below) — the map of all specs, ADRs, designs and
+  analyses — and open the documents whose `area` touches the task. An approved spec and an
+  accepted ADR are binding: follow them, or say clearly that the task contradicts them. A
+  published document is edited at its published path, never recreated locally.
 - Every document the kit writes starts with a `<!-- tl-meta: type=…; id=…; status=…; date=…;
-  area=…; title=… -->` line; after writing one, run
+  area=…; title=… -->` line (no `;` inside values); after writing one, run
   `python .claude/tech-lead-kit/scripts/tl_knowledge.py index` (or `py -3 …`).
 - **Publishing:** approved documents go into the project (`/tl-publish`): moved to its `docs/`,
   listed in a knowledge block in `AGENTS.md` that every agent reads. The kit never commits.
@@ -110,8 +111,8 @@ They are connected to both **PROD** and **TEST**.
 - [ ] SQL verified against the real schema/indexes; parameterized; set-based.
 - [ ] Tests added/updated and passing (or you say clearly what you could not run and why).
 - [ ] Hebrew "why" comments where the reason is non-obvious.
-- [ ] Behaviour covered by a spec / ADR changed → that document updated too (or the conflict
-      reported); new documents carry `tl-meta` and `KNOWLEDGE.md` is rebuilt.
+- [ ] Behaviour covered by a spec changed → spec updated (back to review); by an accepted ADR →
+      superseded by a new ADR (or the conflict reported); `tl-meta` present, index rebuilt.
 - [ ] For LARGE tasks: `/tl-review` was run and its blocking findings are fixed.
 - [ ] Report to the user in Russian: what changed, why, risks, what to verify manually.
 - [ ] ANALYSIS tasks: every number has a saved query or `an_stats.py` call; the baseline is

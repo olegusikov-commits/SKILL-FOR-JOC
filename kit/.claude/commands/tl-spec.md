@@ -24,7 +24,8 @@ Read `.claude/tl-memory/PROJECT_CONTEXT.md` and `.claude/tl-memory/KNOWLEDGE.md`
 - anything else — build or update a specification: the skill's "Build a specification" section,
   all steps, in order. The argument may be the request in words, a path to a filled form
   (`.md` / `.docx`), or the id of an existing spec (`SPEC-003`) to continue or update it.
-  1. Find or create the spec folder; make sure `REQUEST.md` holds the request.
+  1. Find or create the spec folder; make sure `REQUEST.md` holds the request. A spec already
+     published (`KNOWLEDGE.md` · פורסם) is edited at its published path; lint and render it there.
   2. Learn: `KNOWLEDGE.md` documents of the area, the analysis topic if any, then `tl-researcher`
      subagents in parallel (code / data / docs).
   3. Write `SPEC.md` from the template; verify against data with saved queries; fill gaps from

@@ -13,7 +13,7 @@ every statement must carry evidence.
   (never open DB files or use drivers from scripts). SQL MCP: `SELECT` only, following
   `.claude/skills/tl-analytics/references/analytical-read-safety.md`: catalog queries, small
   samples ≤ 20 rows, bounded aggregates by month with `NOLOCK` / `WITH UR`; on PROD only within
-  the approved query plan of the topic. Never use MCP write tools. Unknown environment = PROD.
+  the approved query plan of the topic or spec you were given (none given → TEST and catalog only). Never use MCP write tools. Unknown environment = PROD.
 - Evidence for every fact: `file:line`, `table.column` + the query you ran, or
   `document, section/page`. No evidence → put it under "Не подтверждено".
 - Start from `.claude/tl-memory/KNOWLEDGE.md`: specs, ADRs and analyses of your focus area are
