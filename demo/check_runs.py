@@ -14,8 +14,10 @@ import sys
 
 WRITE_TOOLS = ("write_query", "create_table", "append_insight")
 CODE_PATH_RE = re.compile(r"(^|/)(src|tests)/")
-BASH_WRITE_RE = re.compile(r"(src|tests)/\S+\.py.*(open\([^)]*['\"]w|sed -i|>\s*\S*(src|tests)/)|"
-                           r"(sed -i|>)\s*\S*(src|tests)/", re.S)
+BASH_CODE_RE = re.compile(r"\b(src|tests)/\S+\.py")
+BASH_WRITES_RE = re.compile(r"write_text\(|open\([^)]*['\"][wa]['\"]|sed -i|>\s*\S*(src|tests)/")
+BASH_SKILL_RE = re.compile(r"\bskills/([\w-]+)/SKILL\.md")
+GIT_COMMIT_RE = re.compile(r"(^|&&|;|\|\||\n)\s*git\s+commit\b")
 ANALYSIS = {"an-learn", "an-improve", "an-verify", "projdoc", "hesber", "debt", "review", "sql", "design"}
 
 
@@ -57,11 +59,13 @@ def scan(work, name):
                         skills.append(inp["file_path"].replace("\\", "/").split("skills/")[-1].split("/")[0])
                     path = inp.get("file_path", "").replace("\\", "/")
                     command = inp.get("command", "") if tool == "Bash" else ""
+                    skills += BASH_SKILL_RE.findall(command)  # e.g. cat .claude/skills/x/SKILL.md
                     edits_code = (tool in ("Edit", "Write", "MultiEdit") and CODE_PATH_RE.search(path)
-                                  and "/.claude/" not in path) or bool(BASH_WRITE_RE.search(command))
+                                  and "/.claude/" not in path) or bool(
+                        BASH_CODE_RE.search(command) and BASH_WRITES_RE.search(command))
                     if edits_code and standards_first is None:
                         standards_first = "tl-engineering-standards" in skills
-                    if re.search(r"\bgit\s+commit\b", command):
+                    if GIT_COMMIT_RE.search(command.split("<<")[0]):  # not text inside a heredoc
                         commits.append(command[:80])
         if last_result:
             cost += last_result.get("total_cost_usd") or 0
