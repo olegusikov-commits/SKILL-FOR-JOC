@@ -56,8 +56,11 @@ Work only with decision-time fields. In order:
 2. **Threshold relaxation:** for numeric thresholds (confidence, amount, age…), compute the
    error in the **marginal band** that a relaxed threshold would add (e.g. OCR 0.90–0.95), not
    in the whole population.
-3. **Segments:** error rate and n by single fields (categorical values, numeric bins), then by
-   pairs of the best fields.
+3. **Segments inside the biggest blockers:** for each of the 2–3 conditions that stop most
+   objects, scan error rate and n by every decision-time field (categories, numeric bins: type,
+   history, bank/source, channel, amount band…), then by pairs of the best fields. Do this
+   systematically — not only for hypotheses you already had — and check each candidate segment
+   month by month (a good average can hide one bad month).
 4. **User / document / code ideas:** every idea becomes a hypothesis too.
 Candidate if: observed error on A ≤ half the threshold and n large enough
 (`an_stats.py min-n`). Avoid IDs and fields that a customer can easily game (check for

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ru" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Обработка чека в ChequeFlow</title>
+<style>
+/* ---- tokens: light ---- */
+:root {
+  --paper: #f5f6f8;
+  --card: #ffffff;
+  --ink: #1c2733;
+  --muted: #5a6776;
+  --line: #c8d0da;
+  --accent: #1d5ea8;
+  --accent-soft: #e4edf8;
+  --stop: #b9450f;
+  --stop-soft: #fbe8dc;
+  --ok: #2b7a4b;
+  --ok-soft: #e1f1e7;
+  --code-bg: #eceff3;
+  --font-body: "Segoe UI", Arial, "Noto Sans Hebrew", "Noto Sans", system-ui, sans-serif;
+  --font-mono: Consolas, "Cascadia Mono", "Courier New", monospace;
+  color-scheme: light;
+}
+/* ---- tokens: dark (system setting) ---- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f151c; --card: #16202a; --ink: #e2e8ef; --muted: #9ba7b5; --line: #2d3b4a;
+    --accent: #6ea8ea; --accent-soft: #19304a; --stop: #f08c52; --stop-soft: #3a2316;
+    --ok: #6cc590; --ok-soft: #16321f; --code-bg: #1d2935; color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+.page { max-width: 1020px; margin: 0 auto; padding: 40px 16px 80px; display: grid; gap: 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 700; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px;
+       direction: ltr; unicode-bidi: isolate; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+header.intro { display: grid; gap: 14px; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.95rem; }
+nav.toc a { text-decoration: none; border-bottom: 1px solid var(--line); }
+section { display: grid; gap: 18px; }
+.section-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.note { font-size: 0.9rem; color: var(--muted); }
+
+/* diagram plate */
+figure.plate { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow-x: auto; }
+figure.plate svg { display: block; width: 100%; min-width: 760px; height: auto; }
+figure.plate figcaption { font-size: 0.85rem; color: var(--muted); padding: 10px 16px; border-top: 1px solid var(--line); }
+
+/* SVG classes — colors only through tokens */
+svg text { font-family: var(--font-body); fill: var(--ink); }
+[dir="rtl"] svg text { direction: rtl; }
+[dir="rtl"] svg text.ltr { direction: ltr; }
+svg .t-title { font-weight: 600; font-size: 15px; }
+svg .t-sub { font-size: 12px; fill: var(--muted); }
+svg .t-mono { font-family: var(--font-mono); font-size: 11px; }
+svg .t-band { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; fill: var(--muted); }
+svg .t-label { font-family: var(--font-mono); font-size: 11px; fill: var(--accent); }
+svg .t-stop { fill: var(--stop); }
+svg .t-ok { fill: var(--ok); }
+svg .box { fill: var(--card); stroke: var(--line); stroke-width: 1.2; }
+svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+svg .box-stop { fill: var(--stop-soft); stroke: var(--stop); stroke-width: 1.5; }
+svg .box-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.2; }
+svg .frame { fill: none; stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 5 4; }
+svg .wire { fill: none; stroke: var(--muted); stroke-width: 1.4; }
+svg .wire-dash { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+svg .wire-stop { fill: none; stroke: var(--stop); stroke-width: 1.4; }
+svg .lifeline { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 3 4; }
+svg .head { fill: var(--muted); }
+svg .head-stop { fill: var(--stop); }
+
+/* table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: start; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+
+/* component card */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+.card-id { padding: 20px; border-inline-end: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.card-id .name { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); direction: ltr; text-align: start; overflow-wrap: anywhere; }
+.card-body { padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.fact { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.fact .k { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.fact .v { font-size: 0.94rem; }
+
+/* steps strip, example, callout, checklist */
+.steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.88rem; }
+.steps .step { background: var(--accent-soft); border: 1px solid var(--line); border-radius: 4px; padding: 3px 9px; }
+.steps .stop { background: var(--stop-soft); border-color: var(--stop); color: var(--stop); font-weight: 600; }
+.steps .arr { color: var(--muted); }
+.example { font-family: var(--font-mono); font-size: 0.85rem; background: var(--code-bg); border-radius: 4px; padding: 10px 12px;
+           white-space: pre-wrap; overflow-wrap: anywhere; direction: ltr; text-align: left; }
+.callout { border-inline-start: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 4px; max-width: 75ch; }
+.callout.warn { border-color: var(--stop); background: var(--stop-soft); }
+.checklist { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; max-width: 75ch; }
+.checklist li { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.checklist li code { justify-self: start; }
+
+@media (max-width: 760px) {
+  .card { grid-template-columns: minmax(0, 1fr); }
+  .card-id { border-inline-end: none; border-bottom: 1px solid var(--line); }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .checklist li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="intro">
+  <div class="eyebrow">Объяснение процесса · ChequeFlow</div>
+  <h1>Как обрабатывается чек: от скана до решения</h1>
+  <p class="lede">Чек сканируют, OCR читает сумму, дату и подпись, а восемь правил по очереди решают: принять автоматически или отправить клерку (פקיד). Документ для разработчиков команды.</p>
+  <nav class="toc" aria-label="Содержание"><a href="#flow">Путь чека</a><a href="#rules">Цепочка правил</a><a href="#codes">Коды причин в цифрах</a><a href="#after">Что после решения</a><a href="#next">Куда смотреть</a></nav>
+</header>
+
+<section id="flow">
+  <div class="section-head"><div class="eyebrow">Схема 1</div><h2>Путь чека целиком</h2></div>
+  <p>Шаги 1–3 происходят до кода этого репозитория: чек попадает в таблицу <code>cheques</code> уже с данными OCR. Код начинается с шага 4.</p>
+  <figure class="plate">
+    <svg viewBox="0 0 1000 400" role="img" aria-label="Путь чека: сканирование, OCR, приём в БД, авто-решение, запись; затем авто-одобрение или передача клерку"><defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker></defs><rect class="frame" x="12" y="26" width="584" height="116" rx="8"/><rect class="box-accent" x="20" y="40" width="175" height="90" rx="6"/><text class="t-title" x="107" y="65" text-anchor="middle">1 · Сканирование</text><text class="t-sub" x="107" y="85" text-anchor="middle">канал: BRANCH_SCAN,</text><text class="t-sub" x="107" y="105" text-anchor="middle">MOBILE или ATM</text><rect class="box" x="215" y="40" width="175" height="90" rx="6"/><text class="t-title" x="302" y="65" text-anchor="middle">2 · OCR</text><text class="t-sub" x="302" y="85" text-anchor="middle">сумма, дата, подпись</text><text class="t-sub" x="302" y="105" text-anchor="middle">+ уровни уверенности</text><rect class="box" x="410" y="40" width="175" height="90" rx="6"/><text class="t-title" x="497" y="65" text-anchor="middle">3 · Приём в БД</text><text class="t-mono ltr" x="497" y="85" text-anchor="middle">payer_prev_cheques</text><text class="t-sub" x="497" y="105" text-anchor="middle">+ флаг дубликата</text><rect class="box-accent" x="605" y="40" width="175" height="90" rx="6"/><text class="t-title" x="692" y="65" text-anchor="middle">4 · Авто-решение</text><text class="t-mono ltr" x="692" y="85" text-anchor="middle">rules.decide()</text><text class="t-sub" x="692" y="105" text-anchor="middle">чистая функция</text><rect class="box" x="800" y="40" width="175" height="90" rx="6"/><text class="t-title" x="887" y="65" text-anchor="middle">5 · Запись</text><text class="t-mono ltr" x="887" y="85" text-anchor="middle">save_decision()</text><text class="t-sub" x="887" y="105" text-anchor="middle">→ auto_decisions</text><path class="wire" d="M195,85 L211,85" marker-end="url(#ah1)"/><path class="wire" d="M390,85 L406,85" marker-end="url(#ah1)"/><path class="wire" d="M585,85 L601,85" marker-end="url(#ah1)"/><path class="wire" d="M780,85 L796,85" marker-end="url(#ah1)"/><text class="t-band" x="20" y="160">ВНЕ КОДА РЕПО — ДАННЫЕ ПРИХОДЯТ В БД ГОТОВЫМИ</text><rect class="box-ok" x="605" y="190" width="175" height="60" rx="6"/><text class="t-mono ltr" x="692" y="216" text-anchor="middle">AUTO_APPROVED</text><text class="t-sub" x="692" y="236" text-anchor="middle">чек принят без людей</text><rect class="box-stop" x="800" y="190" width="175" height="60" rx="6"/><text class="t-mono ltr" x="887" y="216" text-anchor="middle">TO_CLERK</text><text class="t-sub" x="887" y="236" text-anchor="middle">передан клерку</text><path class="wire" d="M887,130 L887,186" marker-end="url(#ah1)"/><path class="wire" d="M887,160 L692,160 L692,186" marker-end="url(#ah1)"/><rect class="box" x="605" y="290" width="175" height="90" rx="6"/><text class="t-title" x="692" y="315" text-anchor="middle">Выборка ~3%</text><text class="t-sub" x="692" y="335" text-anchor="middle">проверка постфактум</text><text class="t-mono ltr" x="692" y="355" text-anchor="middle">is_spot_check = 1</text><rect class="box-accent" x="800" y="290" width="175" height="90" rx="6"/><text class="t-title" x="887" y="315" text-anchor="middle">Клерк</text><text class="t-mono ltr" x="887" y="335" text-anchor="middle">APPROVED / REJECTED</text><text class="t-sub" x="887" y="355" text-anchor="middle">может поправить сумму</text><path class="wire-dash" d="M692,250 L692,286" marker-end="url(#ah1)"/><path class="wire" d="M887,250 L887,286" marker-end="url(#ah1)"/><path class="wire-dash" d="M780,335 L796,335" marker-end="url(#ah1)"/></svg>
+    <figcaption>Как читать: сплошные стрелки — основной путь; пунктир — выборочная проверка авто-одобренных чеков (~3%) тем же клерком. Пунктирная рамка — то, что происходит вне кода репозитория. Точка входа в код — <code>service.process_cheque(repo, cheque_id)</code>: load → decide → save.</figcaption>
+  </figure>
+</section>
+
+<section id="rules">
+  <div class="section-head"><div class="eyebrow">Схема 2</div><h2>Цепочка правил <code>rules.decide()</code></h2></div>
+  <p>Правила идут строго в этом порядке. Первая проваленная проверка сразу возвращает <code>TO_CLERK</code> с её кодом; остальные уже не смотрятся. Только чек, прошедший все восемь, получает <code>AUTO_APPROVED</code>.</p>
+  <figure class="plate">
+    <svg viewBox="0 0 1000 410" role="img" aria-label="Восемь проверок по очереди; любая неудача ведёт к TO_CLERK со своим кодом, успех всех — к AUTO_APPROVED"><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah2s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-stop" d="M0,0 L10,5 L0,10 z"/></marker></defs><rect class="box-accent" x="20" y="110" width="160" height="60" rx="6"/><text class="t-title" x="100" y="135" text-anchor="middle">1 · Счёт</text><text class="t-sub" x="100" y="155" text-anchor="middle">status = ACTIVE</text><rect class="box-stop" x="20" y="20" width="160" height="44" rx="6"/><text class="t-mono ltr" x="100" y="47" text-anchor="middle">ACCOUNT_BLOCKED</text><path class="wire-stop" d="M100,110 L100,68" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="108" y="94">нет</text><path class="wire" d="M180,140 L206,140" marker-end="url(#ah2)"/><rect class="box-accent" x="210" y="110" width="160" height="60" rx="6"/><text class="t-title" x="290" y="135" text-anchor="middle">2 · Дубликат</text><text class="t-sub" x="290" y="155" text-anchor="middle">нет флага дубликата</text><rect class="box-stop" x="210" y="20" width="160" height="44" rx="6"/><text class="t-mono ltr" x="290" y="47" text-anchor="middle">DUPLICATE_SUSPECT</text><path class="wire-stop" d="M290,110 L290,68" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="298" y="94">нет</text><path class="wire" d="M370,140 L396,140" marker-end="url(#ah2)"/><rect class="box" x="400" y="110" width="160" height="60" rx="6"/><text class="t-title" x="480" y="135" text-anchor="middle">3 · Канал</text><text class="t-sub" x="480" y="155" text-anchor="middle">BRANCH_SCAN или ATM</text><rect class="box-stop" x="400" y="20" width="160" height="44" rx="6"/><text class="t-mono ltr" x="480" y="47" text-anchor="middle">CHANNEL_NOT_ALLOWED</text><path class="wire-stop" d="M480,110 L480,68" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="488" y="94">нет</text><path class="wire" d="M560,140 L586,140" marker-end="url(#ah2)"/><rect class="box" x="590" y="110" width="160" height="60" rx="6"/><text class="t-title" x="670" y="135" text-anchor="middle">4 · Сумма</text><text class="t-sub" x="670" y="155" text-anchor="middle">≤ 1000 ₪</text><rect class="box-stop" x="590" y="20" width="160" height="44" rx="6"/><text class="t-mono ltr" x="670" y="47" text-anchor="middle">AMOUNT_LIMIT</text><path class="wire-stop" d="M670,110 L670,68" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="678" y="94">нет</text><path class="wire" d="M750,140 L776,140" marker-end="url(#ah2)"/><rect class="box" x="780" y="110" width="160" height="60" rx="6"/><text class="t-title" x="860" y="135" text-anchor="middle">5 · OCR суммы</text><text class="t-sub" x="860" y="155" text-anchor="middle">уверенность ≥ 0.95</text><rect class="box-stop" x="780" y="20" width="160" height="44" rx="6"/><text class="t-mono ltr" x="860" y="47" text-anchor="middle">LOW_OCR_AMOUNT</text><path class="wire-stop" d="M860,110 L860,68" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="868" y="94">нет</text><path class="wire" d="M860,170 L860,236" marker-end="url(#ah2)"/><text class="t-label" x="868" y="206">да</text><rect class="box" x="780" y="240" width="160" height="60" rx="6"/><text class="t-title" x="860" y="265" text-anchor="middle">6 · OCR даты</text><text class="t-sub" x="860" y="285" text-anchor="middle">уверенность ≥ 0.90</text><rect class="box-stop" x="780" y="340" width="160" height="44" rx="6"/><text class="t-mono ltr" x="860" y="367" text-anchor="middle">LOW_OCR_DATE</text><path class="wire-stop" d="M860,300 L860,336" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="868" y="324">нет</text><path class="wire" d="M780,270 L754,270" marker-end="url(#ah2)"/><rect class="box" x="590" y="240" width="160" height="60" rx="6"/><text class="t-title" x="670" y="265" text-anchor="middle">7 · Подпись</text><text class="t-sub" x="670" y="285" text-anchor="middle">совпадение ≥ 0.85</text><rect class="box-stop" x="590" y="340" width="160" height="44" rx="6"/><text class="t-mono ltr" x="670" y="367" text-anchor="middle">LOW_SIGNATURE</text><path class="wire-stop" d="M670,300 L670,336" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="678" y="324">нет</text><path class="wire" d="M590,270 L564,270" marker-end="url(#ah2)"/><rect class="box" x="400" y="240" width="160" height="60" rx="6"/><text class="t-title" x="480" y="265" text-anchor="middle">8 · Плательщик</text><text class="t-sub" x="480" y="285" text-anchor="middle">≥ 3 прошлых чека</text><rect class="box-stop" x="400" y="340" width="160" height="44" rx="6"/><text class="t-mono ltr" x="480" y="367" text-anchor="middle">NEW_PAYER</text><path class="wire-stop" d="M480,300 L480,336" marker-end="url(#ah2s)"/><text class="t-label t-stop" x="488" y="324">нет</text><path class="wire" d="M400,270 L374,270" marker-end="url(#ah2)"/><rect class="box-ok" x="210" y="240" width="160" height="60" rx="6"/><text class="t-mono ltr" x="290" y="267" text-anchor="middle">AUTO_APPROVED</text><text class="t-sub" x="290" y="287" text-anchor="middle">код причины OK</text><text class="t-band" x="20" y="214">ПЕРВАЯ ПРОВАЛЕННАЯ ПРОВЕРКА</text><text class="t-band" x="20" y="230">ОПРЕДЕЛЯЕТ КОД ПРИЧИНЫ</text><text class="t-sub" x="20" y="340">Все «нет» ведут к</text><text class="t-mono ltr" x="20" y="360">TO_CLERK</text></svg>
+    <figcaption>Как читать: верхний ряд идёт слева направо (проверки 1–5), нижний — справа налево (6–8). Оранжевые блоки — код причины при провале. Проверки 1–2 (синие) — жёсткие остановки: их не должно обходить никакое будущее правило. Пороги лежат в <code>config.py</code>.</figcaption>
+  </figure>
+</section>
+
+<section id="codes">
+  <div class="section-head"><div class="eyebrow">Данные</div><h2>Как это выглядит на реальной истории</h2></div>
+  <p>Сводка по <code>auto_decisions</code> (TEST-копия, 36 000 чеков, 2026-01-01..2026-09-30). Автоматически проходит 8.3% чеков; главные причины отказа — сумма выше 1000 ₪ и канал MOBILE.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Код</th><th>Значение</th><th>Тип</th><th>Чеков</th><th>Доля</th></tr></thead>
+    <tbody><tr><td><code>ACCOUNT_BLOCKED</code></td><td>Счёт не ACTIVE (заблокирован или закрыт)</td><td>жёсткая</td><td>1 352</td><td>3.8%</td></tr><tr><td><code>DUPLICATE_SUSPECT</code></td><td>Подозрение на дубликат</td><td>жёсткая</td><td>484</td><td>1.3%</td></tr><tr><td><code>CHANNEL_NOT_ALLOWED</code></td><td>Канал не из BRANCH_SCAN / ATM (MOBILE)</td><td>обычная</td><td>10 212</td><td>28.4%</td></tr><tr><td><code>AMOUNT_LIMIT</code></td><td>Сумма больше 1000 ₪</td><td>обычная</td><td>12 120</td><td>33.7%</td></tr><tr><td><code>LOW_OCR_AMOUNT</code></td><td>Уверенность OCR суммы < 0.95</td><td>обычная</td><td>3 476</td><td>9.7%</td></tr><tr><td><code>LOW_OCR_DATE</code></td><td>Уверенность OCR даты < 0.90</td><td>обычная</td><td>1 024</td><td>2.8%</td></tr><tr><td><code>LOW_SIGNATURE</code></td><td>Совпадение подписи < 0.85</td><td>обычная</td><td>1 100</td><td>3.1%</td></tr><tr><td><code>NEW_PAYER</code></td><td>Меньше 3 прошлых чеков от плательщика</td><td>обычная</td><td>3 237</td><td>9.0%</td></tr><tr><td><code>OK (AUTO_APPROVED)</code></td><td>Все проверки пройдены</td><td>—</td><td>2 995</td><td>8.3%</td></tr></tbody></table></div>
+  <div class="callout warn"><strong>Важно:</strong> в таблице учтена только первая сработавшая причина. Чек с суммой 3000 ₪ и низкой подписью виден как <code>AMOUNT_LIMIT</code>, поэтому доля «скрытых» причин (например подписи) выше, чем показывают цифры.</div>
+</section>
+
+<section id="after">
+  <div class="section-head"><div class="eyebrow">После решения</div><h2>Что делает клерк</h2></div>
+  <p>Чек с <code>TO_CLERK</code> попадает к клерку. Он утверждает, отклоняет или утверждает с исправленной суммой (<code>corrected_amount</code>) и выставляет <code>risk_flag</code>. Результат пишется в <code>clerk_reviews</code>; при повторной проверке (супервайзер) решает последняя запись.</p>
+  <div class="steps"><span class="step">TO_CLERK</span><span class="arr">→</span><span class="step">проверка клерком</span><span class="arr">→</span><span class="step">clerk_reviews: APPROVED / REJECTED</span><span class="arr">→</span><span class="step stop">повторная проверка: последняя запись решает</span></div>
+  <p>Около 3% авто-одобренных чеков клерк проверяет задним числом (<code>is_spot_check = 1</code>) — так считается реальная доля ошибок авто-решения.</p>
+  <div class="callout"><strong>Факты и допущения.</strong> Работу клерка и выборку 3% я описал по <code>docs/process.docx</code> и схеме БД; кода для них в репозитории нет. Шаги 1–3 (скан, OCR, расчёт <code>payer_prev_cheques</code>) тоже вне репозитория. Правило из <code>CHQ-512</code> (<code>AUTO_RECURRING_PAYER</code>) в коде ещё не реализовано и в схему не включено.</div>
+  <div class="callout warn"><strong>Ограничение:</strong> повторный вызов <code>process_cheque</code> для того же чека упадёт с <code>IntegrityError</code> (<code>auto_decisions.cheque_id</code> — первичный ключ; TD-004 в реестре техдолга).</div>
+</section>
+
+<section id="next">
+  <div class="section-head"><div class="eyebrow">Дальше</div><h2>Куда смотреть в коде</h2></div>
+  <ul class="checklist">
+    <li><code>service.py</code><span>точка входа <code>process_cheque</code>: load → decide → save</span></li>
+    <li><code>rules.py</code><span>порядок проверок и коды причин — менять порядок = менять результат</span></li>
+    <li><code>config.py</code><span>все пороги (1000 ₪, 0.95, 0.90, 0.85, 3 чека, разрешённые каналы)</span></li>
+    <li><code>repository.py</code><span><code>load</code> (JOIN cheques/accounts/payers) и <code>save_decision</code></span></li>
+    <li><code>tests/test_rules.py</code><span>5 тестов правил; нет тестов на границы порогов</span></li>
+  </ul>
+</section>
+</div>
+</body>
+</html>
