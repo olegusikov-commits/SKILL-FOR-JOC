@@ -14,19 +14,8 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install.cmd cases (a)-(e)
         shell: pwsh
         run: ./tests/test-install.ps1
-
-      - name: "Temporary: the v1.1.0 installer from 8ca8b34 fails these checks"
-        if: always()
-        shell: pwsh
-        run: |
-          git fetch -q --depth=1 origin 8ca8b3463111e4a732cc8aa59ef73d8fe6c7216e
-          cmd /c "git cat-file blob 8ca8b3463111e4a732cc8aa59ef73d8fe6c7216e:install.cmd > install-v110.cmd"
-          ./tests/test-install.ps1 -Installer ./install-v110.cmd
-          if ($LASTEXITCODE -eq 0) { throw 'the v1.1.0 installer unexpectedly passed' }
-          Write-Host 'the v1.1.0 installer fails as expected'
-          exit 0
