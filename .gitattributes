@@ -1,0 +1,4 @@
+# .cmd files are stored with CRLF as-is so ZIP downloads run correctly in cmd.exe
+*.cmd -text
+*.md text eol=lf
+VERSION text eol=lf
