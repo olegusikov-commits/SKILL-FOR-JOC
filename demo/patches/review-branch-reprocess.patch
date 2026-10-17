@@ -1,0 +1,35 @@
+diff --git a/src/chequeflow/repository.py b/src/chequeflow/repository.py
+index e40553f..d872457 100644
+--- a/src/chequeflow/repository.py
++++ b/src/chequeflow/repository.py
+@@ -49,3 +49,14 @@ class ChequeRepository:
+                    VALUES (?, ?, ?, ?)""",
+                 (cheque_id, decided_at, decision.result, decision.reason_code),
+             )
++
++    def find_cheque_ids_by_branch(self, branch_id, since):
++        try:
++            conn = self._connect()
++            rows = conn.execute(
++                f"SELECT cheque_id FROM cheques WHERE branch_id = '{branch_id}' "
++                f"AND received_at >= '{since}'"
++            ).fetchall()
++            return [r[0] for r in rows]
++        except Exception:
++            return []
+diff --git a/src/chequeflow/service.py b/src/chequeflow/service.py
+index fceb35a..c291fce 100644
+--- a/src/chequeflow/service.py
++++ b/src/chequeflow/service.py
+@@ -11,3 +11,11 @@ def process_cheque(repo: ChequeRepository, cheque_id: int) -> Decision:
+     decision = rules.decide(cheque, account, payer)
+     repo.save_decision(cheque_id, datetime.now(timezone.utc).isoformat(), decision)
+     return decision
++
++
++def reprocess_branch(repo: ChequeRepository, branch_id, since):
++    """עיבוד מחדש של כל השיקים של סניף (אחרי שינוי כללים)."""
++    results = {}
++    for cheque_id in repo.find_cheque_ids_by_branch(branch_id, since):
++        results[cheque_id] = process_cheque(repo, cheque_id)
++    return results

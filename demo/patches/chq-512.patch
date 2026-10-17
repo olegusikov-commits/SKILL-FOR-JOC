@@ -1,0 +1,61 @@
+diff --git a/src/chequeflow/config.py b/src/chequeflow/config.py
+index 191f2b6..32e2f3a 100644
+--- a/src/chequeflow/config.py
++++ b/src/chequeflow/config.py
+@@ -18,4 +18,9 @@ MIN_PAYER_HISTORY = 3
+ # ערוצים שמהם מותר אישור אוטומטי (MOBILE לא מותר — איכות סריקה נמוכה)
+ AUTO_APPROVE_CHANNELS = frozenset({"BRANCH_SCAN", "ATM"})
+ 
++# CHQ-512: מושכים מוסדיים קבועים
++RECURRING_PAYER_TYPES = frozenset({"COMPANY", "GOVERNMENT"})
++RECURRING_PAYER_MIN_HISTORY = 6
++RECURRING_PAYER_MAX_AMOUNT = 5000.0
++
+ DB_PATH = "chequemis.db"
+diff --git a/src/chequeflow/rules.py b/src/chequeflow/rules.py
+index 95f9cfd..6349746 100644
+--- a/src/chequeflow/rules.py
++++ b/src/chequeflow/rules.py
+@@ -9,7 +9,22 @@ AUTO_APPROVED = "AUTO_APPROVED"
+ TO_CLERK = "TO_CLERK"
+ 
+ 
++def _is_recurring_institutional(cheque: Cheque, payer: Payer) -> bool:
++    # CHQ-512: משכורות וקצבאות ממושכים קבועים כמעט אף פעם לא נדחים
++    return (
++        payer.payer_type in config.RECURRING_PAYER_TYPES
++        and cheque.payer_prev_cheques > config.RECURRING_PAYER_MIN_HISTORY
++        and cheque.ocr_amount <= config.RECURRING_PAYER_MAX_AMOUNT
++        and cheque.ocr_amount_conf >= config.OCR_AMOUNT_MIN_CONF
++        and cheque.ocr_date_conf >= config.OCR_DATE_MIN_CONF
++        and cheque.ocr_signature_score >= config.SIGNATURE_MIN_SCORE
++    )
++
++
+ def decide(cheque: Cheque, account: Account, payer: Payer) -> Decision:
++    if _is_recurring_institutional(cheque, payer):
++        return Decision(AUTO_APPROVED, "AUTO_RECURRING_PAYER")
++
+     # עצירות קשיחות: אסור לאשר אוטומטית בשום מקרה
+     if account.status != "ACTIVE":
+         return Decision(TO_CLERK, "ACCOUNT_BLOCKED")
+diff --git a/tests/test_rules.py b/tests/test_rules.py
+index 9eaeea2..c2b5bba 100644
+--- a/tests/test_rules.py
++++ b/tests/test_rules.py
+@@ -39,6 +39,15 @@ class DecideTests(unittest.TestCase):
+         d = decide(make_cheque(payer_prev_cheques=0), ACTIVE, PAYER)
+         self.assertEqual(d.reason_code, "NEW_PAYER")
+ 
++    def test_recurring_company_payer_over_limit_is_auto_approved(self):
++        company = Payer(20, "COMPANY", "010")
++        d = decide(make_cheque(ocr_amount=3500.0, payer_prev_cheques=12), ACTIVE, company)
++        self.assertEqual((d.result, d.reason_code), (AUTO_APPROVED, "AUTO_RECURRING_PAYER"))
++
++    def test_recurring_private_payer_over_limit_goes_to_clerk(self):
++        d = decide(make_cheque(ocr_amount=3500.0, payer_prev_cheques=12), ACTIVE, PAYER)
++        self.assertEqual(d.reason_code, "AMOUNT_LIMIT")
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
