@@ -90,7 +90,10 @@ SQL patterns: `references/backtest-sql.md`. Statistics: `references/statistics.m
   - `.pdf`, `.md`, `.txt`, `.csv`: read directly.
 - **Code**: search for the business terms, table names, status codes, thresholds.
 - **Database** through the registered data sources (`.claude/tl-memory/data-sources.json`):
-  catalog and sizes first, then probe small, then data (query guard, CORE "Data sources").
+  catalog and sizes first, then probe small, then data (query guard, CORE "Data sources";
+  `python .claude/tech-lead-kit/scripts/tl_sql.py check` before sending, `run` for command-line
+  sources — results land as CSV for `an_stats.py` and charts). Size or speed problems →
+  the `tl-dba` subagent.
 - No internet. Do not claim facts you did not see in one of these sources.
 
 Heavy reading (large code areas, catalogs, many documents) goes to the `tl-researcher`

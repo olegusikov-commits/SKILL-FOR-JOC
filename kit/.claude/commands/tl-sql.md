@@ -14,7 +14,12 @@ word → choose from the task and say which). Data sources and safety: CORE "Dat
    Unknown environment = PROD.
 2. Step 1: the real schema of every table involved — columns and types, keys, **all indexes**,
    row counts, statistics freshness, the current definition of procedures/views. Size first: a
-   table of millions of rows is never scanned to "have a look". Summarize in a few lines.
+   table of millions of rows is never scanned to "have a look". Schema cache first
+   (`python .claude/tech-lead-kit/scripts/tl_sql.py schema table <alias> <table>`); what you read
+   from the catalog, save into the cache (`.claude/tl-memory/db/<alias>.json`, format in the
+   script's help). Summarize in a few lines.
+   Every query you send: `tl_sql.py check <file> --source <alias>` first (ERROR → do not send),
+   then `tl_sql.py guard` for an MCP source or `tl_sql.py run` for a command-line source.
 
 **`build`** — write SQL / a procedure / a view from a requirement:
 3. Read the requirement (`SPEC-nnn` → its REQ / DT / AC; words → restate it in 2 lines; ask only
@@ -35,11 +40,11 @@ word → choose from the task and say which). Data sources and safety: CORE "Dat
    boundary row). Report findings by severity with the exact fix; do not change the code unless asked.
 
 **`tune`** — a slow query, procedure or report:
-3. Measure cheaply first: row counts, statistics dates, the plan (Query Store / plan cache on PROD
-   read-only; estimated plan on TEST; DB2 EXPLAIN on TEST only), waits and blocking if visible.
-4. Follow `references/problem-solving.md`: the cause, then at least 3 options (rewrite, index,
-   statistics, pre-aggregation, batching / window, archiving, an application change) with gain,
-   cost and risk at the real volume; recommend one.
+3. Delegate the investigation to the `tl-dba` subagent (source alias, the query or report, what
+   "slow" means for the user, any plan you already have). It measures cheaply and returns the cause
+   and at least 3 options with gain, cost and risk (`references/problem-solving.md`).
+4. Check its numbers you rely on, pick the recommendation with the user (buttons), and write the
+   changed SQL / scripts.
 
 **Then (every mode):**
 6. Schema change / data fix → LARGE: scripts per `schema-changes.md` (forward + rollback + impact

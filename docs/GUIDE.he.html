@@ -143,7 +143,7 @@ td:first-child { width: 42%; }
 <div class="page" dir="rtl" lang="he">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · גרסה 2.0.0</div>
+  <div class="eyebrow">Tech Lead Kit · גרסה 2.1.0</div>
   <h1>מדריך Tech Lead Kit</h1>
   <p class="lede">איך ה-kit בנוי, איך מתקינים ומעדכנים אותו דרך USB, ואיך עובדים עם כל skill
   ב-Claude Code בתוך VS Code.</p>
@@ -251,7 +251,8 @@ td:first-child { width: 42%; }
   <div class="callout">
     <p><b>לא נתקע.</b> <code>/tl-init</code> מגדיר מגבלות זמן ל-MCP; כל שאילתה לבסיס הנתונים
     יוצאת עם הגנה (<code>LOCK_TIMEOUT</code>, <code>QUERY_GOVERNOR_COST_LIMIT</code>,
-    <code>WITH UR</code>) ומתחילה בבדיקה קטנה; לסוכנים ולכל לולאה יש גבול. בגבול Claude עוצר
+    <code>WITH UR</code>) ומתחילה בבדיקה קטנה; <code>tl_sql.py</code> בודק את השאילתה לפני השליחה
+    ועוצר לקוח שורת פקודה תקוע לפי timeout; לסוכנים ולכל לולאה יש גבול. בגבול Claude עוצר
     ואומר מה נעשה ומה נשאר.</p>
     <p><b>שאלות</b> — בכפתורים, התשובה המומלצת ראשונה. אין צורך ב-<code>/init</code> המובנה:
     את העבודה שלו עושה <code>/tl-init</code>.</p>
@@ -386,11 +387,13 @@ td:first-child { width: 42%; }
   <p>מתקינים בכל פרויקט בנפרד. העדכון נעשה באותה פקודה: קבצי ה-kit מוחלפים, וזיכרון הפרויקט
   נשאר כפי שהוא.</p>
   <div class="callout">
-    <p><b>חלון ההתקנה.</b> לחיצה כפולה על <code>install.cmd</code> פותחת חלון: רשימת הפרויקטים שבהם ה-kit כבר מותקן,
-    עם הגרסאות; כפתור "הוספת פרויקט..."; מצב המסמכים ("מסמכים מאושרים הופכים מיד לחלק מהפרויקט": תיקיית
-    <code>docs</code> ו-<code>AGENTS.md</code>, את ה-commit אתה עושה); וכפתור "התקנה / עדכון" לכל הפרויקטים המסומנים. בעדכון,
-    פרויקטים עם גרסה ישנה כבר מסומנים. אם PowerShell חסום במדיניות, עובד מצב טקסט:
-    <code>install.cmd "C:\work\project"</code>.</p>
+    <p><b>חלון ההתקנה.</b> לחיצה כפולה על <code>install.cmd</code> פותחת חלון עם טבלת פרויקטים: גרסה, מצב
+    ("מעודכן", "לעדכן ל-…", "לא מותקן") ומצב המסמכים. מוסיפים פרויקטים בכפתורים "הוספת תיקייה...", "חיפוש
+    פרויקטים..." (כל התיקיות עם <code>.git</code> בתיקייה שנבחרה, למשל <code>C:\dev</code>), "אחרונים מ-VS Code",
+    בגרירת תיקיות לחלון או בהדבקת נתיב. שם גם: "סימון פרויקטים לעדכון", "פתיחת תיקייה", "הסרה מהרשימה",
+    "הסרת ה-kit מהפרויקט" ו"מה חדש". מצב המסמכים ("מסמכים מאושרים הופכים מיד לחלק מהפרויקט": תיקיית
+    <code>docs</code> ו-<code>AGENTS.md</code>, את ה-commit אתה עושה) חל על הפרויקטים המסומנים. אם PowerShell חסום
+    במדיניות, עובד מצב טקסט: <code>install.cmd "C:\work\project"</code>.</p>
     <p>אחרי ההתקנה Claude בפרויקט רואה תמיד את <code>KIT_GUIDE.md</code>: אילו פקודות יש, מתי להציע כל אחת והיכן
     נמצאים המסמכים. ההרצה הראשונה של <code>/tl-init</code> בונה את המבנה: מפת הפרויקט, מפת המסמכים ו-<code>AGENTS.md</code>.</p>
   </div>
@@ -1026,6 +1029,7 @@ td:first-child { width: 42%; }
       <tbody>
         <tr><td><code>tl-architect-reviewer</code></td><td>לוגיקה ומקרי קצה, שכבות וגבולות, חוזים של API, פרוצדורות ו-copybooks, שגיאות ולוגים, אבטחה, בדיקות; התאמה לאפיון מאושר (REQ, טבלאות החלטה, AC) ול-ADR שהתקבלו</td></tr>
         <tr><td><code>tl-sql-reviewer</code></td><td>כל שאילתה מושווית לאינדקסים האמיתיים דרך MCP, וגם טיפוסי פרמטרים, NULL, טרנזקציות, נעילות, תאימות 2019/2022 והשפעה על packages ב-DB2</td></tr>
+        <tr><td><code>tl-dba</code></td><td>חוקר DBA: גדלים, סטטיסטיקה, תוכניות ביצוע, נעילות; הסיבה ולפחות שלוש חלופות עם תועלת, מחיר וסיכון. משמש את <code>/tl-sql tune</code>, את התכנון ואת האנליסט. קריאה בלבד, תקציב שאילתות</td></tr>
         <tr><td><code>tl-researcher</code></td><td>חוקר תחום אחד — קוד, נתונים או מסמכים — ומחזיר עובדות עם הוכחות. משמש את האנליסט, את <code>/tl-spec</code> ואת <code>/tl-explain</code>; עובד בתקציב שאילתות ומחזיר תוצאה חלקית במקום להיתקע</td></tr>
         <tr><td><code>tl-an-skeptic</code></td><td>מנסה להפריך את מסקנות האנליסט: מחשב מחדש את המספרים העיקריים ב-SQL משלו, מחפש דליפות מהעתיד, התאמת־יתר וחודשים לא יציבים</td></tr>
         <tr><td><code>tl-spec-skeptic</code></td><td>קורא את האפיון בעיני המפתח והבודק: בודק בעצמו מונחים, שדות, גבולות ומספרים מול הקוד והנתונים, ומחפש סתירות, חורים בטבלאות החלטה, דליפות וצרכנים שנשכחו</td></tr>
@@ -1046,7 +1050,7 @@ td:first-child { width: 42%; }
     <li><code>/</code><span>רואים את הפקודות <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code></span></li>
     <li><code>/skills</code><span>ברשימה יש את ששת ה-skills של <code>tl-</code> (בתפריט "/" הם מוסתרים — Claude טוען אותם לבד) ואת <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>ברשימה יש <code>.claude/CLAUDE.md</code> עם ייבוא של CORE.md</span></li>
-    <li><code>/agents</code><span>יש <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code></span></li>
+    <li><code>/agents</code><span>יש <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code>, <code>tl-dba</code></span></li>
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — כל השורות <code>ok</code></span></li>
     <li><code>/mcp</code><span>שרתי MCP של בסיסי הנתונים של הפרויקט מחוברים (אם יש); <code>/tl-init</code> רושם אותם ב-<code>data-sources.json</code></span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_knowledge.py index</code> — יוצר את המפה <code>KNOWLEDGE.md</code></span></li>

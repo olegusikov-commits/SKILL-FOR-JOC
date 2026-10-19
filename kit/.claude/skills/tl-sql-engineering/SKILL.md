@@ -34,7 +34,10 @@ in a few lines before writing SQL. **Never invent a column, type, or index.** If
 available, say so explicitly and list the assumptions the user must verify.
 
 Every data read beyond small catalog lookups carries the **query guard** and goes
-**probe → expand** (`references/mcp-catalog-queries.md`, first section). A query that times out
+**probe → expand** (`references/mcp-catalog-queries.md`, first section). The tool:
+`python .claude/tech-lead-kit/scripts/tl_sql.py check | guard | run | schema` — `check` before any
+query is sent, `guard` adds the engine guard for MCP, `run` executes through a command-line source
+with a hard timeout and saves the result as CSV, `schema` searches the schema cache. A query that times out
 or hits the cost limit is redesigned (narrower, indexed, aggregated) — never repeated as is.
 At most 3 fixes per failing query, then stop and show it.
 

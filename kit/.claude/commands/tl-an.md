@@ -69,7 +69,9 @@ criteria, plus the effect of section 14 measured after the change. Verdict PASS 
    denominators, partial periods, red flags). Then `tl-an-skeptic`, one round, for conclusions
    that recommend a change or carry a verdict; apply its findings and say what changed.
 5. **Report** (full cycle only) to `analysis/<topic>/reports/` with `references/report-template.md`
-   (`tl-meta` line); update `HYPOTHESES.md`, `BASELINE.md`, `INDEX.md`, `JOURNAL.md`; run
+   (`tl-meta` line), with 1–3 charts of the key numbers:
+   `python .claude/skills/tl-analytics/scripts/an_chart.py bar|line <result.csv> --x … --y … [--lo --hi]
+   [--target …]` → SVG next to the report (inline it in the HTML version); update `HYPOTHESES.md`, `BASELINE.md`, `INDEX.md`, `JOURNAL.md`; run
    `tl_knowledge.py index`.
 
 **Reply in Russian:** the answer first (numbers with bounds and verdict), then the key evidence,

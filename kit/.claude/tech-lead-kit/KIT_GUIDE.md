@@ -79,9 +79,14 @@ Unanswered → proposed answer as `[הנחה]`; never block other work on an ans
 At a limit: stop and report what is done, what is left and why — never continue silently. Before a
 step that may take long, tell the user in one line what you are starting. Long shell commands get a
 timeout; database work follows CORE "Data sources".
+Database queries: `python .claude/tech-lead-kit/scripts/tl_sql.py check` before sending, `guard` for
+MCP, `run` for command-line sources (hard timeout, CSV, journal `tl-memory/sql-journal.csv`).
 A query hangs: the user presses Stop / Esc, then `/tasks` to stop a background task; the server may
 still run it — ask the DBA to kill the session. `tl_doctor.py --apply-limits` (in `/tl-init`) sets
 time limits for MCP calls.
+
+Before showing a document: `python .claude/tech-lead-kit/scripts/tl_knowledge.py style <file>`
+(WRITING.md notes; advice, fix what is true).
 
 ## Step card — the end of every command reply
 ```

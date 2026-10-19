@@ -229,7 +229,8 @@ class InstallerTests(unittest.TestCase):
         self.assertNotIn(b"\n", raw.replace(b"\r\n", b""), "install-gui.ps1 must use CRLF only")
         ps1 = raw.decode("utf-8-sig")
         for needle in ("install.cmd", "publish.json", "auto_publish", "docs_root", "TechLeadKit",
-                       "FolderBrowserDialog", "TLK_FROM_GUI"):
+                       "FolderBrowserDialog", "TLK_FROM_GUI", "Find-GitProjects", "Get-VsCodeRecent",
+                       "DragDrop", "uninstall.cmd", "settings.json", "CHANGELOG.md", "ProgressBar"):
             self.assertIn(needle, ps1)
         self.assertIn("installer\\install-gui.ps1", self.text)
         self.assertIn("TLK_FROM_GUI", self.text)

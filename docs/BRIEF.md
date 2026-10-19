@@ -48,7 +48,7 @@ DB2 for z/OS, stored procedures, SQL Server 2019 + 2022.
   `tl-sql-engineering`, `tl-tech-debt`, `tl-requirements`, `tl-analytics`; `oleg-skill-hesber` —
   документы-объяснения со схемами.
 - Agents (с `maxTurns` и бюджетами): `tl-architect-reviewer`, `tl-sql-reviewer`, `tl-researcher`,
-  `tl-an-skeptic`, `tl-spec-skeptic`.
+  `tl-an-skeptic`, `tl-spec-skeptic`, `tl-dba`.
 - `install.cmd` / `uninstall.cmd`, окно установки `installer/install-gui.ps1`.
 
 ## Решения 2.0 (рефакторинг)
@@ -60,4 +60,4 @@ DB2 for z/OS, stored procedures, SQL Server 2019 + 2022.
 | Зависания | Лимиты MCP в `settings.local.json`, защита в запросе, проба → расширение, `maxTurns`, пределы циклов |
 | Привязка к одной теме | Реестр источников данных; примеры из разных доменов |
 | `/init` | Не нужен: его делает `/tl-init` |
-| Отложено в 2.1 | Новое окно установщика (таблица проектов, поиск, VS Code), `tl_sql.py` через CLI и кэш схемы, графики в отчётах, агент `tl-dba` |
+| 2.1 | Окно установщика с таблицей проектов, поиском и недавними VS Code; `tl_sql.py` (check / guard / run с таймаутом / schema); агент `tl-dba`; графики `an_chart.py`; `tl_knowledge.py style` |
