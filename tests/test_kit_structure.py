@@ -21,7 +21,7 @@ def frontmatter(path):
         return None
     fields = {}
     for line in m.group(1).splitlines():
-        if re.match(r"^[a-z-]+:", line):
+        if re.match(r"^[A-Za-z-]+:", line):
             key, _, value = line.partition(":")
             fields[key.strip()] = value.strip()
     return fields
@@ -126,7 +126,8 @@ class TemplateMetaTests(unittest.TestCase):
                  "skills/tl-tech-debt/SKILL.md",
                  "skills/oleg-skill-hesber/references/template.html",
                  "skills/tl-requirements/references/spec-template.md",
-                 "skills/tl-requirements/references/intake-form.md"]
+                 "skills/tl-requirements/references/intake-form.md",
+                 "skills/tl-requirements/references/flow-template.md"]
 
     def test_templates_carry_tl_meta(self):
         for rel in self.TEMPLATES:
@@ -158,6 +159,46 @@ class CoreAndDocsTests(unittest.TestCase):
             with self.subTest(cmd=cmd):
                 self.assertIn(f"`{cmd}`", core)
                 self.assertIn(cmd, readme)
+
+
+class GeneralityAndLimitsTests(unittest.TestCase):
+    """The kit fits any project and never waits forever."""
+
+    def kit_texts(self):
+        for dirpath, _, files in os.walk(KIT):
+            for name in files:
+                if name.endswith((".md", ".py")):
+                    yield os.path.join(dirpath, name), read(os.path.join(dirpath, name))
+
+    def test_no_hardcoded_database_servers(self):
+        for path, text in self.kit_texts():
+            with self.subTest(path=path):
+                self.assertNotRegex(text, r"meet-check|meet-chequ", "data sources come from the registry")
+
+    def test_agents_have_turn_limits(self):
+        for path in kit_files("agents", r".+\.md"):
+            with self.subTest(path=path):
+                self.assertRegex(frontmatter(path).get("maxTurns", ""), r"^\d+$")
+
+    def test_knowledge_skills_are_hidden_from_the_menu(self):
+        for name in os.listdir(os.path.join(KIT, "skills")):
+            fm = frontmatter(os.path.join(KIT, "skills", name, "SKILL.md"))
+            with self.subTest(skill=name):
+                expected = None if name in EXPLICIT_SKILLS else "false"
+                self.assertEqual(fm.get("user-invocable"), expected)
+
+    def test_changelog_covers_version(self):
+        version = read(os.path.join(KIT, "tech-lead-kit", "VERSION")).strip()
+        self.assertIn(f"## {version} ", read(os.path.join(KIT, "tech-lead-kit", "CHANGELOG.md")))
+
+    def test_guide_defines_shared_protocols(self):
+        guide = read(os.path.join(KIT, "tech-lead-kit", "KIT_GUIDE.md"))
+        for section in ("## Routes", "## Depth levels", "## FLOW of a new task", "## Questions",
+                        "## Loop limits", "## Step card"):
+            self.assertIn(section, guide)
+        for path in kit_files("commands", r".+\.md"):
+            with self.subTest(cmd=path):
+                self.assertIn("step card", read(path))
 
 
 class InstallerTests(unittest.TestCase):
@@ -194,6 +235,11 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("TLK_FROM_GUI", self.text)
         self.assertIn("TechLeadKit\\projects.txt", self.text)
         self.assertIn('"auto_publish": true', self.text)
+
+    def test_update_removes_old_kit_files_first(self):
+        clean, copy = self.text.index('del /q "%C%\\commands\\tl-*.md"'), self.text.index("robocopy")
+        self.assertLess(clean, copy)
+        self.assertNotIn("tl-memory", self.text[clean - 400:copy].replace("never touches tl-memory", ""))
 
     def test_memory_folders(self):
         for sub in ("adr", "design", "analysis", "spec"):

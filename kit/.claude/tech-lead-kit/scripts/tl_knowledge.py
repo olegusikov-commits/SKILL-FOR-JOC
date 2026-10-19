@@ -16,11 +16,15 @@ nearest parent with .claude/tech-lead-kit or .claude/tl-memory); --root override
                           and the agents block. Never runs git.
   block                   rewrite the managed knowledge block in AGENTS.md (and make CLAUDE.md
                           import it) from the published documents + PROJECT_CONTEXT.md facts
+  status [--mark-init]    "where am I": open task flows (FLOW.md) and their next step, documents
+                          waiting for approval, design plans with open tasks, kit updated since the
+                          last /tl-init (+ what is new). --mark-init records the kit version (/tl-init)
 
 Every kit document starts with:  <!-- tl-meta: type=…; id=…; status=…; date=…; area=…; title=… -->
 Settings (optional): .claude/tl-memory/publish.json — see DEFAULTS below.
 """
 import argparse
+import datetime
 import json
 import os
 import re
@@ -39,7 +43,7 @@ DEFAULTS = {
 TYPE_LABELS = {"spec": "אפיון", "request": "טופס דרישה", "spec-check": "בדיקת אפיון", "adr": "ADR",
                "design": "תכנון", "project-doc": "מסמך פרויקט", "explain": "הסבר",
                "analysis-topic": "נושא ניתוח", "analysis-report": "דוח ניתוח", "tech-debt": "חוב טכני",
-               "project-context": "הקשר הפרויקט"}
+               "project-context": "הקשר הפרויקט", "flow": "מסלול משימה"}
 TYPE_ORDER = list(TYPE_LABELS)
 ID_TYPES = {"ADR": "adr", "SPEC": "spec"}
 FINAL_STATUSES = {"approved", "accepted", "final", "superseded", "deprecated", "living"}
@@ -52,6 +56,9 @@ SECRET_RE = re.compile(r"\b(password|passwd|pwd|secret|api[_-]?key|token)\s*[=:]
 KIT_CMD_RE = re.compile(r"(?<![\w/.-])/tl-[a-z][a-z-]*")
 LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
 # files in tl-memory that are documents and must carry tl-meta
+WAITING_STATUSES = {"draft", "review", "proposed"}
+TASK_RE = re.compile(r"^\s*- \[( |x|X)\] ", re.M)
+NEXT_RE = re.compile(r"^(?:Дальше|Next)\s*:\s*(.+)$", re.M)
 EXPECTED_DOCS = [r"spec/[^/]+/SPEC\.md", r"design/[^/]+\.md", r"adr/[^/]+\.md", r"project-doc/[^/]+\.(md|html)",
                  r"hesber/[^/]+\.html", r"analysis/[^/]+/TOPIC\.md", r"analysis/[^/]+/reports/[^/]+\.md",
                  r"TECH_DEBT\.md"]
@@ -472,12 +479,87 @@ def cmd_block(args):
     return changed
 
 
+
+# ------------------------------------------------------------------ status
+def version_key(v):
+    return tuple(int(x) for x in re.findall(r"\d+", v)[:3])
+
+
+def changelog_since(kit, old):
+    """CHANGELOG.md sections newer than version `old` (all when old is empty)."""
+    text = read_text(os.path.join(kit, "CHANGELOG.md")) if os.path.exists(os.path.join(kit, "CHANGELOG.md")) else ""
+    parts = re.split(r"(?m)^## ", text)[1:]
+    out = []
+    for part in parts:
+        head = part.splitlines()[0]
+        m = re.match(r"(\d+\.\d+\.\d+)", head)
+        if m and (not old or version_key(m.group(1)) > version_key(old)):
+            out.append("## " + part.rstrip())
+    return out
+
+
+def tasks_in(text):
+    marks = TASK_RE.findall(text)
+    return sum(1 for m in marks if m != " "), len(marks)
+
+
+def cmd_status(args):
+    root = args.root
+    kit = os.path.join(root, ".claude", "tech-lead-kit")
+    mem = memory_dir(root)
+    version = read_text(os.path.join(kit, "VERSION")).strip() if os.path.exists(os.path.join(kit, "VERSION")) else ""
+    state_path = os.path.join(mem, "kit-state.json")
+    state = json.loads(read_text(state_path)) if os.path.exists(state_path) else {}
+    if args.mark_init:
+        state = {"kit_version": version, "init_date": datetime.date.today().isoformat()}
+        os.makedirs(mem, exist_ok=True)
+        write_text(state_path, json.dumps(state, ensure_ascii=False, indent=2) + "\n")
+        print(f"kit-state.json: {version}")
+        return 0
+    print(f"Tech Lead Kit {version or '?'}")
+    if not os.path.exists(os.path.join(mem, "PROJECT_CONTEXT.md")):
+        print("- Нет карты проекта (PROJECT_CONTEXT.md) → /tl-init")
+    elif state.get("kit_version") != version:
+        print(f"- Kit обновлён: {state.get('kit_version') or '?'} → {version}. Запусти /tl-init. Что нового:")
+        for section in changelog_since(kit, state.get("kit_version", "")):
+            print("  " + section.replace("\n", "\n  "))
+    entries, missing = collect(root, load_config(root))
+    flows = [e for e in entries if e["type"] == "flow" and e["status"] != "done"]
+    print("\nЗадачи в работе (FLOW.md):" if flows else "\nЗадачи в работе: нет")
+    for e in flows:
+        text = read_text(os.path.join(root, e["path"]))
+        stage = next((l.split("]", 1)[1].strip() for l in text.splitlines() if l.lstrip().startswith("- [ ]")), "все этапы пройдены")
+        nxt = NEXT_RE.search(text)
+        print(f"- {e['id']} {e['title']} · этап: {stage}" + (f" · дальше: {nxt.group(1).strip()}" if nxt else "")
+              + f" · {e['path']}")
+    waiting = [e for e in entries if e["type"] in ("spec", "adr", "design") and e["status"] in WAITING_STATUSES]
+    if waiting:
+        print("\nЖдут утверждения:")
+        for e in waiting:
+            print(f"- {TYPE_LABELS.get(e['type'], e['type'])} {e['id']} {e['title']} · {e['status']} · {e['path']}")
+    plans = []
+    for e in entries:
+        if e["type"] == "design" and e["status"] not in ("superseded", "deprecated"):
+            done, total = tasks_in(read_text(os.path.join(root, e["path"])))
+            if total and done < total:
+                plans.append((e, done, total))
+    if plans:
+        print("\nПланы с невыполненными задачами:")
+        for e, done, total in plans:
+            print(f"- {e['id'] or e['title']}: {done}/{total} задач · {e['path']} → /tl-implement {e['path']}")
+    if missing:
+        print(f"\n{len(missing)} документ(ов) без tl-meta → tl_knowledge.py index")
+    return 0
+
 def main(argv=None):
     configure_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("index", "block"):
         sub.add_parser(name).add_argument("--root")
+    p = sub.add_parser("status")
+    p.add_argument("--root")
+    p.add_argument("--mark-init", action="store_true")
     p = sub.add_parser("next-id")
     p.add_argument("prefix")
     p.add_argument("--root")
@@ -494,7 +576,7 @@ def main(argv=None):
     if args.cmd == "block":
         return 0 if cmd_block(args) is not None else 1
     return {"index": cmd_index, "next-id": cmd_next_id, "check": cmd_check,
-            "publish": cmd_publish}[args.cmd](args)
+            "publish": cmd_publish, "status": cmd_status}[args.cmd](args)
 
 
 if __name__ == "__main__":

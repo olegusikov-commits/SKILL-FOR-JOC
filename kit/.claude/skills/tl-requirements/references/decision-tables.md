@@ -1,20 +1,20 @@
 # Decision tables and data checks
 
-A business rule written as prose ("approve regular payers up to 5,000") hides the decisions the
+A business rule written as prose ("approve regular customers up to 5,000") hides the decisions the
 developer must make: in which order, `>` or `>=`, which field means "regular", what happens when a
 value is missing, what about everything else. A decision table makes each of those explicit and
 lets you measure each row on real data.
 
 ## Format
 ```markdown
-### טבלת החלטה DT-1: אישור אוטומטי לשיק
+### טבלת החלטה DT-1: אישור אוטומטי לתביעה (דוגמה)
 סדר הבדיקה: מלמעלה למטה, השורה הראשונה שמתקיימת קובעת.
 
 | # | תנאים | תוצאה | קוד סיבה | מקרים בחודש | מקור |
 |---|---|---|---|---|---|
-| 1 | חשבון לא פעיל: `accounts.status <> 'ACTIVE'` | לפקיד | ACCOUNT_BLOCKED | 118 | [מקור: קוד rules.py:14] |
-| 2 | חשד לכפילות: `cheques.is_duplicate_suspect = 1` | לפקיד | DUPLICATE_SUSPECT | 60 | [מקור: קוד rules.py:16] |
-| 3 | (חדש) מושך מוסדי קבוע: `payers.payer_type IN ('COMPANY','GOVERNMENT')` ו-`cheques.payer_prev_cheques >= 6` ו-`ocr_amount <= 5000` ו-בדיקות OCR וחתימה עוברות | אישור אוטומטי | AUTO_RECURRING_PAYER | 280 | [מקור: נתונים D-4] |
+| 1 | פוליסה לא פעילה: `policies.status <> 'ACTIVE'` | לפקיד | POLICY_INACTIVE | 118 | [מקור: קוד rules.py:14] |
+| 2 | חשד לכפילות: `claims.is_duplicate_suspect = 1` | לפקיד | DUPLICATE_SUSPECT | 60 | [מקור: קוד rules.py:16] |
+| 3 | (חדש) לקוח מוסדי ותיק: `customers.customer_type IN ('COMPANY','GOVERNMENT')` ו-`claims.prev_claims >= 6` ו-`claim_amount <= 5000` ו-בדיקות המסמכים עוברות | אישור אוטומטי | AUTO_REGULAR_CUSTOMER | 280 | [מקור: נתונים D-4] |
 | … | … | … | … | … | … |
 | 9 | אחרת | אישור אוטומטי | OK | 312 | [מקור: קוד rules.py:32] |
 ```
@@ -51,14 +51,14 @@ with the decision actually stored. Agreement must be ~100%; otherwise your as-is
 ```sql
 WITH x AS (
   SELECT d.reason_code AS actual,
-         CASE WHEN a.status <> 'ACTIVE'          THEN 'ACCOUNT_BLOCKED'
+         CASE WHEN p.status <> 'ACTIVE'          THEN 'POLICY_INACTIVE'
               WHEN c.is_duplicate_suspect = 1    THEN 'DUPLICATE_SUSPECT'
               /* … every row of the as-is table, same order … */
               ELSE 'OK' END AS as_is
-  FROM dbo.cheques c WITH (NOLOCK)
-  JOIN dbo.accounts a WITH (NOLOCK) ON a.account_id = c.account_id
-  JOIN dbo.auto_decisions d WITH (NOLOCK) ON d.cheque_id = c.cheque_id
-  WHERE c.received_at >= @from AND c.received_at < @to
+  FROM dbo.claims c WITH (NOLOCK)
+  JOIN dbo.policies p WITH (NOLOCK) ON p.policy_id = c.policy_id
+  JOIN dbo.auto_decisions d WITH (NOLOCK) ON d.claim_id = c.claim_id
+  WHERE c.submitted_at >= @from AND c.submitted_at < @to
 )
 SELECT SUM(CASE WHEN actual = as_is THEN 1 ELSE 0 END) AS agree, COUNT(*) AS n FROM x;
 ```
@@ -71,7 +71,7 @@ month and row.
 channel) falls into "אחרת" — say whether that is intended.
 
 **(d) Mass at the boundary** — how many objects sit exactly on each threshold and one unit around
-it (`ocr_amount = 5000`, `payer_prev_cheques IN (5, 6, 7)`). A large mass at the boundary makes
+it (`claim_amount = 5000`, `prev_claims IN (5, 6, 7)`). A large mass at the boundary makes
 `>` vs `>=` a business decision with a number attached — write the number.
 
 **(e) NULLs** per input field.
@@ -87,7 +87,7 @@ contested effect → hand the measurement to `/tl-an` and reference its report.
 ## From the table to acceptance criteria
 - Each row → at least one AC that lands exactly on that row.
 - Each threshold → an AC exactly on the boundary and one just beyond it (5,000.00 / 5,000.01;
-  6 / 5 previous cheques).
+  6 / 5 previous claims).
 - Each hard stop → an AC where the new rule's conditions hold **and** the hard stop fires — the
   hard stop must win.
 - The "אחרת" row → one AC.

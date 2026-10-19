@@ -19,7 +19,7 @@ Claude пишет как junior-программист:
 | Hooks | Не используются |
 | Перенос | Через USB |
 | Установка | Только в выбранные проекты, локально, не коммитится в репозиторий компании |
-| MCP | `meet-checkov`, `meet-chequemis`, подключены к PROD и TEST. PROD: только SELECT. TEST: всё |
+| Базы | Через источники проекта: MCP-серверы или клиенты командной строки, реестр `data-sources.json` (с 2.0; раньше — два зашитых сервера). PROD: только SELECT. TEST: всё |
 
 ## Стек
 C++, C#, Python, Node.js, COBOL, Natural, микросервисы, web services, SQL,
@@ -38,12 +38,26 @@ DB2 for z/OS, stored procedures, SQL Server 2019 + 2022.
 | Подключение правил | `.claude/CLAUDE.md` → `@tech-lead-kit/CORE.md` (работает во всех версиях) |
 | Память проекта | `.claude/tl-memory/`: PROJECT_CONTEXT, ADR, design, TECH_DEBT (локально) |
 
-## Состав
-- `CORE.md`: правила, действующие всегда (классификация задач, 12 инженерных правил, протокол MCP, Definition of Done).
-- Skills: `tl-engineering-standards`, `tl-architecture`, `tl-sql-engineering`, `tl-tech-debt`,
-  `oleg-skill-hesber` (документы-объяснения со схемами, по умолчанию на иврите).
-- Commands: `/tl-init`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`, `/tl-debt`,
-  `/tl-project-doc`, `/tl-an-learn`, `/tl-an`.
-- Agents: `tl-architect-reviewer`, `tl-sql-reviewer`, `tl-researcher`, `tl-an-skeptic`.
-- Skill `tl-analytics` (аналитик, с 1.2.0): бриф и архитектура — `docs/ANALYST_DESIGN.md`.
-- `install.cmd` / `uninstall.cmd`.
+## Состав (2.0)
+- `CORE.md`: правила, действующие всегда (маршрут и размер, 12 инженерных правил, источники данных
+  и защита запросов, Definition of Done); `KIT_GUIDE.md`: маршруты, уровни глубины, FLOW задачи,
+  вопросы кнопками, пределы циклов, карточка шага; `WRITING.md`: стандарт письма.
+- Маршруты: `/tl-go` (навигатор), `/tl-init`, `/tl-spec`, `/tl-design`, `/tl-implement`, `/tl-sql`,
+  `/tl-review`, `/tl-an`, `/tl-explain`, `/tl-debt`, `/tl-publish`.
+- Skills-знания (скрыты из меню): `tl-engineering-standards`, `tl-architecture`,
+  `tl-sql-engineering`, `tl-tech-debt`, `tl-requirements`, `tl-analytics`; `oleg-skill-hesber` —
+  документы-объяснения со схемами.
+- Agents (с `maxTurns` и бюджетами): `tl-architect-reviewer`, `tl-sql-reviewer`, `tl-researcher`,
+  `tl-an-skeptic`, `tl-spec-skeptic`.
+- `install.cmd` / `uninstall.cmd`, окно установки `installer/install-gui.ps1`.
+
+## Решения 2.0 (рефакторинг)
+| Вопрос | Решение |
+|---|---|
+| Непонятно, что запускать | Один вход `/tl-go`: маршрут по просьбе словами, подтверждение кнопкой; без слов — «где я» |
+| Лишняя работа | Уровни `mvp` / `standard` / `full`; каждая проверка один раз; критик только при числах/правилах |
+| Требование | `/tl-spec new` — интервью вместе с пользователем; `complete` — дополнить вместе |
+| Зависания | Лимиты MCP в `settings.local.json`, защита в запросе, проба → расширение, `maxTurns`, пределы циклов |
+| Привязка к одной теме | Реестр источников данных; примеры из разных доменов |
+| `/init` | Не нужен: его делает `/tl-init` |
+| Отложено в 2.1 | Новое окно установщика (таблица проектов, поиск, VS Code), `tl_sql.py` через CLI и кэш схемы, графики в отчётах, агент `tl-dba` |

@@ -28,7 +28,7 @@ KIT = os.path.join(HERE, "..", "kit", ".claude")
 
 INIT_ANSWER = ("Ответ на вопрос о средах: в этой демо-среде meet-chequemis и meet-checkov — "
                "это TEST (копии в SQLite). Запиши это и закончи инициализацию.")
-LEARN_PROMPT = ("/tl-an-learn чеки — Тема: автоматическое разрешение чеков. Сейчас около 8% чеков "
+LEARN_PROMPT = ("/tl-an learn чеки — Тема: автоматическое разрешение чеков. Сейчас около 8% чеков "
                 "разрешаются автоматически, остальные проверяет פקיד. Хочу поднять автоматизацию, "
                 "допустимая ошибка до 2%. Процесс описан в docs/process.docx. Данные в meet-chequemis.")
 LEARN_ANSWER = ("План запросов одобряю (это TEST). На твои вопросы: принимаю предложенные тобой ответы. "
@@ -55,9 +55,9 @@ SCENARIOS = {
         "данных) — число чеков, число авто-разрешённых и их доля. Проверь схему и индексы."]),
     "debt": ("init", None, ["/tl-debt src/"]),
     "hesber": ("init", None, [
-        "/oleg-skill-hesber Объясни на русском, как обрабатывается чек: от сканирования до решения "
+        "/tl-explain Объясни на русском, как обрабатывается чек: от сканирования до решения "
         "(авто-разрешение или פקיד), со схемой."]),
-    "projdoc": ("init", None, ["/tl-project-doc html"]),
+    "projdoc": ("init", None, ["/tl-explain project"]),
     "an-learn": ("init", None, [LEARN_PROMPT, LEARN_ANSWER]),
     "an-improve": ("an-learn", None, [
         "/tl-an Как поднять автоматизацию чеков выше 8% при ошибке до 2%? Найди возможности, "
@@ -92,6 +92,18 @@ SCENARIOS = {
     "teammate": ("spec-implement", None, [("rm", ".claude"), CHANGE_LIMIT]),
     # code requested in plain words, no command: the kit standards must still be loaded first
     "plain-code": ("init", None, [PLAIN_CODE]),
+    # 2.0: the navigator — a new task from one line (MVP level), stops only at the approval
+    "go-new": ("init", None, [
+        "/tl-go new Построить REST-сервис, который выдаёт чеки по номеру счёта и периоду дат, "
+        "с постраничной выдачей.",
+        "Уровень MVP. На вопросы — принимаю твои рекомендации. Продолжай.",
+        "Утверждаю. Доведи до кода с тестами и проверки кода."]),
+    # 2.0: where am I — after an approved spec the navigator names the next step
+    "go-where": ("spec-build", None, ["/tl-go"]),
+    # 2.0: SQL correctness check of existing code (the report query in reports.py / schema)
+    "sql-check": ("init", None, [
+        "/tl-sql check src/chequeflow/reports.py — запрос отчёта по отделениям: правильный ли он "
+        "и корректный (логика, границы, NULL, производительность)?"]),
     # a competing skill and team rules that contradict the kit: /tl-init must find them, and a
     # plain code request must still go through the kit (standards, Hebrew comments, no commit)
     "rival": ("init", None, [

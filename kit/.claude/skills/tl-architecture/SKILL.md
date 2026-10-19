@@ -1,6 +1,7 @@
 ---
 name: tl-architecture
 description: Architect-level design before coding — requirements, options with trade-offs, module/service boundaries, API and web-service contracts, data design, integration with mainframe (COBOL/Natural/DB2 z/OS) and SQL Server systems, and Architecture Decision Records (ADR). Use for every LARGE task (new module/service/endpoint, schema change, new integration, cross-module change), when choosing between technologies or patterns (modular monolith vs microservices, sync vs async, REST vs SOAP vs MQ), or when reviewing a design.
+user-invocable: false
 ---
 
 # Architecture & Design (before code)
@@ -44,6 +45,8 @@ performance at expected volume, operability, cost of change later, effort.
   transactions/consistency, security, logging/monitoring, migration & rollout, tests.
 - Show a simple diagram (ASCII) of components and data flow.
 - State what you would revisit when volume or requirements grow.
+- Write the **task plan** (template section 6): small tasks with checkboxes, each with its test and
+  the REQ / AC it serves; check that every REQ / AC of the approved spec is in some task.
 
 ### 5. ADR
 For significant decisions (technology, pattern, boundary, data ownership, contract style),
@@ -53,7 +56,7 @@ local and published ADRs). Status: `Proposed` until the user approves.
 
 ### 6. STOP for approval
 Present the design summary in Russian: the problem, the options, the recommendation, risks,
-the implementation plan as small steps, and the questions. **Do not write production code until
+the task plan, and the questions (buttons, KIT_GUIDE "Questions"). **Do not write production code until
 the user approves.** After approval: set ADR status to `Accepted`, then implement with the
 `tl-engineering-standards` skill (and `tl-sql-engineering` for SQL).
 
@@ -62,6 +65,7 @@ the user approves.** After approval: set ADR status to `Accepted`, then implemen
 - REST / SOAP / gRPC / MQ contracts, versioning, idempotency → `references/api-and-integration.md`
 - Mainframe ↔ distributed integration (COBOL, Natural, DB2 z/OS, CICS, batch) →
   `references/mainframe-integration.md`
+- A new service / API / endpoint → `references/new-service.md`
 - Templates → `references/design-doc-template.md`, `references/adr-template.md`
 
 ## Design review checklist (also used by the architect reviewer)

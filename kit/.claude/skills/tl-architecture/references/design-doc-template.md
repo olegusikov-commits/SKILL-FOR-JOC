@@ -2,6 +2,13 @@
 
 Save as `.claude/tl-memory/design/<YYYY-MM-DD>-<short-name>.md`. Keep each section short;
 delete sections that genuinely do not apply (say "לא רלוונטי" if a reviewer would expect it).
+Write by `.claude/tech-lead-kit/WRITING.md`. A new service: also `references/new-service.md`.
+
+Section 6 is the **task plan** `/tl-implement` works from and resumes: one line per small task,
+`- [ ] T<n> <what> — <files> · בדיקה: <test or command> · (REQ-…, AC-…)`; phases "הכנה" (skeleton,
+config) → "עיקר" (one block per main scenario) → "סיום" (edge cases, docs). Each task compiles and
+keeps tests green on its own. No "TBD". Every REQ / AC of the approved spec appears in at least
+one task, and every task names the REQ / AC it serves (or "תשתית").
 
 ```markdown
 <!-- tl-meta: type=design; id=; status=draft; date=<YYYY-MM-DD>; area=<קבצים, מודולים, טבלאות>; title=<שם> -->
@@ -41,12 +48,18 @@ delete sections that genuinely do not apply (say "לא רלוונטי" if a revi
 
 ### גבולות ואחריות
 ### חוזים (API / WSDL / הודעות / פרוצדורות / copybooks)
+<לכל פעולה: קלט (שדות, טיפוסים, חובה), פלט, קודי שגיאה, idempotency, גרסה>
 ### שינויי נתונים (טבלאות, אינדקסים, מיגרציה)
 ### טיפול בשגיאות, טרנזקציות ועקביות
 ### אבטחה ולוגים
 
-## 6. תוכנית מימוש (צעדים קטנים)
-1. ...
+## 6. תוכנית מימוש — משימות
+### הכנה
+- [ ] T1 <מה> — <קבצים> · בדיקה: <טסט/פקודה> · (תשתית)
+### עיקר
+- [ ] T2 <מה> — <קבצים> · בדיקה: <טסט> · (REQ-001, AC-001, AC-002)
+### סיום
+- [ ] T9 <מקרי קצה / תיעוד> — … · (AC-007)
 
 ## 7. בדיקות
 <מה ייבדק וכיצד>

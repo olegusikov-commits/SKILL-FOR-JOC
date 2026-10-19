@@ -5,7 +5,7 @@ All files are in Russian. Technical names (tables, columns, files) stay as they 
 ```
 .claude/tl-memory/analysis/
 ├── INDEX.md                    all topics: slug, title, status, KPI now, last report
-└── <topic-slug>/               short latin slug, e.g. cheques-auto-approval
+└── <topic-slug>/               short latin slug, e.g. claims-auto-approval
     ├── TOPIC.md                profile, assumptions, questions
     ├── DATA_MAP.md             sources, tables, joins, outcome field, decision-time fields, glossary
     ├── LOGIC_AS_IS.md          how the process decides today (decision table, file:line)
@@ -24,7 +24,7 @@ Create files lazily: only when there is content for them.
 
 | Тема (slug) | Название | Статус | KPI сейчас | Последний отчёт |
 |---|---|---|---|---|
-| cheques-auto-approval | Автоматическое разрешение чеков | изучена | 8,1% (2026-10) | reports/2026-10-17-... |
+| claims-auto-approval | Автоматическое одобрение заявок (пример) | изучена | 8,1% (2026-10) | reports/2026-10-17-... |
 ```
 Status: `изучается` · `изучена` · `в анализе` · `отчёт готов` · `закрыта`.
 
@@ -37,13 +37,13 @@ Status: `изучается` · `изучена` · `в анализе` · `от
 | Поле | Значение | Источник |
 |---|---|---|
 | Объект анализа | Чек | объяснение пользователя |
-| Процесс / решение | Авто-разрешение чека | код: src/...:12 |
-| Цель (KPI) | Доля авто-разрешённых чеков ↑ | |
+| Процесс / решение | Авто-одобрение заявки (пример) | код: src/...:12 |
+| Цель (KPI) | Доля авто-одобренных заявок ↑ | |
 | Формула KPI | COUNT(авто-разрешённые) / COUNT(все поступившие) за период | queries/001-... |
 | Эталон (истина) | Решение פקיד: таблица.колонка | DATA_MAP |
 | Ограничитель (guardrail) | Ошибочные авто-разрешения ≤ 2% (верхняя граница 95%) | пользователь |
 | Определение ошибки | ... | вопрос В-1 |
-| Источник данных | meet-chequemis, PROD/TEST, движок | |
+| Источник данных | алиас из data-sources.json, PROD/TEST, движок | |
 | Период анализа | ... (почему такой) | |
 | Сценарий | decision-automation | |
 

@@ -81,6 +81,12 @@ $add.Location = New-Object System.Drawing.Point(16, 198)
 $add.Size = New-Object System.Drawing.Size(170, 30)
 $form.Controls.Add($add)
 
+$news = New-Object System.Windows.Forms.Button
+$news.Text = "Что нового в $NewVersion"
+$news.Location = New-Object System.Drawing.Point(196, 198)
+$news.Size = New-Object System.Drawing.Size(200, 30)
+$form.Controls.Add($news)
+
 $group = New-Object System.Windows.Forms.GroupBox
 $group.Text = 'Документы kit (אפיון, ADR, дизайн, документ проекта, отчёты)'
 $group.Location = New-Object System.Drawing.Point(16, 238)
@@ -160,6 +166,14 @@ $add.Add_Click({
     }
 })
 
+$news.Add_Click({
+    $changelog = Join-Path $KitRoot 'kit\.claude\tech-lead-kit\CHANGELOG.md'
+    if (-not (Test-Path -LiteralPath $changelog)) { Write-Log 'CHANGELOG.md не найден.'; return }
+    $text = Get-Content -LiteralPath $changelog -Raw -Encoding UTF8
+    $parts = $text -split '(?m)^## '
+    if ($parts.Count -gt 1) { Write-Log ('== ' + $parts[1].TrimEnd()) } else { Write-Log $text }
+})
+
 $close.Add_Click({ $form.Close() })
 
 $run.Add_Click({
@@ -190,7 +204,8 @@ $run.Add_Click({
     if ($failed -eq 0) {
         Write-Log ''
         Write-Log 'Готово. Дальше: открой проект в VS Code, начни НОВУЮ сессию Claude Code и запусти /tl-init'
-        Write-Log '(после обновления тоже): он обновит карту проекта, карту знаний и блок в AGENTS.md.'
+        Write-Log '(после обновления тоже): проверка kit, лимиты времени, карта проекта, источники данных.'
+        Write-Log 'Потом /tl-go: пиши своими словами, что нужно, - kit предложит маршрут и спросит подтверждение.'
     }
 })
 

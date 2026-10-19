@@ -2,8 +2,8 @@
 """Specification tool for the tl-requirements skill. Standard library only (Python 3.8+).
 
 Commands:
-  new SLUG [--title T] [--no-form] [--root DIR]
-                                         create .claude/tl-memory/spec/SPEC-nnn-SLUG/ with REQUEST.md
+  new SLUG [--title T] [--level mvp|standard|full] [--no-form] [--root DIR]
+                                         create .claude/tl-memory/spec/SPEC-nnn-SLUG/ with REQUEST.md + FLOW.md
                                          from references/intake-form.md (next free SPEC number);
                                          --no-form: the folder only (for checking someone's spec)
   lint FILE [--json]                     ids, traceability REQ <-> AC, decision tables, open
@@ -28,6 +28,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 INTAKE = os.path.join(HERE, "..", "references", "intake-form.md")
+FLOW = os.path.join(HERE, "..", "references", "flow-template.md")
 
 META_RE = re.compile(r"<!--\s*tl-meta:\s*(.*?)\s*-->", re.S)
 META_FIELD_RE = re.compile(r"([\w-]+)\s*=\s*(.*?)\s*(?=;\s*[\w-]+\s*=|$)", re.S)
@@ -203,10 +204,17 @@ def cmd_new(args):
     if os.path.exists(path):
         print(f"ERROR: {path} already exists", file=sys.stderr)
         return 2
-    text = (m.group(1).replace("SPEC-NNN", spec_id)
-            .replace("YYYY-MM-DD", datetime.date.today().isoformat())
-            .replace("TITLE", (args.title or slug).replace(";", ",")))
-    write_text(path, text)
+    fields = {"SPEC-NNN": spec_id, "YYYY-MM-DD": datetime.date.today().isoformat(),
+              "TITLE": (args.title or slug).replace(";", ","), "LEVEL": args.level}
+
+    def fill(text):
+        for key, value in fields.items():
+            text = text.replace(key, value)
+        return text
+
+    write_text(path, fill(m.group(1)))
+    flow = re.search(r"<!-- template:begin -->\n(.*?)<!-- template:end -->", read_text(FLOW), re.S)
+    write_text(os.path.join(folder, "FLOW.md"), fill(flow.group(1)))
     print(path)
     return 0
 
@@ -701,6 +709,7 @@ def main(argv=None):
     p.add_argument("slug")
     p.add_argument("--title")
     p.add_argument("--no-form", action="store_true")
+    p.add_argument("--level", choices=("mvp", "standard", "full"), default="standard")
     p.add_argument("--root")
     p = sub.add_parser("lint")
     p.add_argument("file")

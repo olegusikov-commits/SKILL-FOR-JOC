@@ -1,6 +1,7 @@
 ---
 name: tl-sql-engineering
-description: Senior/DBA-level SQL engineering for SQL Server 2019/2022 and DB2 for z/OS. Use for ANY work that writes, changes, reviews or optimizes SQL — queries, stored procedures, views, functions, indexes, DDL, migrations, data fixes, embedded SQL in COBOL/Natural/C#/Python/Node — and whenever the SQL MCP servers (meet-checkov, meet-chequemis) are involved. Enforces schema-first work against the real catalog via MCP, set-based and index-aware SQL, safe PROD/TEST handling.
+description: Senior/DBA-level SQL engineering for SQL Server 2019/2022 and DB2 for z/OS. Use for ANY work that writes, changes, reviews or optimizes SQL — queries, stored procedures, views, functions, indexes, DDL, migrations, data fixes, embedded SQL in COBOL/Natural/C#/Python/Node — and whenever a database source (MCP server or command-line client from the project's data-sources registry) is queried. Enforces schema-first work against the real catalog, set-based and index-aware SQL, queries that cannot hang, safe PROD/TEST handling, and DBA problem solving with real options.
+user-invocable: false
 ---
 
 # SQL Engineering (Tech Lead + DBA level)
@@ -10,16 +11,16 @@ functions on indexed columns, implicit conversions, `SELECT *`, no error handlin
 about volume or locking. This skill exists to prevent exactly that.
 
 ## Step 0 — Know where you are (once per session)
-1. Read `.claude/tl-memory/PROJECT_CONTEXT.md` → "Databases" section, if it exists. It maps
-   MCP servers to engines, environments and databases.
-2. If not known, discover with a trivial, safe query through the MCP server and record it
+1. Read `.claude/tl-memory/data-sources.json` and `PROJECT_CONTEXT.md` → "Databases": the
+   registered sources (MCP server or command-line client) with engine, environment and databases.
+2. If not known, discover with a trivial, safe query through the source and record it
    (see `references/mcp-catalog-queries.md`, section "Engine & environment detection").
 3. Determine: **engine** (SQL Server / DB2 z/OS), **version** (SQL Server 2019 = 15.x,
    2022 = 16.x, and the database **compatibility level**), **environment** (PROD / TEST).
    Unknown environment = **PROD**.
 
 ## Step 1 — Schema first (mandatory, before writing any SQL)
-Through the SQL MCP (`meet-checkov` / `meet-chequemis`), look up for every table you touch:
+Through the registered data source, look up for every table you touch:
 - Columns: exact data types, lengths, nullability, defaults, identity/sequence.
 - Primary key, unique constraints, foreign keys (both directions), check constraints.
 - **All existing indexes**: key columns in order, included columns, uniqueness, filter,
@@ -29,10 +30,18 @@ Through the SQL MCP (`meet-checkov` / `meet-chequemis`), look up for every table
 - For procedures/views you change or call: the current definition and its dependents.
 
 Use the ready-made queries in `references/mcp-catalog-queries.md`. Summarize what you found
-in a few lines before writing SQL. **Never invent a column, type, or index.** If MCP is not
+in a few lines before writing SQL. **Never invent a column, type, or index.** If no source is
 available, say so explicitly and list the assumptions the user must verify.
 
-## Step 2 — Design the access path, then write the SQL
+Every data read beyond small catalog lookups carries the **query guard** and goes
+**probe → expand** (`references/mcp-catalog-queries.md`, first section). A query that times out
+or hits the cost limit is redesigned (narrower, indexed, aggregated) — never repeated as is.
+At most 3 fixes per failing query, then stop and show it.
+
+## Step 2 — Understand the problem, then design the access path and write the SQL
+For anything beyond a simple query — slow report, locking, growth, a large change of data — first
+`references/problem-solving.md`: size, cause, at least 3 options with gain/cost/risk, then choose.
+
 - Decide **which index should serve each predicate and join** and write the query so it can
   use it (SARGable; leading key columns; equality before range). If no suitable index
   exists, say so and decide: acceptable scan (small table) / rewrite / propose an index.
@@ -71,6 +80,7 @@ available, say so explicitly and list the assumptions the user must verify.
 - Stored procedures (both engines) → `references/stored-procedures.md`
 - Index and performance design → `references/performance-indexing.md`
 - DDL, migrations, data fixes → `references/schema-changes.md`
+- Problem solving and options (slow, blocked, big) → `references/problem-solving.md`
 
 Load only the files relevant to the current task.
 

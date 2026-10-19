@@ -1,5 +1,5 @@
 ---
-description: Independent architect + DBA review of the current changes (or given files) with prioritized findings
+description: Code check before git or colleagues — independent architect (+ DBA when SQL changed) review of the current changes or given files; prioritized findings with fixes and coverage of the requirement by tests
 argument-hint: "[files/folders to review — default: uncommitted changes]"
 ---
 
@@ -21,6 +21,9 @@ Review target: $ARGUMENTS
    - **MAJOR** — should be fixed in this change (design/boundary violations, missing tests for
      key logic, error handling gaps).
    - **MINOR** — improvements; may go to TECH_DEBT.md.
-   Each finding: file:line, problem, why it matters, concrete fix.
-5. Ask the user whether to fix BLOCKER/MAJOR findings now (unless this review was invoked from
-   `/tl-implement`, where BLOCKERs are fixed automatically).
+   Each finding: file:line, problem, why it matters, concrete fix. An approved spec covers the
+   change → add the coverage table `REQ / AC → task → test` and name every AC without a test.
+5. Ask with buttons (KIT_GUIDE "Questions"): "исправить BLOCKER+MAJOR сейчас (рекомендуется) /
+   только BLOCKER / MINOR и остальное — в TECH_DEBT.md / оставить как есть" (unless this review was
+   invoked from `/tl-implement`, where BLOCKERs are fixed automatically). Tick stage 7 in the task's
+   `FLOW.md` when no BLOCKER is left; end with the step card.

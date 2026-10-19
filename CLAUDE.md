@@ -15,6 +15,8 @@ Kit переносится на рабочий компьютер через USB
 ```
 kit/.claude/            ← то, что install.cmd копирует в <проект>\.claude\
   tech-lead-kit/CORE.md   правила, загружаются ВСЕГДА — держать ≤ 120 строк
+  tech-lead-kit/KIT_GUIDE.md  маршруты, уровни, FLOW, вопросы, пределы циклов (тоже всегда в контексте)
+  tech-lead-kit/WRITING.md    стандарт письма документов; CHANGELOG.md — что нового (по версиям)
   tech-lead-kit/VERSION   semver; повышать при каждом изменении kit
   tech-lead-kit/scripts/  tl_knowledge.py — карта знаний KNOWLEDGE.md и публикация в проект
                           tl_doctor.py — самопроверка kit и поиск того, что конкурирует с ним
@@ -36,9 +38,15 @@ demo/                   учебный проект + прогон всех ко
 - **`.cmd` хранятся с CRLF** (`.gitattributes: *.cmd -text`). Редактировать, сохраняя CRLF.
   Внутри блоков `( … )` в cmd — никаких меток и `goto`.
 - **CORE.md короткий**: подробности — в `references/` skills, они грузятся только когда нужны.
-- **Базы — только через SQL MCP** (`meet-checkov`, `meet-chequemis`). PROD — только чтение;
-  аналитик: сначала TEST, на PROD — агрегаты по плану, одобренному один раз на тему.
-- Новая команда → добавить её в `CORE.md` («Where things live»), `README.md`, обе версии GUIDE.
+- **Базы — только через источники из реестра** `tl-memory/data-sources.json` (MCP или клиент
+  командной строки), имена серверов в kit не зашиваются (тест). PROD — только чтение; аналитик:
+  сначала TEST, на PROD — агрегаты по плану, одобренному один раз на тему. Запросы — с защитой
+  (`mcp-catalog-queries.md`), у агентов `maxTurns`, у циклов — пределы (KIT_GUIDE).
+- **Без лишней работы:** уровни `mvp`/`standard`/`full`; новая проверка или документ — только если
+  меняет результат.
+- Новая команда → добавить её в `CORE.md` («Where things live»), таблицу маршрутов `KIT_GUIDE.md`,
+  `README.md`, обе версии GUIDE; в конце команды — карточка шага (step card). Изменение kit →
+  строка в `CHANGELOG.md` под новой версией.
 - **Каждый документ, который пишет kit, начинается со строки `tl-meta`** (type, id, status, date,
   area, title) — по ней `tl_knowledge.py index` строит `KNOWLEDGE.md`. Новый шаблон документа →
   строка `tl-meta` в шаблоне + путь в `TemplateMetaTests` (`tests/test_kit_structure.py`); команда,

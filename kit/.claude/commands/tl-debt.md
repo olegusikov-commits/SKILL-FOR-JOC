@@ -1,5 +1,5 @@
 ---
-description: Technical debt audit for the project or a given path, merged into the tech debt register with a phased plan
+description: Code health — what is bad in the existing code and what to fix first: technical debt audit for the project or a path, merged into the debt register with priorities and a phased plan
 argument-hint: "[path or module — default: ask]"
 ---
 
@@ -16,3 +16,4 @@ Use the `tl-tech-debt` skill and follow its "Audit process":
    refresh the `date` in its `tl-meta` line and run `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
 5. Report in Russian: top 10 by priority, quick wins, and a phased plan that can run alongside
    feature work. Large refactors are listed as future LARGE tasks (need `/tl-design`).
+   End with the step card.

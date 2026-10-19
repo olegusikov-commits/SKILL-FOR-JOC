@@ -1,6 +1,6 @@
 # Project document template
 
-Used by `/tl-project-doc`. Default language Hebrew (headings and text), technical names in
+Used by `/tl-explain project`. Default language Hebrew (headings and text), technical names in
 English. Every statement is backed by evidence (path, `file:line`, `table`, document); what
 could not be confirmed goes to "Open questions", never into the body as fact.
 Skip a section that does not apply (say "לא רלוונטי" in one line), do not pad.

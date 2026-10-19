@@ -53,6 +53,13 @@ echo Installing Tech Lead Kit %KIT_VERSION% into: "%TARGET%"
 echo.
 
 rem ---- 1. copy kit files (updates kit files, never touches tl-memory) ----
+rem remove the previous kit files first, so renamed or removed parts do not stay behind
+set "C=%TARGET%\.claude"
+if exist "%C%\tech-lead-kit\" rmdir /s /q "%C%\tech-lead-kit"
+for /d %%D in ("%C%\skills\tl-*") do rmdir /s /q "%%D"
+if exist "%C%\skills\oleg-skill-hesber\" rmdir /s /q "%C%\skills\oleg-skill-hesber"
+del /q "%C%\commands\tl-*.md" 2>nul
+del /q "%C%\agents\tl-*.md" 2>nul
 robocopy "%SRC%" "%TARGET%\.claude" /E /NFL /NDL /NJH /NJS /NP >nul
 if errorlevel 8 (
     echo [ERROR] robocopy failed to copy the files.
@@ -135,14 +142,11 @@ echo [OK] Kit hidden from git via .git\info\exclude (local, not committed)
 call :register
 echo.
 echo Done. Next steps:
-echo   1. Open the project in VS Code and start a new Claude Code session.
-echo   2. Type /  - you should see /tl-init, /tl-spec, /tl-design, /tl-implement, /tl-review, /tl-sql, /tl-debt
-echo   3. Run /tl-init now - and after every kit update: project map, knowledge map, AGENTS.md.
-echo   4. Explanation documents with diagrams: /oleg-skill-hesber ^<what to explain^>
-echo   5. Project document: /tl-project-doc
-echo   6. Analyst: /tl-an-learn ^<topic^>, then /tl-an ^<task^>
-echo   7. Specification: /tl-spec new ^<name^> - fill the form - /tl-spec SPEC-001
-echo   8. Approved documents go to docs\ + AGENTS.md (automatically, or with /tl-publish)
+echo   1. Open the project in VS Code and start a NEW Claude Code session.
+echo   2. Run /tl-init now - and after every kit update: kit check, time limits, project map, data sources.
+echo   3. Then /tl-go - say what you want in your own words; it picks the route and asks you to confirm.
+echo      /tl-go new ^<request^> - a new task from one line to code; /tl-go alone - where you stopped.
+echo   What is new: .claude\tech-lead-kit\CHANGELOG.md
 echo   Later updates: double-click install.cmd - known projects are listed in the window.
 echo.
 endlocal

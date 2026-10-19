@@ -13,9 +13,14 @@ English. Conventions that `spec_tool.py lint` and `render` rely on:
 - diagrams (optional): a fenced block with language `svg` (inline SVG, colours from the
   `oleg-skill-hesber` classes) is drawn in the HTML version; ASCII is fine in Markdown.
 
-Scale to the change. Small change (one rule, one field): sections 1–3, 5, 6, 7.1, 12–14, 16, 18
-in full; the others one line "לא רלוונטי". Full spec: everything. Delete the guidance lines in
-parentheses when you fill a section.
+Scale to the change and to the FLOW level (`FLOW.md`):
+- `mvp` — 1–2 pages: sections 1–3, 5, 7.1 (only the terms used), 13 (main scenarios + the key
+  boundaries), 16, 18 and **19 (solution and task plan)** — this one document is the only approval
+  before code. Everything else is one line "לא רלוונטי" or a task "later" in section 19.
+- small change (one rule, one field): sections 1–3, 5, 6, 7.1, 12–14, 16, 18 in full.
+- `full`: everything, section 14 measured on history.
+Write by `.claude/tech-lead-kit/WRITING.md`. Delete the guidance lines in parentheses when you
+fill a section; delete a section that has nothing true to say instead of filling it with words.
 
 ```markdown
 <!-- tl-meta: type=spec; id=SPEC-NNN; status=draft; version=0.1; date=YYYY-MM-DD; area=<קבצים, מודולים, טבלאות, מונחים>; title=<שם> -->
@@ -121,6 +126,9 @@ parentheses when you fill a section.
 | מזהה | שאלה | תשובה מוצעת | מבוסס על | מי עונה |
 |---|---|---|---|---|
 | Q-1 | … | … | … | … |
+### הבהרות
+#### YYYY-MM-DD
+- ש: … → ת: … (הוחל בסעיפים: …)
 
 ## 17. מעקב (traceability)
 | דרישה | כללים | תרחישי קבלה | קוד (אחרי מימוש) | בדיקות (אחרי מימוש) |
@@ -131,6 +139,12 @@ parentheses when you fill a section.
 | גרסה | תאריך | מה השתנה | מי |
 |---|---|---|---|
 | 0.1 | YYYY-MM-DD | טיוטה ראשונה | |
+
+## 19. פתרון ותוכנית (רמת MVP; ברמות אחרות — מסמך התכנון)
+(הגישה בפסקה אחת ולמה לא החלופה העיקרית; חוזה: API / פרוצדורה / הודעה — קלט, פלט, שגיאות;
+רכיבים וקבצים. משימות קטנות, כל אחת עם בדיקה, לפי הפורמט של מסמך התכנון:)
+- [ ] T1 <מה> — <קבצים> · בדיקה: <טסט/פקודה> · (REQ-001, AC-001)
+- [ ] T9 (later) <מה נדחה בשביל המהירות — מקרי קצה, NFR, תיעוד>
 
 ## נספח: שאילתות
 (השאילתות שהפיקו את המספרים — D-n: מטרה, סביבה ותקופה, SQL.)

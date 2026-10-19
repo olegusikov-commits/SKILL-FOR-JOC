@@ -165,11 +165,12 @@ td:first-child { width: 42%; }
 <div class="page">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · версия 1.3.0</div>
+  <div class="eyebrow">Tech Lead Kit · версия 2.0.0</div>
   <h1>Путеводитель Tech Lead Kit</h1>
   <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
   в Claude Code в VS Code.</p>
   <nav class="toc" aria-label="Содержание">
+    <a href="#routes">Одна команда и маршруты</a>
     <a href="#schema">Общая схема</a>
     <a href="#install">Установка и обновление</a>
     <a href="#flow">Путь задачи</a>
@@ -182,6 +183,103 @@ td:first-child { width: 42%; }
     <a href="#check">Проверка установки</a>
   </nav>
 </header>
+
+<!-- ============ 0. ROUTES ============ -->
+<section id="routes">
+  <div class="section-head">
+    <div class="eyebrow">Начни отсюда</div>
+    <h2>Одна команда и маршруты</h2>
+  </div>
+  <p>Достаточно помнить <code>/tl-go</code>. Напиши, что нужно, своими словами — kit предложит
+  маршрут и спросит подтверждение кнопкой. Без слов <code>/tl-go</code> покажет, где ты
+  остановился и какой следующий шаг. <code>/tl-go new &lt;просьба&gt;</code> ведёт новую задачу
+  от одной строки до кода.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Маршрут</th><th>Когда</th><th>Режимы</th><th>Что получаешь</th></tr></thead>
+      <tbody>
+        <tr><td><code>/tl-go</code> навигатор</td><td>не знаю, какой командой; где я остановился</td><td>просьба словами · без слов · <code>new</code></td><td>нужный маршрут после твоего «да»</td></tr>
+        <tr><td><code>/tl-init</code> подготовка</td><td>первый раз в проекте и после обновления kit</td><td>—</td><td>проверка kit, лимиты времени, карта проекта, источники данных</td></tr>
+        <tr><td><code>/tl-spec</code> требование (אפיון)</td><td>есть просьба — что именно делать?</td><td><code>new</code> вместе со мной · <code>complete</code> дополнить вместе · <code>SPEC-nnn</code> сам · <code>check</code> чужую</td><td><code>SPEC.md</code> + HTML, стоп на утверждение</td></tr>
+        <tr><td><code>/tl-design</code> технический дизайн</td><td>большое изменение: <b>как</b> построить</td><td><code>SPEC-nnn</code> или задача</td><td>варианты с ценой и риском, ADR, план задач с галочками</td></tr>
+        <tr><td><code>/tl-implement</code> код</td><td>написать или исправить код</td><td>задача · <code>SPEC-nnn</code> · дизайн</td><td>код + тест на каждый сценарий приёмки; продолжает с места остановки</td></tr>
+        <tr><td><code>/tl-sql</code> SQL</td><td>запросы, процедуры, индексы</td><td><code>build</code> по требованию · <code>check</code> правильность · <code>tune</code> медленный запрос</td><td>SQL с путём доступа, отчёт проверки или варианты DBA</td></tr>
+        <tr><td><code>/tl-review</code> проверка кода</td><td>код готов — проверить перед git и коллегами</td><td>файлы или текущие изменения</td><td>BLOCKER / MAJOR / MINOR + покрытие требований тестами</td></tr>
+        <tr><td><code>/tl-an</code> анализ</td><td>что говорят цифры; стоит ли идея</td><td><code>learn</code> · задача · <code>verify SPEC-nnn</code></td><td>отчёт с числами и вердиктом</td></tr>
+        <tr><td><code>/tl-explain</code> объяснение</td><td>как устроено X; документ проекта</td><td><code>project</code> · что объяснить</td><td>HTML со схемами</td></tr>
+        <tr><td><code>/tl-debt</code> здоровье кода</td><td>что плохо в коде, что чинить первым</td><td>путь / модуль</td><td>реестр долга с приоритетами</td></tr>
+        <tr><td><code>/tl-publish</code> публикация</td><td>отдать утверждённое команде</td><td>—</td><td><code>docs/</code> + <code>AGENTS.md</code>; commit твой</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Уровни глубины: быстро и хорошо</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Уровень</th><th>Когда</th><th>Что делается</th></tr></thead>
+      <tbody>
+        <tr><td><code>mvp</code></td><td>нужно быстро получить работающее</td><td>один короткий документ «требование + решение + план», одно утверждение, код с тестами главных сценариев, проверка только BLOCKER</td></tr>
+        <tr><td><code>standard</code></td><td>обычная доработка</td><td>требование → дизайн, если изменение большое → код → проверка</td></tr>
+        <tr><td><code>full</code></td><td>деньги, правила решений, PROD-данные</td><td>всё: эффект на истории, критики, проверка эффекта после</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="plate" style="margin:0">
+      <svg viewBox="0 0 1000 330" role="img" aria-label="FLOW новой задачи: вход, требование, дизайн для большого изменения, код, проверка, публикация; остановки на утверждение; MVP и мелкая правка идут короче">
+        <defs>
+          <marker id="ahf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="ahfs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-stop" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box-accent" x="20" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="90" y="157" text-anchor="middle">Вход</text>
+        <text class="t-mono ltr" x="90" y="178" text-anchor="middle" style="font-size:12px">/tl-go</text>
+        <path class="wire" d="M160,162 L176,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="180" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="250" y="157" text-anchor="middle">Требование</text>
+        <text class="t-mono ltr" x="250" y="178" text-anchor="middle" style="font-size:12px">/tl-spec</text>
+        <path class="wire" d="M320,162 L336,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="340" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="410" y="157" text-anchor="middle">Дизайн (LARGE)</text>
+        <text class="t-mono ltr" x="410" y="178" text-anchor="middle" style="font-size:12px">/tl-design</text>
+        <path class="wire" d="M480,162 L496,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="500" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="570" y="157" text-anchor="middle">Код + тесты</text>
+        <text class="t-mono ltr" x="570" y="178" text-anchor="middle" style="font-size:12px">/tl-implement</text>
+        <path class="wire" d="M640,162 L656,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="660" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="730" y="157" text-anchor="middle">Проверка кода</text>
+        <text class="t-mono ltr" x="730" y="178" text-anchor="middle" style="font-size:12px">/tl-review</text>
+        <path class="wire" d="M800,162 L816,162" marker-end="url(#ahf)"/>
+        <rect class="box-ok" x="820" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="890" y="157" text-anchor="middle">Публикация</text>
+        <text class="t-mono ltr" x="890" y="178" text-anchor="middle" style="font-size:12px">/tl-publish</text>
+        <rect class="box-stop" x="190" y="232" width="120" height="34" rx="6"/>
+        <text class="t-label t-stop" x="250" y="254" text-anchor="middle">утверждение</text>
+        <path class="wire-stop" d="M250,194 L250,228" marker-end="url(#ahfs)"/>
+        <rect class="box-stop" x="350" y="232" width="120" height="34" rx="6"/>
+        <text class="t-label t-stop" x="410" y="254" text-anchor="middle">утверждение</text>
+        <path class="wire-stop" d="M410,194 L410,228" marker-end="url(#ahfs)"/>
+        <path class="wire" d="M250,130 L250,92 L570,92 L570,126" marker-end="url(#ahf)"/>
+        <text class="t-label" x="410" y="84" text-anchor="middle">MVP: решение и план внутри требования</text>
+        <path class="wire" d="M90,130 L90,40 L590,40 L590,126" marker-end="url(#ahf)"/>
+        <text class="t-label" x="340" y="32" text-anchor="middle">мелкая правка: сразу в код</text>
+        <path class="wire-stop" d="M730,194 L730,290 L570,290 L570,198" marker-end="url(#ahfs)"/>
+        <text class="t-label t-stop" x="650" y="312" text-anchor="middle">есть BLOCKER → исправить</text>
+      </svg>
+    <figcaption>FLOW новой задачи. Оранжевым — остановки на твоё утверждение и возврат при BLOCKER.
+    Этапы отмечаются в <code>FLOW.md</code> папки задачи, поэтому новая сессия продолжает с места остановки.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><b>Не зависает.</b> <code>/tl-init</code> ставит лимиты времени для MCP; каждый запрос
+    к базе идёт с защитой (<code>LOCK_TIMEOUT</code>, <code>QUERY_GOVERNOR_COST_LIMIT</code>,
+    <code>WITH UR</code>) и сначала маленькой пробой; у агентов и у каждого цикла есть предел.
+    На пределе Claude останавливается и говорит, что сделано и что осталось.</p>
+    <p><b>Вопросы</b> — кнопками, рекомендованный ответ первым. Встроенный <code>/init</code> не
+    нужен: его работу делает <code>/tl-init</code>.</p>
+  </div>
+</section>
 
 <!-- ============ 1. SCHEMA ============ -->
 <section id="schema">
@@ -213,13 +311,13 @@ td:first-child { width: 42%; }
       <rect class="box" x="40" y="160" width="650" height="62" rx="6"/>
       <text class="t-title" x="56" y="184">CORE.md</text>
       <text class="t-mono" x="128" y="184">подключается через .claude/CLAUDE.md</text>
-      <text class="t-sub" x="56" y="206">SMALL / LARGE / SPEC / ANALYSIS · 12 правил · язык · MCP · карта знаний · Definition of Done</text>
+      <text class="t-sub" x="56" y="206">маршрут и размер · 12 правил · язык · источники данных · карта знаний · Definition of Done</text>
 
       <!-- band 2 commands -->
       <text class="t-band" x="40" y="250">2 · ТОЧКИ ВХОДА (ПИШЕШЬ ТЫ)</text>
       <rect class="box" x="40" y="258" width="650" height="50" rx="6"/>
-      <text class="t-mono" x="365" y="280" text-anchor="middle" style="font-size:12px">/tl-init   /tl-spec   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
-      <text class="t-mono" x="365" y="299" text-anchor="middle" style="font-size:12px">/tl-project-doc   /tl-an-learn   /tl-an   /tl-publish   /oleg-skill-hesber</text>
+      <text class="t-mono" x="365" y="280" text-anchor="middle" style="font-size:12px">/tl-go   /tl-init   /tl-spec   /tl-design   /tl-implement   /tl-sql   /tl-review</text>
+      <text class="t-mono" x="365" y="299" text-anchor="middle" style="font-size:12px">/tl-an   /tl-explain   /tl-debt   /tl-publish</text>
 
       <!-- band 3 skills -->
       <text class="t-band" x="40" y="336">3 · ЗНАНИЯ ПО ТЕМЕ (КОГДА НУЖНЫ)</text>
@@ -276,10 +374,10 @@ td:first-child { width: 42%; }
       <text class="t-mono ltr" x="629" y="572" text-anchor="middle" style="font-size:9px">tl-spec-skeptic</text>
 
       <!-- MCP column -->
-      <text class="t-band" x="745" y="336">SQL MCP</text>
+      <text class="t-band" x="745" y="336">ИСТОЧНИКИ ДАННЫХ</text>
       <rect class="box" x="745" y="344" width="235" height="70" rx="6"/>
-      <text class="t-mono" x="862" y="372" text-anchor="middle">meet-checkov</text>
-      <text class="t-mono" x="862" y="394" text-anchor="middle">meet-chequemis</text>
+      <text class="t-mono" x="862" y="372" text-anchor="middle">MCP / sqlcmd / db2</text>
+      <text class="t-mono" x="862" y="394" text-anchor="middle">data-sources.json</text>
       <rect class="box-stop" x="745" y="440" width="235" height="56" rx="6"/>
       <text class="t-title t-stop" x="862" y="464" text-anchor="middle">PROD</text>
       <text class="t-sub" x="862" y="484" text-anchor="middle">только SELECT</text>
@@ -386,7 +484,7 @@ td:first-child { width: 42%; }
     <div class="eyebrow">Схема 3</div>
     <h2>Путь задачи: SMALL и LARGE</h2>
   </div>
-  <p>Каждую задачу Claude сначала относит к SMALL или LARGE и пишет это одной строкой. LARGE —
+  <p>Внутри маршрута Claude относит задачу к SMALL или LARGE и пишет это одной строкой. LARGE —
   это новый модуль, сервис или endpoint, изменение схемы БД, интеграция или правка больше чем
   в 3 файлах. Такая задача без твоего «утверждаю» до кода не дойдёт.</p>
 
@@ -465,19 +563,25 @@ td:first-child { width: 42%; }
     <table>
       <thead><tr><th>Ситуация</th><th>Что написать Claude</th></tr></thead>
       <tbody>
-        <tr><td>Первый раз открыл проект с kit</td><td><code>/tl-init</code>. Claude спросит, какой сервер PROD, а какой TEST.</td></tr>
-        <tr><td>Пришла просьба от бизнеса, нужна אפיון до разработки</td><td><code>/tl-spec new &lt;название&gt;</code> → заполнить טופס דרישה → <code>/tl-spec SPEC-001</code> → прочитать → «утверждаю»</td></tr>
+        <tr><td>Не знаю, с чего начать</td><td><code>/tl-go &lt;что нужно своими словами&gt;</code> — kit предложит маршрут</td></tr>
+        <tr><td>Вернулся к работе после перерыва</td><td><code>/tl-go</code> — где остановился и что дальше</td></tr>
+        <tr><td>Новая задача в несколько строк (например, новый сервис)</td><td><code>/tl-go new &lt;просьба&gt;</code> — требование → (дизайн) → код → проверка, стоп только на утверждения</td></tr>
+        <tr><td>Первый раз открыл проект с kit</td><td><code>/tl-init</code>. Claude найдёт источники данных и спросит, какой PROD, а какой TEST.</td></tr>
+        <tr><td>Пришла просьба от бизнеса, нужна אפיון до разработки</td><td><code>/tl-spec new &lt;просьба&gt;</code> — пишем вместе по разделам → «утверждаю»</td></tr>
+        <tr><td>אפיון есть, но неполная</td><td><code>/tl-spec complete SPEC-001</code></td></tr>
         <tr><td>Коллега написал אפיון, надо проверить перед разработкой</td><td><code>/tl-spec check &lt;файл .md или .docx&gt;</code></td></tr>
         <tr><td>Документ утверждён, пусть его видят команда и все агенты</td><td><code>/tl-publish</code>, затем обычный commit</td></tr>
         <tr><td>Мелкий баг, небольшая правка</td><td>Просто опиши задачу или напиши <code>/tl-implement &lt;задача&gt;</code></td></tr>
         <tr><td>Новая функция, сервис, endpoint, изменение таблиц</td><td><code>/tl-design &lt;задача или SPEC-001&gt;</code> → прочитать → «утверждаю» → <code>/tl-implement &lt;путь к дизайну&gt;</code></td></tr>
         <tr><td>Реализовать утверждённую אפיון (небольшое изменение)</td><td><code>/tl-implement SPEC-001</code>: каждый AC становится тестом</td></tr>
-        <tr><td>Медленный запрос, новая процедура, индекс</td><td><code>/tl-sql &lt;задача&gt;</code></td></tr>
+        <tr><td>Написать запрос или процедуру по требованию</td><td><code>/tl-sql build &lt;требование или SPEC-001&gt;</code></td></tr>
+        <tr><td>Проверить, что SQL правильный</td><td><code>/tl-sql check &lt;файл или процедура&gt;</code></td></tr>
+        <tr><td>Медленный запрос или отчёт</td><td><code>/tl-sql tune &lt;запрос&gt;</code> — DBA предложит варианты</td></tr>
         <tr><td>Перед коммитом или сдачей</td><td><code>/tl-review</code> (без аргументов проверяет незакоммиченные изменения)</td></tr>
         <tr><td>Раз в спринт или перед рефакторингом</td><td><code>/tl-debt &lt;папка или модуль&gt;</code></td></tr>
-        <tr><td>Нужно объяснить модуль, процесс или систему со схемами</td><td><code>/oleg-skill-hesber &lt;что объяснить&gt;</code></td></tr>
-        <tr><td>Нужен полный документ проекта</td><td><code>/tl-project-doc</code> (по умолчанию иврит; <code>ru</code> / <code>en</code>, <code>html</code> — со схемами)</td></tr>
-        <tr><td>Новая тема для анализа (процесс, метрика)</td><td><code>/tl-an-learn &lt;тема&gt; &lt;объяснение, документы&gt;</code> — один раз на тему</td></tr>
+        <tr><td>Нужно объяснить модуль, процесс или систему со схемами</td><td><code>/tl-explain &lt;что объяснить&gt;</code></td></tr>
+        <tr><td>Нужен полный документ проекта</td><td><code>/tl-explain project</code> (по умолчанию иврит; <code>ru</code> / <code>en</code>; HTML со схемами)</td></tr>
+        <tr><td>Новая тема для анализа (процесс, метрика)</td><td><code>/tl-an learn &lt;тема&gt; &lt;объяснение, документы&gt;</code> — один раз на тему</td></tr>
         <tr><td>Как улучшить метрику, оценить идею в цифрах</td><td><code>/tl-an &lt;вопрос&gt;</code></td></tr>
         <tr><td>Отвечает ли код задаче и что он даст</td><td><code>/tl-an Проверь, что git diff отвечает задаче &lt;файл задачи&gt;, и оцени эффект</code></td></tr>
       </tbody>
@@ -672,7 +776,7 @@ td:first-child { width: 42%; }
     <div class="skill-body">
       <div class="facts">
         <div class="fact"><span class="k">Когда включается</span><span class="v">«как улучшить», «оцени идею», «насколько код улучшит», «отвечает ли код задаче», вопросы по данным</span></div>
-        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-an-learn &lt;тема&gt;</code> один раз, дальше <code>/tl-an &lt;задача&gt;</code></span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-an learn &lt;тема&gt;</code> один раз, дальше <code>/tl-an &lt;задача&gt;</code></span></div>
         <div class="fact"><span class="k">Что получаешь</span><span class="v">Отчёт на русском: ответ с границей ошибки и вердиктом, что отклонено и почему, внедрение, задача для <code>/tl-design</code></span></div>
       </div>
       <div class="steps" aria-label="Шаги">
@@ -692,13 +796,13 @@ td:first-child { width: 42%; }
   <article class="skill" aria-labelledby="s7">
     <div class="skill-id">
       <h3 id="s7">Документ проекта</h3>
-      <div class="name">/tl-project-doc</div>
+      <div class="name">/tl-explain project</div>
       <div class="note">Полное описание проекта по реальному коду, базам и документам.</div>
     </div>
     <div class="skill-body">
       <div class="facts">
         <div class="fact"><span class="k">Когда</span><span class="v">Новый человек в команде, передача проекта, аудит, «как это всё устроено»</span></div>
-        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-project-doc [модуль] [ru|en] [html]</code></span></div>
+        <div class="fact"><span class="k">Как вызвать</span><span class="v"><code>/tl-explain project [модуль] [ru|en]</code></span></div>
         <div class="fact"><span class="k">Что получаешь</span><span class="v"><code>tl-memory/project-doc/PROJECT_DOC.md</code> (иврит по умолчанию) и по желанию HTML со схемами</span></div>
       </div>
       <div class="steps" aria-label="Шаги">
@@ -708,7 +812,7 @@ td:first-child { width: 42%; }
         <span class="step">HTML</span><span class="arr">→</span>
         <span class="step">Самопроверка 5 утверждений</span>
       </div>
-      <div class="example"><span class="prompt">&gt;</span> /tl-project-doc ru html</div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-explain project ru</div>
       <p class="note">Разделы: назначение, архитектура, модули, главные процессы, модель данных, интеграции,
       конфигурация (без секретов), сборка и тесты, эксплуатация, безопасность, риски, глоссарий,
       открытые вопросы. У каждого утверждения есть доказательство: файл, таблица или документ.</p>
@@ -756,7 +860,7 @@ td:first-child { width: 42%; }
       </defs>
       <text class="t-band" x="20" y="24">1 · ИЗУЧЕНИЕ ТЕМЫ (ОДИН РАЗ)</text>
       <rect class="box-accent" x="20" y="34" width="200" height="60" rx="6"/>
-      <text class="t-title" x="120" y="60" text-anchor="middle">/tl-an-learn</text>
+      <text class="t-title" x="120" y="60" text-anchor="middle">/tl-an learn</text>
       <text class="t-sub" x="120" y="80" text-anchor="middle">объяснение + документы</text>
       <path class="wire" d="M220,64 L262,64" marker-end="url(#ah5)"/>
       <rect class="box" x="266" y="34" width="150" height="60" rx="6"/>
@@ -967,7 +1071,7 @@ td:first-child { width: 42%; }
       <tbody>
         <tr><td><code>tl-architect-reviewer</code></td><td>Логику и крайние случаи, слои и границы, контракты API/процедур/copybooks, ошибки и логи, безопасность, тесты; соответствие утверждённой אפיון (REQ, таблицы решений, AC) и принятым ADR</td></tr>
         <tr><td><code>tl-sql-reviewer</code></td><td>Каждый запрос сверяется с реальными индексами через MCP, плюс типы параметров, NULL, транзакции, блокировки, совместимость 2019/2022, влияние на пакеты DB2</td></tr>
-        <tr><td><code>tl-researcher</code></td><td>Изучает одну область — код, данные или документы — и возвращает факты с доказательствами. Используют аналитик, <code>/tl-spec</code> и <code>/tl-project-doc</code></td></tr>
+        <tr><td><code>tl-researcher</code></td><td>Изучает одну область — код, данные или документы — и возвращает факты с доказательствами. Используют аналитик, <code>/tl-spec</code> и <code>/tl-explain</code>; работает с бюджетом запросов и возвращает частичный результат, а не зависает</td></tr>
         <tr><td><code>tl-an-skeptic</code></td><td>Пытается опровергнуть выводы аналитика: пересчитывает ключевые числа своим SQL, ищет утечки из будущего, переобучение, нестабильные месяцы</td></tr>
         <tr><td><code>tl-spec-skeptic</code></td><td>Читает אפיון глазами разработчика и тестировщика: сам проверяет термины, поля, границы и цифры по коду и данным, ищет противоречия, дыры в таблицах решений, утечки, пропущенных потребителей</td></tr>
       </tbody>
@@ -984,14 +1088,14 @@ td:first-child { width: 42%; }
     <h2>Проверка, что всё работает</h2>
   </div>
   <ul class="checklist">
-    <li><code>/</code><span>видны команды <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code>, <code>/tl-project-doc</code>, <code>/tl-an-learn</code>, <code>/tl-an</code>, <code>/tl-publish</code></span></li>
-    <li><code>/skills</code><span>в списке шесть skills <code>tl-</code> (включая <code>tl-analytics</code> и <code>tl-requirements</code>) и <code>oleg-skill-hesber</code></span></li>
+    <li><code>/</code><span>видны команды <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code></span></li>
+    <li><code>/skills</code><span>в списке шесть skills <code>tl-</code> (в меню «/» они скрыты — Claude загружает их сам) и <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md</span></li>
     <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code></span></li>
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — все строки <code>ok</code></span></li>
-    <li><code>/mcp</code><span>подключены <code>meet-checkov</code> и <code>meet-chequemis</code></span></li>
+    <li><code>/mcp</code><span>подключены MCP-серверы баз проекта (если есть); <code>/tl-init</code> вносит их в <code>data-sources.json</code></span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_knowledge.py index</code> — создаёт карту <code>KNOWLEDGE.md</code></span></li>
-    <li><code>/tl-init</code><span>созданы <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> и <code>KNOWLEDGE.md</code>; в отчёте есть самопроверка kit</span></li>
+    <li><code>/tl-init</code><span>созданы <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> и <code>KNOWLEDGE.md</code>; в отчёте есть самопроверка kit и лимиты времени</span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_doctor.py</code> — 0 ошибок; предупреждения — то, что может работать вместо kit</span></li>
   </ul>
   <p class="note">Если команды не видны, обнови расширение Claude Code в VS Code и начни новую сессию.</p>
