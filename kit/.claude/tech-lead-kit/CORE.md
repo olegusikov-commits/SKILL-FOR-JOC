@@ -36,8 +36,9 @@ change the result (KIT_GUIDE "Depth levels"); every loop has a limit (KIT_GUIDE 
   the language; SQL → also `tl-sql-engineering`. Never skip it because the change looks small.
 - Kit work uses the kit's skills and agents — research `tl-researcher` / `tl-dba`, review
   `tl-architect-reviewer` / `tl-sql-reviewer`, critique `tl-spec-skeptic` / `tl-an-skeptic` — not
-  built-in general agents, other skills, plugins or other MCP servers with the same purpose. If
-  another tool seems better, say so and ask. The final report names the kit skills/agents used.
+  built-in general agents, other skills, plugins or other MCP servers with the same purpose. Never
+  delegate to Explore, Plan or general-purpose: they start without these rules. Up to ~5 files —
+  read them yourself; wider search → `tl-researcher`. The final report names the kit skills/agents used.
 
 ## Non-negotiable engineering rules
 1. **Read before you write.** Find the existing structure, conventions, and similar code first.
@@ -89,9 +90,8 @@ is **PROD**. Before the first query, name the source, engine and environment.
 - Schema changes for PROD are delivered as **reviewed script files**, never executed by you.
 
 ## Where things live
-- Skills (load before working in the area): `tl-engineering-standards`, `tl-architecture`,
-  `tl-sql-engineering`, `tl-tech-debt`, `tl-requirements` (specs), `tl-analytics` (ANALYSIS),
-  `oleg-skill-hesber` (explanation documents with diagrams: "הסבר", "схема", guides).
+- Skills (load before working in the area): `tl-engineering-standards`, `tl-architecture`, `tl-sql-engineering`,
+  `tl-tech-debt`, `tl-requirements`, `tl-analytics`, `oleg-skill-hesber` (explanations with diagrams).
 - Commands (routes): `/tl-go` (navigator), `/tl-init`, `/tl-spec`, `/tl-design`, `/tl-implement`,
   `/tl-sql`, `/tl-review`, `/tl-an`, `/tl-explain`, `/tl-debt`, `/tl-publish`.
 - **At the start of every task** read `.claude/tl-memory/PROJECT_CONTEXT.md` (missing → suggest
@@ -110,11 +110,11 @@ is **PROD**. Before the first query, name the source, engine and environment.
 - [ ] Route, level and size stated; LARGE tasks have an approved design.
 - [ ] `tl-engineering-standards` + language reference loaded before the first edit; code follows them.
 - [ ] No logic in the wrong layer, no new god class; errors deliberate; inputs validated at the boundary.
-- [ ] SQL verified against the real schema/indexes; parameterized; set-based.
+- [ ] SQL verified against the real schema/indexes; parameterized; set-based. Analysis: every number
+      from a saved query or `an_stats.py`; baseline calibrated; no code changed.
 - [ ] Tests added/updated and passing (or say what you could not run and why); Hebrew "why" comments.
 - [ ] Behaviour covered by a spec changed → spec updated (back to review); by an accepted ADR →
       superseded by a new ADR (or the conflict reported); `tl-meta` present, index rebuilt.
 - [ ] For LARGE tasks: `/tl-review` was run and its blocking findings are fixed.
-- [ ] Analysis: every number from a saved query or `an_stats.py`; baseline calibrated; no code changed.
 - [ ] Report in Russian: what changed, why, risks, what to verify manually; `FLOW.md` stage
       ticked; reply ends with the step card (KIT_GUIDE).

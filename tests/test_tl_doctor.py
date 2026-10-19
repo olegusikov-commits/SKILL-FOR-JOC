@@ -114,6 +114,20 @@ class DoctorTests(unittest.TestCase):
         self.assertIn("'billing' configured in ~/.claude.json (this project) (registered data source)", info)
         self.assertIn("data source 'orders-test': mcp orders-db · sqlserver · TEST", info)
 
+    def test_builtin_agents(self):
+        self.assertIn("built-in agents denied", self.texts("INFO"))
+        self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "60000"},
+                                                                    "permissions": {"deny": ["Task(Explore)"]}}))
+        warns = self.texts("WARN")
+        self.assertIn("built-in agents Plan, general-purpose are allowed", warns)
+        self.assertNotIn("denies 'Task(Explore)'", warns)       # denying a built-in agent does not block the kit
+        self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "60000"},
+                                                                    "permissions": {"deny": ["Agent(tl-researcher)"]}}))
+        self.assertIn("denies 'Agent(tl-researcher)'", self.texts("WARN"))
+        added = tl_doctor.apply_limits(self.root)
+        self.assertIn("Agent(Explore)", added)
+        self.assertNotIn("allowed", " ".join(i["text"] for i in self.items("WARN") if i["area"] == "agents"))
+
     def test_invalid_registry(self):
         self.write("proj/.claude/tl-memory/data-sources.json", "{oops")
         self.assertIn("data-sources.json is not valid JSON", self.texts("WARN"))
@@ -130,7 +144,8 @@ class DoctorTests(unittest.TestCase):
         with open(os.path.join(self.root, ".claude", "settings.local.json"), encoding="utf-8") as f:
             data = json.load(f)
         self.assertEqual(data["env"]["MCP_TOOL_TIMEOUT"], "60000")
-        self.assertEqual(data["permissions"], {"allow": ["Bash(git:*)"]})
+        self.assertEqual(data["permissions"]["allow"], ["Bash(git:*)"])
+        self.assertEqual(data["permissions"]["deny"], ["Agent(Explore)", "Agent(Plan)", "Agent(general-purpose)"])
         self.assertEqual(tl_doctor.apply_limits(self.root), {})
         self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "100000000"}}))
         self.assertIn("no time limit for MCP calls", self.texts("WARN"))

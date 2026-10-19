@@ -135,6 +135,7 @@ call :add_exclude ".claude/skills/oleg-skill-hesber/"
 call :add_exclude ".claude/commands/tl-*.md"
 call :add_exclude ".claude/agents/tl-*.md"
 call :add_exclude ".claude/tl-memory/"
+call :add_exclude ".claude/settings.local.json"
 if "%CREATED_CLAUDE_MD%"=="1" call :add_exclude ".claude/CLAUDE.md"
 echo [OK] Kit hidden from git via .git\info\exclude (local, not committed)
 

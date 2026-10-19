@@ -187,6 +187,11 @@ class GeneralityAndLimitsTests(unittest.TestCase):
                 expected = None if name in EXPLICIT_SKILLS else "false"
                 self.assertEqual(fm.get("user-invocable"), expected)
 
+    def test_builtin_agents_are_not_used(self):
+        core = read(os.path.join(KIT, "tech-lead-kit", "CORE.md"))
+        self.assertIn("Never\n  delegate to Explore, Plan or general-purpose", core)
+        self.assertIn('call :add_exclude ".claude/settings.local.json"', read(os.path.join(ROOT, "install.cmd")))
+
     def test_changelog_covers_version(self):
         version = read(os.path.join(KIT, "tech-lead-kit", "VERSION")).strip()
         self.assertIn(f"## {version} ", read(os.path.join(KIT, "tech-lead-kit", "CHANGELOG.md")))
@@ -194,7 +199,7 @@ class GeneralityAndLimitsTests(unittest.TestCase):
     def test_guide_defines_shared_protocols(self):
         guide = read(os.path.join(KIT, "tech-lead-kit", "KIT_GUIDE.md"))
         for section in ("## Routes", "## Depth levels", "## FLOW of a new task", "## Questions",
-                        "## Loop limits", "## Step card"):
+                        "## Loop limits", "## Agents", "## Step card"):
             self.assertIn(section, guide)
         for path in kit_files("commands", r".+\.md"):
             with self.subTest(cmd=path):
