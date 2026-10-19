@@ -189,7 +189,7 @@ class GeneralityAndLimitsTests(unittest.TestCase):
 
     def test_builtin_agents_are_not_used(self):
         core = read(os.path.join(KIT, "tech-lead-kit", "CORE.md"))
-        self.assertIn("Never\n  delegate to Explore, Plan or general-purpose", core)
+        self.assertIn("Never\n  delegate to an agent outside the kit (built-in, user or plugin)", core)
         self.assertIn('call :add_exclude ".claude/settings.local.json"', read(os.path.join(ROOT, "install.cmd")))
 
     def test_changelog_covers_version(self):

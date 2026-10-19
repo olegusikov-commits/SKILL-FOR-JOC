@@ -115,7 +115,7 @@ class DoctorTests(unittest.TestCase):
         self.assertIn("data source 'orders-test': mcp orders-db · sqlserver · TEST", info)
 
     def test_builtin_agents(self):
-        self.assertIn("built-in agents denied", self.texts("INFO"))
+        self.assertIn("agents outside the kit denied in this project", self.texts("INFO"))
         self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "60000"},
                                                                     "permissions": {"deny": ["Task(Explore)"]}}))
         warns = self.texts("WARN")
@@ -127,6 +127,28 @@ class DoctorTests(unittest.TestCase):
         added = tl_doctor.apply_limits(self.root)
         self.assertIn("Agent(Explore)", added)
         self.assertNotIn("allowed", " ".join(i["text"] for i in self.items("WARN") if i["area"] == "agents"))
+
+    def test_foreign_agents_denied_in_this_project(self):
+        self.write("user/.claude/agents/sql.md", "---\nname: sql-expert\ndescription: Writes SQL fast\n---\n")
+        self.write("user/.claude/agents/planner.md", "---\nname: planner\ndescription: Plans work\n---\n")
+        self.write("proj/.claude/agents/helper.md", "---\nname: helper\ndescription: x\n---\n")
+        self.write("user/.claude/settings.json", json.dumps({"enabledPlugins": {"superpowers@mkt": True}}))
+        self.write("user/.claude/plugins/cache/mkt/superpowers/1.0/agents/code-reviewer.md",
+                   "---\nname: code-reviewer\ndescription: reviews\n---\n")
+        warns = self.texts("WARN")
+        self.assertIn("agents outside the kit are allowed here: helper (project), planner (user), sql-expert (user), "
+                      "superpowers:code-reviewer (plugin)", warns)
+        added = tl_doctor.apply_limits(self.root, self.home, keep=["planner"])
+        self.assertEqual(sorted(k for k in added if k.startswith("Agent(")),
+                         ["Agent(helper)", "Agent(sql-expert)", "Agent(superpowers:code-reviewer)"])
+        with open(os.path.join(self.root, ".claude", "settings.local.json"), encoding="utf-8") as f:
+            deny = json.load(f)["permissions"]["deny"]
+        self.assertFalse([r for r in deny if "tl-" in r], "kit agents are never denied")
+        self.assertIn("planner (user)", self.texts("WARN"))
+        self.assertEqual(tl_doctor.apply_limits(self.root, self.home, keep=["planner"]), {})
+        user_settings = os.path.join(self.home, "settings.json")
+        with open(user_settings, encoding="utf-8") as f:
+            self.assertNotIn("deny", f.read(), "the user folder is never changed")
 
     def test_invalid_registry(self):
         self.write("proj/.claude/tl-memory/data-sources.json", "{oops")

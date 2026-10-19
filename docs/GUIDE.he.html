@@ -143,7 +143,7 @@ td:first-child { width: 42%; }
 <div class="page" dir="rtl" lang="he">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · גרסה 2.2.0</div>
+  <div class="eyebrow">Tech Lead Kit · גרסה 2.3.0</div>
   <h1>מדריך Tech Lead Kit</h1>
   <p class="lede">איך ה-kit בנוי, איך מתקינים ומעדכנים אותו דרך USB, ואיך עובדים עם כל skill
   ב-Claude Code בתוך VS Code.</p>
@@ -255,9 +255,10 @@ td:first-child { width: 42%; }
     ועוצר לקוח שורת פקודה תקוע לפי timeout; לסוכנים ולכל לולאה יש גבול. בגבול Claude עוצר
     ואומר מה נעשה ומה נשאר.</p>
     <p><b>רק סוכני ה-kit.</b> הסוכנים המובנים <code>Explore</code> ו-<code>Plan</code> עולים בלי CLAUDE.md
-    ולא רואים את כללי ה-kit, ול-<code>general-purpose</code> אין את ה-skills של ה-kit. <code>/tl-init</code> חוסם
-    אותם ב-<code>.claude/settings.local.json</code> האישי; את העבודה לוקחים סוכני <code>tl-</code>, וחיפוש קטן
-    Claude עושה בעצמו. את <code>~/.claude/CLAUDE.md</code> הגלובלי ה-kit לא משנה.</p>
+    ולא רואים את כללי ה-kit; ל-<code>general-purpose</code> ולסוכנים שאינם של ה-kit (מ-<code>~/.claude/agents</code>,
+    מתוספים, מהפרויקט — למשל "מומחה SQL" משלך) אין את ה-skills של ה-kit. <code>/tl-init</code> חוסם אותם רק
+    בפרויקט הזה, ב-<code>.claude/settings.local.json</code> האישי; את העבודה לוקחים סוכני <code>tl-</code>, וחיפוש קטן
+    Claude עושה בעצמו. את <code>~/.claude/CLAUDE.md</code> הגלובלי ה-kit לא משנה: הוא נטען יחד עם כללי ה-kit.</p>
     <p><b>שאלות</b> — בכפתורים, התשובה המומלצת ראשונה. אין צורך ב-<code>/init</code> המובנה:
     את העבודה שלו עושה <code>/tl-init</code>.</p>
   </div>

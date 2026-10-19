@@ -165,7 +165,7 @@ td:first-child { width: 42%; }
 <div class="page">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · версия 2.2.0</div>
+  <div class="eyebrow">Tech Lead Kit · версия 2.3.0</div>
   <h1>Путеводитель Tech Lead Kit</h1>
   <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
   в Claude Code в VS Code.</p>
@@ -278,9 +278,10 @@ td:first-child { width: 42%; }
     останавливает зависший клиент командной строки по таймауту; у агентов и у каждого цикла есть предел.
     На пределе Claude останавливается и говорит, что сделано и что осталось.</p>
     <p><b>Только агенты kit.</b> Встроенные агенты <code>Explore</code> и <code>Plan</code> запускаются без
-    CLAUDE.md и не видят правил kit, у <code>general-purpose</code> нет skills kit. <code>/tl-init</code> запрещает их
-    в личном <code>.claude/settings.local.json</code>; работу берут агенты <code>tl-</code>, а мелкий поиск Claude
-    делает сам. Глобальный <code>~/.claude/CLAUDE.md</code> kit не меняет.</p>
+    CLAUDE.md и не видят правил kit; у <code>general-purpose</code> и у агентов не из kit (из <code>~/.claude/agents</code>,
+    плагинов, проекта — например свой «SQL-эксперт») нет skills kit. <code>/tl-init</code> запрещает их только в этом
+    проекте, в личном <code>.claude/settings.local.json</code>; работу берут агенты <code>tl-</code>, а мелкий поиск Claude
+    делает сам. Глобальный <code>~/.claude/CLAUDE.md</code> kit не меняет: он загружается вместе с правилами kit.</p>
     <p><b>Вопросы</b> — кнопками, рекомендованный ответ первым. Встроенный <code>/init</code> не
     нужен: его работу делает <code>/tl-init</code>.</p>
   </div>
