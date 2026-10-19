@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 """Tech Lead Kit self-check: is the kit installed and loaded, and what else could Claude Code use
-instead of it. Standard library only (Python 3.8+). Read-only: it never changes a file.
+instead of it. Standard library only (Python 3.8+). Read-only, except --apply-limits.
 
   python .claude/tech-lead-kit/scripts/tl_doctor.py [--root DIR] [--home DIR] [--json]
+  python .claude/tech-lead-kit/scripts/tl_doctor.py --apply-limits   # time limits for MCP calls
 
 Kit:        VERSION, .claude/CLAUDE.md imports CORE, CORE imports KIT_GUIDE, every command / skill /
             agent named in CORE and KIT_GUIDE exists, the kit is hidden from git, Python version.
 Competitors (things Claude may pick instead of the kit):
             skills / agents / commands outside the kit in the project and in the user folder
             (~/.claude), same names as kit ones, other instruction files (CLAUDE.md, CLAUDE.local.md,
-            AGENTS.md, .claude/rules), MCP servers other than the two SQL ones, plugins, hooks,
-            permission rules that block what the kit needs.
+            AGENTS.md, .claude/rules), MCP servers, plugins, hooks, permission rules that block
+            what the kit needs.
+Data:       database MCP servers and command-line clients (sqlcmd, db2) against the registry
+            .claude/tl-memory/data-sources.json that /tl-init writes.
+Limits:     Claude Code waits for an MCP call up to ~28 hours by default and never moves a subagent's
+            MCP call to the background — a slow query looks like a hang. --apply-limits adds time and
+            output limits to .claude/settings.local.json (personal, not committed; other keys kept).
 Levels: ERROR — the kit does not work as designed; WARN — something may be used instead of the kit
 or contradict it, Claude must look at it with the user; INFO — facts. Exit code 1 if any ERROR.
 """
@@ -18,15 +24,20 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
 
 KIT_SKILLS_EXTRA = {"oleg-skill-hesber"}       # kit skills without the tl- prefix
-SQL_SERVERS = {"meet-checkov", "meet-chequemis"}
+SQL_CLIENTS = ("sqlcmd", "db2", "db2cmd", "clpplus")
+# env limits for Claude Code (ms / tokens); the defaults let one MCP call run for a day
+LIMITS = {"MCP_TOOL_TIMEOUT": "180000", "CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT": "120000",
+          "MAX_MCP_OUTPUT_TOKENS": "20000"}
+MAX_TOOL_TIMEOUT_MS = 600000
 DB_HINT_RE = re.compile(r"sql|db2|database|postgres|mysql|oracle|sqlite|odbc|jdbc|mssql", re.I)
 EXCLUDE_LINES = [".claude/tech-lead-kit/", ".claude/skills/tl-*/", ".claude/commands/tl-*.md",
                  ".claude/agents/tl-*.md", ".claude/tl-memory/"]
 # permission rules that would stop kit tools (scripts, skills, subagents, SQL MCP reads)
-BLOCKING_DENY_RE = re.compile(r"^(Skill|Task|Agent|Bash\((python|py)\b|mcp__meet-)", re.I)
+BLOCKING_DENY_RE = re.compile(r"^(Skill|Task|Agent|Bash\((python|py)\b)", re.I)
 
 
 def configure_stdout():
@@ -215,20 +226,83 @@ def mcp_servers(root, home):
     return found
 
 
+def registry(root):
+    """{alias: source} from .claude/tl-memory/data-sources.json (written by /tl-init)."""
+    data = read_json(os.path.join(root, ".claude", "tl-memory", "data-sources.json")) or {}
+    if data.get("__invalid__"):
+        return None
+    return {s.get("alias") or s.get("server") or "?": s for s in data.get("sources") or [] if isinstance(s, dict)}
+
+
 def check_mcp(root, home, rep):
     servers = mcp_servers(root, home)
-    for name in sorted(SQL_SERVERS - set(servers)):
-        rep.add("INFO", "mcp", f"SQL MCP server '{name}' is not configured in files the kit can read "
-                "(it may be configured elsewhere — /tl-init checks it with a probe query)")
+    reg = registry(root)
+    if reg is None:
+        rep.add("WARN", "data", ".claude/tl-memory/data-sources.json is not valid JSON — run /tl-init again")
+        reg = {}
+    registered = {s.get("server") for s in reg.values() if s.get("access") == "mcp"}
+    for alias, src in sorted(reg.items()):
+        rep.add("INFO", "data", f"data source '{alias}': {src.get('access', '?')} {src.get('server') or src.get('client') or ''}"
+                f" · {src.get('engine', '?')} · {src.get('env', 'PROD?')}")
     for name, (where, cmd) in sorted(servers.items()):
-        if name in SQL_SERVERS:
-            rep.add("INFO", "mcp", f"'{name}' configured in {where}")
+        if name in registered:
+            rep.add("INFO", "mcp", f"'{name}' configured in {where} (registered data source)")
         elif DB_HINT_RE.search(name + " " + cmd):
-            rep.add("WARN", "mcp", f"'{name}' ({where}) looks like a database server — databases are accessed "
-                    "only through meet-checkov / meet-chequemis; do not use it for kit work")
+            rep.add("WARN", "data", f"'{name}' ({where}) looks like a database server but is not in "
+                    "data-sources.json — /tl-init registers it (engine, PROD/TEST); until then it is PROD, read-only")
         else:
             rep.add("WARN", "mcp", f"'{name}' ({where}) — another MCP server; kit work does not use it "
                     "unless the user says so")
+    for client in SQL_CLIENTS:
+        path = shutil.which(client)
+        if path:
+            rep.add("INFO", "data", f"command-line database client '{client}' found ({path})")
+
+
+def settings_env(root, home):
+    """Merged "env" of the settings files, later files win (user < project < local)."""
+    env = {}
+    paths = ([os.path.join(home, "settings.json")] if home else []) + [
+        os.path.join(root, ".claude", "settings.json"), os.path.join(root, ".claude", "settings.local.json")]
+    for path in paths:
+        data = read_json(path)
+        if data and not data.get("__invalid__") and isinstance(data.get("env"), dict):
+            env.update({k: str(v) for k, v in data["env"].items()})
+    return env
+
+
+def check_limits(root, home, rep):
+    env = settings_env(root, home)
+    value = env.get("MCP_TOOL_TIMEOUT") or os.environ.get("MCP_TOOL_TIMEOUT")
+    try:
+        ok = value is not None and 0 < int(value) <= MAX_TOOL_TIMEOUT_MS
+    except ValueError:
+        ok = False
+    if ok:
+        rep.add("INFO", "limits", f"MCP_TOOL_TIMEOUT = {value} ms")
+    else:
+        rep.add("WARN", "limits", "no time limit for MCP calls (default ~28 hours) — a slow or blocked query "
+                "looks like a hang; run tl_doctor.py --apply-limits")
+
+
+def apply_limits(root):
+    """Add the missing LIMITS to .claude/settings.local.json; keep every other key. Returns what was added."""
+    path = os.path.join(root, ".claude", "settings.local.json")
+    data = read_json(path)
+    if data is None:
+        data = {}
+    elif data.get("__invalid__"):
+        raise ValueError(f"{path} is not valid JSON — fix it first")
+    env = data.setdefault("env", {})
+    added = {k: v for k, v in LIMITS.items() if k not in env}
+    if not added:
+        return {}
+    env.update(added)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    return added
 
 
 def check_settings(root, home, rep):
@@ -264,6 +338,7 @@ def run(root, home):
     check_instructions(root, home, rep)
     check_mcp(root, home, rep)
     check_settings(root, home, rep)
+    check_limits(root, home, rep)
     return rep
 
 
@@ -278,8 +353,19 @@ def main(argv=None):
     ap.add_argument("--root", help="project folder (default: found from the current folder)")
     ap.add_argument("--home", help="user Claude folder (default: ~/.claude or CLAUDE_CONFIG_DIR)")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--apply-limits", action="store_true",
+                    help="add MCP time/output limits to .claude/settings.local.json, then check")
     args = ap.parse_args(argv)
     root = os.path.abspath(args.root) if args.root else find_root(os.getcwd())
+    if args.apply_limits:
+        try:
+            added = apply_limits(root)
+        except ValueError as e:
+            print(f"ERROR {e}")
+            return 1
+        print("Added to .claude/settings.local.json: " + (", ".join(f"{k}={v}" for k, v in added.items())
+                                                           if added else "nothing (limits already set)"))
+        print("Start a new Claude Code session so the limits take effect.\n")
     home = args.home or default_home()
     if os.path.normcase(os.path.abspath(home)) == os.path.normcase(os.path.join(root, ".claude")):
         home = None  # the project is the home folder itself; nothing extra to check

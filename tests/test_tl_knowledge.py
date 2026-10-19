@@ -222,5 +222,64 @@ class KnowledgeTests(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.root, "AGENTS.md")))
 
 
+
+class StatusTests(unittest.TestCase):
+    """`status`: where am I — open flows, documents waiting for approval, open plan tasks, kit updated."""
+
+    def setUp(self):
+        self.root = tempfile.mkdtemp()
+        kit = os.path.join(self.root, ".claude", "tech-lead-kit")
+        os.makedirs(kit)
+        with open(os.path.join(kit, "VERSION"), "w") as f:
+            f.write("2.0.0\n")
+        with open(os.path.join(kit, "CHANGELOG.md"), "w", encoding="utf-8") as f:
+            f.write("# Что нового\n\n## 2.0.0 — 2026-10-19\n- навигатор /tl-go\n\n## 1.3.1 — 2026-10-18\n- старое\n")
+        self.write(".claude/tl-memory/PROJECT_CONTEXT.md", CONTEXT)
+        self.write(".claude/tl-memory/kit-state.json", json.dumps({"kit_version": "1.3.1"}))
+        self.write(".claude/tl-memory/adr/ADR-001-outbox.md", ADR)
+        self.write(".claude/tl-memory/spec/SPEC-002-svc/FLOW.md",
+                   "<!-- tl-meta: type=flow; id=SPEC-002; status=active; date=2026-10-19; area=cheques-api; "
+                   "title=שירות שליפת שיקים -->\n# FLOW\n- [x] 0 Вход\n- [ ] 4 Требование — ждёт утверждения\n"
+                   "- [ ] 6 Код\n\nДальше: «утверждаю» → /tl-implement SPEC-002\n")
+        self.write(".claude/tl-memory/spec/SPEC-003-old/FLOW.md",
+                   "<!-- tl-meta: type=flow; id=SPEC-003; status=done; date=2026-10-01; area=x; title=old -->\n")
+        self.write(".claude/tl-memory/design/2026-10-19-svc.md",
+                   "<!-- tl-meta: type=design; id=; status=approved; date=2026-10-19; area=api; title=svc -->\n"
+                   "- [x] T1 каркас\n- [ ] T2 API\n- [ ] T3 тесты\n")
+
+    def tearDown(self):
+        shutil.rmtree(self.root)
+
+    def write(self, relpath, text):
+        path = os.path.join(self.root, *relpath.split("/"))
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+
+    def status(self, *extra):
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = tl_knowledge.main(["status", *extra, "--root", self.root])
+        self.assertEqual(code, 0)
+        return out.getvalue()
+
+    def test_where_am_i(self):
+        out = self.status()
+        self.assertIn("Kit обновлён: 1.3.1 → 2.0.0", out)
+        self.assertIn("навигатор /tl-go", out)
+        self.assertNotIn("старое", out)
+        self.assertIn("SPEC-002 שירות שליפת שיקים · этап: 4 Требование — ждёт утверждения", out)
+        self.assertIn("дальше: «утверждаю» → /tl-implement SPEC-002", out)
+        self.assertNotIn("SPEC-003", out)
+        self.assertIn("ADR ADR-001 Outbox · proposed", out)
+        self.assertIn("1/3 задач", out)
+
+    def test_mark_init(self):
+        self.status("--mark-init")
+        out = self.status()
+        self.assertNotIn("Kit обновлён", out)
+        os.remove(os.path.join(self.root, ".claude", "tl-memory", "PROJECT_CONTEXT.md"))
+        self.assertIn("/tl-init", self.status())
+
 if __name__ == "__main__":
     unittest.main()

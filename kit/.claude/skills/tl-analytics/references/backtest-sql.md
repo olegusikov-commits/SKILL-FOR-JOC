@@ -10,7 +10,7 @@ outcome. Write it once per topic, save it as `queries/000-base.sql`, and reuse i
 definitions identical across all numbers.
 
 ```sql
--- 000-base: one row per object (cheque); decision-time fields + outcome
+-- 000-base: one row per object (a claim, an order, a cheque…); decision-time fields + outcome
 WITH base AS (
     SELECT o.<id>                               AS obj_id,
            o.<received_at>                      AS received_at,

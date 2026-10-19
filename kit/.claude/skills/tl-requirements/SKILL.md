@@ -1,16 +1,25 @@
 ---
 name: tl-requirements
 description: Systems analyst (מנתח מערכות) — turns a business request into a precise, evidence-based requirement and specification (אפיון) that developers can code from and QA can test, or checks an existing specification. Use for "write a spec / requirement / אפיון / דרישה / טופס דרישה", "analyze this request before development", "check this spec", decision tables, acceptance criteria, and whenever /tl-spec is run. Verifies every rule and term against the real code and data, measures the expected effect on history, and gets an independent skeptic review before presenting.
+user-invocable: false
 ---
 
 # Requirements & specification (systems analyst)
 
 The typical failure: a spec that restates the request in nicer words — vague terms, thresholds
 without boundaries, no order of rules, nothing about what must NOT change, numbers nobody
-checked. The developer guesses, and the guesses become defects. (In the cheque demo every defect
+checked. The developer guesses, and the guesses become defects. (In the kit demo every defect
 of the implemented task — rule placed before the hard stops, missing channel check, `>` instead
 of `>=`, no boundary tests — was a gap in the requirement.) This skill closes those gaps before
-the first line of code.
+the first line of code — with as little ceremony as the task allows.
+
+## Depth follows the FLOW level (`FLOW.md`, KIT_GUIDE "Depth levels")
+- `mvp` — one short `SPEC.md` with section 19 (solution + task plan); researchers only for the
+  focus that matters (often just `code`); no backtest; skeptic only if the spec has a decision
+  table or a number to prove; ≤ 3 questions. One approval, then code.
+- `standard` — the full build below; backtest only when the goal is a number; skeptic when the
+  spec has decision tables or numbers.
+- `full` — everything, including the backtest of the effect and the skeptic.
 
 ## Non-negotiable rules
 1. **Learn before you write or ask.** Sources, in this order: the request (intake form +
@@ -34,7 +43,7 @@ the first line of code.
    that keep their behaviour — listed explicitly.
 7. **Impact on others is part of the spec:** who else reads or writes the data, the codes or the
    config (reports, other modules, batch jobs, mainframe, documents such as reason-code tables).
-8. **A measurable goal is checked on history before code:** replay the to-be decision table on
+8. **A measurable goal is checked on history before code** (`standard` / `full`): replay the to-be decision table on
    past data with the `tl-analytics` method (`backtest-sql.md`, `an_stats.py verdict`, verdict
    by the upper bound). A spec that cannot meet its own goal says so and offers alternatives.
 9. **Every number comes from a saved query** (`queries/D-n-<name>.sql` in the spec folder — data
@@ -44,13 +53,14 @@ the first line of code.
     file when you update a published spec. Data: `SELECT` only, per
     `.claude/skills/tl-analytics/references/analytical-read-safety.md`: TEST first; on PROD only
     within a query plan the user approved once for this spec (or for its analysis topic).
-11. **Before presenting:** `scripts/spec_tool.py lint`, then the `tl-spec-skeptic` subagent.
-    Fix what they find or answer it in the spec.
+11. **Before presenting:** `scripts/spec_tool.py lint` (≤ 3 passes), then — when the level says
+    so — the `tl-spec-skeptic` subagent, one round. Fix what they find or answer it in the spec.
 
 ## Where things are
 - Spec folder: `.claude/tl-memory/spec/SPEC-nnn-<slug>/` — `REQUEST.md` (intake form),
-  `SPEC.md` (the specification), `SPEC.html` (rendered), `queries/`, `CHECK-<date>.md` (check
-  reports), `NOTES.md` (working notes, optional).
+  `SPEC.md` (the specification), `SPEC.html` (rendered), `FLOW.md` (stage checklist — tick your
+  stage, rewrite its `Дальше:` line), `queries/`, `CHECK-<date>.md` (check reports), `NOTES.md`
+  (working notes, optional).
 - After `/tl-publish`, `SPEC.md` / `SPEC.html` move to the project's docs (default
   `docs/specs/SPEC-nnn-<slug>.md`); `KNOWLEDGE.md` shows where each spec lives. Update a
   published spec in place.
@@ -58,7 +68,7 @@ the first line of code.
   `references/spec-template.md`. Rules and data checks: `references/decision-tables.md`.
   Quality gates and severities: `references/spec-quality-checklist.md`.
 - Tool (stdlib Python; if `python` is not found use `py -3`):
-  `python .claude/skills/tl-requirements/scripts/spec_tool.py new <slug> --title "<name>"` ·
+  `python .claude/skills/tl-requirements/scripts/spec_tool.py new <slug> --title "<name>" --level <mvp|standard|full>` ·
   `… lint <SPEC.md>` · `… render <SPEC.md>`.
 - Every document carries a first-line `tl-meta` comment (type, id, status, date, area, title);
   after writing run `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
@@ -75,8 +85,9 @@ the first line of code.
    you re-research. If the data you need is only on PROD, first get the query plan approved
    once (server, tables, period, kinds of queries — see `analytical-read-safety.md`) and record
    `PROD query plan approved <date>: …` in the spec folder's `NOTES.md`; without it use TEST
-   and the catalog only. Then `tl-researcher` subagents in parallel (focus `code`, `data`, `docs`)
-   with the request text, the business terms, what each should find, and that plan line. Documents
+   and the catalog only. Then `tl-researcher` subagents in parallel — only the focuses that matter
+   (`code`, `data`, `docs`) — with the request text, the business terms, what each should find,
+   that plan line and a query budget (KIT_GUIDE "Loop limits"). Documents
    `.docx/.xlsx/.pptx`: `python .claude/skills/tl-analytics/scripts/an_doc2text.py <file>`.
 3. **Draft `SPEC.md`** from `references/spec-template.md`. Scale it: a small change gets short
    sections and one line "לא רלוונטי" for the rest, but never drop goal and metric, scope
@@ -87,17 +98,39 @@ the first line of code.
    boundary; NULLs; every input known at decision time; the effect and the guardrail with its
    bound.
 5. **Self-check:** `spec_tool.py lint` → fix every ERROR and every WARN you can.
-6. **Skeptic:** `tl-spec-skeptic` with the paths of `REQUEST.md`, `SPEC.md`, `queries/` and the
+6. **Skeptic** (by level, one round): `tl-spec-skeptic` with the paths of `REQUEST.md`, `SPEC.md`, `queries/` and the
    documents used. Apply its findings; record in section 18 what changed.
 7. **Render:** `spec_tool.py render SPEC.md` → `SPEC.html` (offline, RTL, light/dark, prints;
    Word opens it and can save it as `.docx`).
-8. **Questions and stop.** At most 5 open questions, each with your proposed answer and its basis
-   (section 16 and the reply). Set status `לבדיקה` (`tl-meta status=review`), refresh the index,
-   and **STOP** for the user's approval.
+8. **Questions and stop.** At most 5 open questions (`mvp`: 3), asked with buttons, each with your
+   proposed answer and its basis (section 16 and the reply). Set status `לבדיקה`
+   (`tl-meta status=review`), tick stages 1–3 in `FLOW.md`, refresh the index, and **STOP** for
+   the user's approval.
 9. **On approval:** status `מאושר` (`status=approved`), version 1.0, history row, render again,
-   refresh the index, offer `/tl-publish` (so the team and every agent see it) and the next step:
-   `/tl-design` for a LARGE change, `/tl-implement` for a SMALL one — classified by the CORE rules
-   (production code files and layers touched; documents to update do not make it LARGE).
+   tick stage 4 in `FLOW.md`, refresh the index, publish (automatic with `auto_publish`, else offer
+   `/tl-publish`) and give the next step: at `mvp` → `/tl-implement SPEC-nnn` (section 19 is the
+   plan); otherwise `/tl-design` for a LARGE change, `/tl-implement` for a SMALL one — classified by
+   the CORE rules (production code files and layers touched; documents to update do not make it LARGE).
+
+## Write it together with the user (`/tl-spec new`)
+An interview, not a questionnaire — the user's time goes only to what nobody else knows.
+1. Learn first (steps 1–2 of the build): what the code, data and documents already answer.
+2. Go section by section in this order: goal (with a number) → scope and what does not change →
+   terms → rules (decision tables) → acceptance scenarios → effect → (at `mvp`) solution and plan.
+   For each: write the draft from what you found into `SPEC.md`, show it in 3–8 lines, and ask
+   1–4 questions with AskUserQuestion — each with your proposed answer first. Apply the answers
+   at once (section "הבהרות" + the section itself) and move on.
+3. The user says "дальше сам" / "continue alone" → fill the remaining sections yourself, marking
+   assumptions `[הנחה]`, then finish the build steps (lint, skeptic by level, render, stop).
+At most 2 rounds of questions per section; never ask what a query or the code can answer.
+
+## Complete a specification together (`/tl-spec complete SPEC-nnn`)
+1. Gap map: empty sections, `[הנחה]` marks, `spec_tool.py lint` findings (vague words, rules
+   without AC, missing "אחרת"), terms without a field in the data, numbers without a query.
+2. Close what evidence can close (code, data, documents) — with source tags.
+3. Ask the user the rest, grouped by section, through AskUserQuestion (≤ 5 per round, 2 rounds
+   at most); apply the answers.
+4. Reply: closed / still open, the spec back to `לבדיקה` if it was approved (version bump).
 
 ## Check a specification (written by someone else)
 1. Read it: Markdown directly; `.docx/.xlsx/.pptx` through `an_doc2text.py`; PDF directly.
@@ -120,8 +153,8 @@ approved spec that changes goes back to `לבדיקה` until approved again. Cod
 from it → list what must change in code and tests.
 
 ## Question protocol
-As in `tl-analytics`: ask only after learning; at most 5 at a time; each with your proposed
-answer and what it is based on. Do not block: continue with the proposed answer, mark it
+KIT_GUIDE "Questions": ask only after learning; buttons with your proposed answer first; at most 5
+at a time (`mvp`: 3). Do not block: continue with the proposed answer, mark it
 `[הנחה — ממתין לאישור]` and list which REQ / DT rows depend on it.
 
 ## Output language

@@ -1,6 +1,7 @@
 ---
 name: tl-analytics
-description: Senior analyst for ANY business topic — learns a topic from the user's explanation, documents, code and the database, then answers with numbers, not opinions. Use for ANALYSIS tasks: "how can we improve X / raise automation", "evaluate this idea", "how much will this code improve Y", "does this code meet the task", "why is metric X like this", data questions, analysis reports, and whenever /tl-an or /tl-an-learn is run. Measures on real history (backtest), checks statistical confidence, and gets an independent skeptic review before concluding.
+description: Senior analyst for ANY business topic — learns a topic from the user's explanation, documents, code and the database, then answers with numbers, not opinions. Use for ANALYSIS tasks: "how can we improve X / raise automation", "evaluate this idea", "how much will this code improve Y", "does this code meet the task", "why is metric X like this", data questions, analysis reports, and whenever /tl-an is run (including /tl-an learn and /tl-an verify). Measures on real history (backtest), checks statistical confidence, and gets an independent skeptic review before concluding.
+user-invocable: false
 ---
 
 # Analytics (senior analyst)
@@ -41,7 +42,7 @@ At the start of every ANALYSIS task:
 1. Read `analysis/INDEX.md`; find the topic. Read its `TOPIC.md` and `JOURNAL.md` (last entries).
 2. Read `DATA_MAP.md`, `LOGIC_AS_IS.md`, `BASELINE.md`, `HYPOTHESES.md` only as needed.
 3. If the topic does not exist or is not learned yet → run the learning flow
-   (`/tl-an-learn` steps) first.
+   (`/tl-an` mode `learn`) first.
 4. Append to `JOURNAL.md` at every milestone (what was done, where you stopped, next step).
    Long analyses survive a new session only through this file.
 
@@ -88,7 +89,8 @@ SQL patterns: `references/backtest-sql.md`. Statistics: `references/statistics.m
     (stdlib only; if `python` is not found try `py -3`).
   - `.pdf`, `.md`, `.txt`, `.csv`: read directly.
 - **Code**: search for the business terms, table names, status codes, thresholds.
-- **Database** via SQL MCP (`meet-checkov`, `meet-chequemis`): catalog first, then data.
+- **Database** through the registered data sources (`.claude/tl-memory/data-sources.json`):
+  catalog and sizes first, then probe small, then data (query guard, CORE "Data sources").
 - No internet. Do not claim facts you did not see in one of these sources.
 
 Heavy reading (large code areas, catalogs, many documents) goes to the `tl-researcher`
@@ -98,8 +100,9 @@ different focus (`code`, `data`, `docs`).
 ## Question protocol (semi-autonomous)
 - Ask only after learning, only if (a) you could not find the answer and (b) the answer changes
   the conclusion.
-- Batch questions, at most 5 at a time, each with **your proposed answer** and what it is based
-  on: "Предлагаю считать X, потому что в данных/коде видно Y. Если не так — поправь."
+- Batch questions, at most 5 at a time, with buttons (KIT_GUIDE "Questions"), each with **your
+  proposed answer** first and what it is based on: "Предлагаю считать X, потому что в
+  данных/коде видно Y."
 - Do not block on questions: continue with your proposed answer, mark it as an assumption in
   `TOPIC.md`, and say which conclusions depend on it.
 - Record questions and answers in `TOPIC.md` → "Вопросы".

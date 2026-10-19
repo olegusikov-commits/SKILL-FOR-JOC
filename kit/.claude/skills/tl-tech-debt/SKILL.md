@@ -1,6 +1,7 @@
 ---
 name: tl-tech-debt
 description: Identify, categorize, prioritize and track technical debt in a register (.claude/tl-memory/TECH_DEBT.md). Use for tech-debt audits, "what should we refactor", code-health questions, before planning a refactor, and whenever a task knowingly creates or discovers debt (shortcuts, TODOs, out-of-scope problems) that must be recorded instead of silently fixed or forgotten.
+user-invocable: false
 ---
 
 # Tech Debt Management

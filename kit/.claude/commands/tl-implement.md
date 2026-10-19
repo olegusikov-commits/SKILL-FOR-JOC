@@ -1,6 +1,6 @@
 ---
-description: Implement a task (or an approved design) at Tech Lead level — small steps, tests, self-review, independent review for LARGE tasks
-argument-hint: "<task description or path to approved design doc>"
+description: Write or fix code at Tech Lead level — a small fix, an approved spec or design; works through the task plan with checkboxes and resumes where it stopped; tests for every acceptance scenario
+argument-hint: "<task> | SPEC-nnn | <path to approved design>"
 ---
 
 Implement: $ARGUMENTS
@@ -21,22 +21,29 @@ Implement: $ARGUMENTS
      changed first (`/tl-spec` / `/tl-design`), then the code.
 2. **Classify** the task as SMALL or LARGE (core rules) and state it in one line.
    - LARGE without an approved design → do not code. Run the `/tl-design` process instead and stop.
+     At level `mvp` an approved spec with section 19 (solution + plan) is the approved design.
    - LARGE with an approved design → implement exactly that design; if reality forces a
      deviation, stop and explain before continuing.
 3. Check that step 0 was done (standards and language reference are in your context). For any
    SQL verify the real schema/indexes via the SQL MCP (read-only on PROD) before writing SQL.
-4. State the plan as small steps. Implement step by step; each step compiles and keeps tests green.
-   Do not mix refactoring with behavior change in the same step.
+4. **The plan.** A design (section 6) or an `mvp` spec (section 19) has a task plan with
+   checkboxes → start at the first `- [ ]`; before the first task check that every REQ / AC of the
+   approved spec is in some task (missing → stop and ask). No plan (SMALL) → state 2–6 small steps.
+   Implement task by task; each compiles and keeps tests green; after each green task set its
+   `[x]` in the document at once (that is how the next session resumes). A red test: ≤ 3 tries,
+   then stop with the test, the error and your hypothesis. Do not mix refactoring with behavior
+   change in the same step.
 5. Add/update tests (bug fix → failing test first). Run the project's build/tests if possible.
 6. Self-review with the checklist in `tl-engineering-standards`.
 7. For LARGE tasks: run the independent review — use the `tl-architect-reviewer` subagent on the
-   changed files, and `tl-sql-reviewer` if SQL/procedures/DDL changed. Fix all BLOCKER findings,
-   then re-check them.
+   changed files, and `tl-sql-reviewer` only if SQL/procedures/DDL changed (`mvp`: BLOCKER only).
+   Fix all BLOCKER findings, then re-check them (≤ 2 rounds, KIT_GUIDE "Loop limits").
 8. Record any knowingly created or discovered debt in the `TECH_DEBT.md` that `.claude/tl-memory/KNOWLEDGE.md` lists (its published path if it was published, else `.claude/tl-memory/TECH_DEBT.md`).
 9. If you implemented a spec, fill its traceability section (code `file:line`, tests) — that is
    not a change of the spec: version and status stay; then `spec_tool.py render` it and run
    `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`. If behaviour differs from the spec in any way, say so instead.
 10. Report in Russian. Start with one line: `Стандарты kit: <skills and references loaded>; агенты:
    <kit agents used or "—">`. Then: what changed (files), why, tests added and their results (AC coverage when
-   a spec exists), review results, risks, and what the user must verify manually (e.g. on TEST /
-   mainframe compile / BIND).
+   a spec exists), tasks done / left, review results, risks, and what the user must verify manually
+   (e.g. on TEST / mainframe compile / BIND). Tick stages 6–7 in the task's `FLOW.md` when all tasks
+   are `[x]` and BLOCKERs are fixed. End with the step card.

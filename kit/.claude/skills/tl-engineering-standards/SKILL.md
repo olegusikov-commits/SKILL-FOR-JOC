@@ -1,6 +1,7 @@
 ---
 name: tl-engineering-standards
 description: Tech Lead coding standard for writing and changing production code in C#/.NET, C++, Python, Node.js, COBOL and Natural — structure, boundaries, naming, error handling, testing, security, and per-language rules. Use whenever implementing, refactoring or fixing code (not only when asked about "standards"), and when reviewing code quality. Prevents junior-style code — monolithic classes, logic in the wrong layer, swallowed errors, no tests, short-sighted design.
+user-invocable: false
 ---
 
 # Engineering Standards (Tech Lead level)
@@ -13,7 +14,10 @@ can change safely a year from now.
    changing, its callers, its tests, and 1–2 similar existing implementations. Detect the
    language/runtime version from project files (`*.csproj` `TargetFramework`,
    `pyproject.toml`/`requirements*.txt`, `package.json` `engines`, compiler flags/`CMakeLists.txt`)
-   and do not use features above that version.
+   and do not use features above that version. **Library APIs offline:** before using a library
+   call you are not sure of, read it in the installed package (`node_modules/<pkg>` `.d.ts` and
+   README, `site-packages/<pkg>`, `%USERPROFILE%\.nuget\packages\<pkg>\<version>` XML docs; the
+   version from the lock file) and cite `file:line` + version — never an API from memory alone.
 2. **Classify** the task SMALL / LARGE (see core rules). LARGE → design and approval first.
 3. **Plan the change in steps** that each compile and keep tests green. Say the plan briefly.
 4. **Implement** following the principles below + the language file.

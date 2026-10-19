@@ -28,9 +28,13 @@ class DoctorTests(unittest.TestCase):
         self.write("proj/.claude/CLAUDE.md", "# Project instructions\n\n@tech-lead-kit/CORE.md\n")
         self.write("proj/.git/info/exclude", EXCLUDE)
         os.makedirs(self.home)
+        tl_doctor.apply_limits(self.root)
+        self.saved_env = os.environ.pop("MCP_TOOL_TIMEOUT", None)  # the shell of the test run must not count
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
+        if self.saved_env is not None:
+            os.environ["MCP_TOOL_TIMEOUT"] = self.saved_env
 
     def write(self, rel, text):
         path = os.path.join(self.tmp, *rel.split("/"))
@@ -93,18 +97,43 @@ class DoctorTests(unittest.TestCase):
         self.assertIn("CLAUDE.md: 1 lines of other instructions", warns)
         self.assertIn("personal instructions", warns)
 
-    def test_mcp_servers(self):
+    def test_mcp_servers_and_data_sources(self):
         self.write("proj/.mcp.json", json.dumps({"mcpServers": {
-            "meet-checkov": {"command": "x"}, "pg-tools": {"command": "postgres-mcp"},
+            "orders-db": {"command": "x"}, "pg-tools": {"command": "postgres-mcp"},
             "jira": {"command": "jira-mcp"}}}))
         self.write("user/.claude.json", json.dumps({"projects": {self.root: {"mcpServers": {
-            "meet-chequemis": {"command": "y"}}}}}))
+            "billing": {"command": "mssql-mcp"}}}}}))
+        self.write("proj/.claude/tl-memory/data-sources.json", json.dumps({"sources": [
+            {"alias": "orders-test", "access": "mcp", "server": "orders-db", "engine": "sqlserver", "env": "TEST"},
+            {"alias": "billing-prod", "access": "mcp", "server": "billing", "engine": "db2-zos", "env": "PROD"}]}))
         warns = self.texts("WARN")
-        self.assertIn("'pg-tools' (.mcp.json) looks like a database server", warns)
+        self.assertIn("'pg-tools' (.mcp.json) looks like a database server but is not in data-sources.json", warns)
         self.assertIn("'jira' (.mcp.json) — another MCP server", warns)
+        self.assertNotIn("orders-db", warns)
         info = self.texts("INFO")
-        self.assertIn("'meet-chequemis' configured in ~/.claude.json (this project)", info)
-        self.assertNotIn("is not configured", info)
+        self.assertIn("'billing' configured in ~/.claude.json (this project) (registered data source)", info)
+        self.assertIn("data source 'orders-test': mcp orders-db · sqlserver · TEST", info)
+
+    def test_invalid_registry(self):
+        self.write("proj/.claude/tl-memory/data-sources.json", "{oops")
+        self.assertIn("data-sources.json is not valid JSON", self.texts("WARN"))
+
+    def test_limits(self):
+        os.remove(os.path.join(self.root, ".claude", "settings.local.json"))
+        self.assertIn("no time limit for MCP calls", self.texts("WARN"))
+        self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "60000"},
+                                                                    "permissions": {"allow": ["Bash(git:*)"]}}))
+        self.assertNotIn("no time limit", self.texts("WARN"))
+        added = tl_doctor.apply_limits(self.root)
+        self.assertNotIn("MCP_TOOL_TIMEOUT", added)          # the user's own value is kept
+        self.assertIn("CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT", added)
+        with open(os.path.join(self.root, ".claude", "settings.local.json"), encoding="utf-8") as f:
+            data = json.load(f)
+        self.assertEqual(data["env"]["MCP_TOOL_TIMEOUT"], "60000")
+        self.assertEqual(data["permissions"], {"allow": ["Bash(git:*)"]})
+        self.assertEqual(tl_doctor.apply_limits(self.root), {})
+        self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "100000000"}}))
+        self.assertIn("no time limit for MCP calls", self.texts("WARN"))
 
     def test_settings_hooks_plugins_and_blocking_deny(self):
         self.write("proj/.claude/settings.local.json", json.dumps({

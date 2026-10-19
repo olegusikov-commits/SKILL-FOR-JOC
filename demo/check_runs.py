@@ -18,7 +18,8 @@ BASH_CODE_RE = re.compile(r"\b(src|tests)/\S+\.py")
 BASH_WRITES_RE = re.compile(r"write_text\(|open\([^)]*['\"][wa]['\"]|sed -i|>\s*\S*(src|tests)/")
 BASH_SKILL_RE = re.compile(r"\bskills/([\w-]+)/SKILL\.md")
 GIT_COMMIT_RE = re.compile(r"(^|&&|;|\|\||\n)\s*git\s+commit\b")
-ANALYSIS = {"an-learn", "an-improve", "an-verify", "projdoc", "hesber", "debt", "review", "sql", "design"}
+ANALYSIS = {"an-learn", "an-improve", "an-verify", "projdoc", "hesber", "debt", "review", "sql", "design",
+            "sql-check", "go-where"}
 
 
 def scan(work, name):

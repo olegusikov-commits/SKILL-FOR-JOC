@@ -22,7 +22,7 @@ Tool: `python .claude/tech-lead-kit/scripts/tl_knowledge.py` (or `py -3 …`).
    `PROJECT_CONTEXT.md` has no block between
    `<!-- tl-agents:begin -->` and `<!-- tl-agents:end -->`, add one: at most 12 lines in Hebrew —
    what the project is, build and test commands, where the main code is, the database aliases
-   (MCP server names) and "PROD is read-only", key conventions. No secrets, no host names, no
+   (data source aliases) and "PROD is read-only", key conventions. No secrets, no host names, no
    connection strings.
 3. **Select** the documents: those named in the arguments; otherwise the local specs, ADRs and
    designs in `KNOWLEDGE.md` with status `approved` / `accepted`. Other kinds (analysis reports,
@@ -43,3 +43,5 @@ Tool: `python .claude/tech-lead-kit/scripts/tl_knowledge.py` (or `py -3 …`).
 6. **Do not commit or push.** Reply in Russian: what moved where, the new knowledge block, the
    `git status --short` of the published paths, and that the user reviews and commits them like
    any other change. From now on, update a published document in place (it is the master copy).
+   Tick stage 9 in the task's `FLOW.md` (and set its `status=done` when every stage is ticked);
+   end with the step card.

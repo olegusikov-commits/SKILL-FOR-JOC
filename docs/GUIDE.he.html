@@ -143,11 +143,12 @@ td:first-child { width: 42%; }
 <div class="page" dir="rtl" lang="he">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · גרסה 1.3.0</div>
+  <div class="eyebrow">Tech Lead Kit · גרסה 2.0.0</div>
   <h1>מדריך Tech Lead Kit</h1>
   <p class="lede">איך ה-kit בנוי, איך מתקינים ומעדכנים אותו דרך USB, ואיך עובדים עם כל skill
   ב-Claude Code בתוך VS Code.</p>
   <nav class="toc" aria-label="תוכן עניינים">
+    <a href="#routes">פקודה אחת ומסלולים</a>
     <a href="#schema">תמונה כללית</a>
     <a href="#install">התקנה ועדכון</a>
     <a href="#flow">מסלול משימה</a>
@@ -160,6 +161,102 @@ td:first-child { width: 42%; }
     <a href="#check">בדיקת ההתקנה</a>
   </nav>
 </header>
+
+<!-- ============ 0. ROUTES ============ -->
+<section id="routes">
+  <div class="section-head">
+    <div class="eyebrow">מתחילים כאן</div>
+    <h2>פקודה אחת ומסלולים</h2>
+  </div>
+  <p>מספיק לזכור את <code>/tl-go</code>. כותבים במילים שלך מה צריך — ה-kit מציע מסלול ומבקש
+  אישור בכפתור. בלי מילים <code>/tl-go</code> מראה איפה עצרת ומה הצעד הבא.
+  <code>/tl-go new &lt;בקשה&gt;</code> מוביל משימה חדשה משורה אחת ועד קוד.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מסלול</th><th>מתי</th><th>מצבים</th><th>מה מקבלים</th></tr></thead>
+      <tbody>
+        <tr><td><code>/tl-go</code> נווט</td><td>לא יודע איזו פקודה; איפה עצרתי</td><td>בקשה במילים · בלי מילים · <code>new</code></td><td>המסלול המתאים אחרי "כן" שלך</td></tr>
+        <tr><td><code>/tl-init</code> הכנה</td><td>בפעם הראשונה בפרויקט ואחרי עדכון ה-kit</td><td>—</td><td>בדיקת kit, מגבלות זמן, מפת פרויקט, מקורות נתונים</td></tr>
+        <tr><td><code>/tl-spec</code> דרישה (אפיון)</td><td>יש בקשה — מה בדיוק צריך לעשות?</td><td><code>new</code> יחד איתי · <code>complete</code> להשלים יחד · <code>SPEC-nnn</code> לבד · <code>check</code> לבדוק אפיון של אחר</td><td><code>SPEC.md</code> + HTML, עצירה לאישור</td></tr>
+        <tr><td><code>/tl-design</code> תכנון טכני</td><td>שינוי גדול: <b>איך</b> לבנות</td><td><code>SPEC-nnn</code> או משימה</td><td>חלופות עם מחיר וסיכון, ADR, תוכנית משימות עם תיבות סימון</td></tr>
+        <tr><td><code>/tl-implement</code> קוד</td><td>לכתוב או לתקן קוד</td><td>משימה · <code>SPEC-nnn</code> · תכנון</td><td>קוד + בדיקה לכל תרחיש קבלה; ממשיך מהמקום שבו עצר</td></tr>
+        <tr><td><code>/tl-sql</code> SQL</td><td>שאילתות, פרוצדורות, אינדקסים</td><td><code>build</code> לפי דרישה · <code>check</code> נכונות ותקינות · <code>tune</code> שאילתה איטית</td><td>SQL עם נתיב גישה, דוח בדיקה או חלופות של DBA</td></tr>
+        <tr><td><code>/tl-review</code> בדיקת קוד</td><td>הקוד מוכן — לבדוק לפני git ועמיתים</td><td>קבצים או השינויים הנוכחיים</td><td>BLOCKER / MAJOR / MINOR + כיסוי הדרישות בבדיקות</td></tr>
+        <tr><td><code>/tl-an</code> ניתוח</td><td>מה המספרים אומרים; האם הרעיון שווה</td><td><code>learn</code> · משימה · <code>verify SPEC-nnn</code></td><td>דוח עם מספרים ופסק דין</td></tr>
+        <tr><td><code>/tl-explain</code> הסבר</td><td>איך X עובד; מסמך פרויקט</td><td><code>project</code> · מה להסביר</td><td>HTML עם תרשימים</td></tr>
+        <tr><td><code>/tl-debt</code> בריאות הקוד</td><td>מה רע בקוד ומה לתקן קודם</td><td>נתיב / מודול</td><td>מרשם חוב עם עדיפויות</td></tr>
+        <tr><td><code>/tl-publish</code> פרסום</td><td>למסור לצוות את מה שאושר</td><td>—</td><td><code>docs/</code> + <code>AGENTS.md</code>; ה-commit שלך</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>רמות עומק: מהר וטוב</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>רמה</th><th>מתי</th><th>מה נעשה</th></tr></thead>
+      <tbody>
+        <tr><td><code>mvp</code></td><td>צריך מהר משהו שעובד</td><td>מסמך קצר אחד "דרישה + פתרון + תוכנית", אישור אחד, קוד עם בדיקות לתרחישים העיקריים, בדיקה רק ל-BLOCKER</td></tr>
+        <tr><td><code>standard</code></td><td>פיתוח רגיל</td><td>דרישה ← תכנון אם השינוי גדול ← קוד ← בדיקה</td></tr>
+        <tr><td><code>full</code></td><td>כסף, כללי החלטה, נתוני PROD</td><td>הכול: השפעה על ההיסטוריה, מבקרים, בדיקת השפעה אחרי</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="plate" style="margin:0">
+      <svg viewBox="0 0 1000 330" role="img" aria-label="FLOW של משימה חדשה: כניסה, דרישה, תכנון לשינוי גדול, קוד, בדיקה, פרסום; עצירות לאישור; MVP ותיקון קטן עוברים בדרך קצרה יותר">
+        <defs>
+          <marker id="ahf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="ahfs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-stop" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <rect class="box-accent" x="840" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="910" y="157" text-anchor="middle">כניסה</text>
+        <text class="t-mono ltr" x="910" y="178" text-anchor="middle" style="font-size:12px">/tl-go</text>
+        <path class="wire" d="M 840,162 L 824,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="680" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="750" y="157" text-anchor="middle">דרישה</text>
+        <text class="t-mono ltr" x="750" y="178" text-anchor="middle" style="font-size:12px">/tl-spec</text>
+        <path class="wire" d="M 680,162 L 664,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="520" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="590" y="157" text-anchor="middle">תכנון (LARGE)</text>
+        <text class="t-mono ltr" x="590" y="178" text-anchor="middle" style="font-size:12px">/tl-design</text>
+        <path class="wire" d="M 520,162 L 504,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="360" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="430" y="157" text-anchor="middle">קוד + בדיקות</text>
+        <text class="t-mono ltr" x="430" y="178" text-anchor="middle" style="font-size:12px">/tl-implement</text>
+        <path class="wire" d="M 360,162 L 344,162" marker-end="url(#ahf)"/>
+        <rect class="box" x="200" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="270" y="157" text-anchor="middle">בדיקת קוד</text>
+        <text class="t-mono ltr" x="270" y="178" text-anchor="middle" style="font-size:12px">/tl-review</text>
+        <path class="wire" d="M 200,162 L 184,162" marker-end="url(#ahf)"/>
+        <rect class="box-ok" x="40" y="130" width="140" height="64" rx="6"/>
+        <text class="t-title" x="110" y="157" text-anchor="middle">פרסום</text>
+        <text class="t-mono ltr" x="110" y="178" text-anchor="middle" style="font-size:12px">/tl-publish</text>
+        <rect class="box-stop" x="690" y="232" width="120" height="34" rx="6"/>
+        <text class="t-label t-stop" x="750" y="254" text-anchor="middle">אישור</text>
+        <path class="wire-stop" d="M 750,194 L 750,228" marker-end="url(#ahfs)"/>
+        <rect class="box-stop" x="530" y="232" width="120" height="34" rx="6"/>
+        <text class="t-label t-stop" x="590" y="254" text-anchor="middle">אישור</text>
+        <path class="wire-stop" d="M 590,194 L 590,228" marker-end="url(#ahfs)"/>
+        <path class="wire" d="M 750,130 L 750,92 L 430,92 L 430,126" marker-end="url(#ahf)"/>
+        <text class="t-label" x="590" y="84" text-anchor="middle">MVP: פתרון ותוכנית בתוך הדרישה</text>
+        <path class="wire" d="M 910,130 L 910,40 L 410,40 L 410,126" marker-end="url(#ahf)"/>
+        <text class="t-label" x="660" y="32" text-anchor="middle">תיקון קטן: ישר לקוד</text>
+        <path class="wire-stop" d="M 270,194 L 270,290 L 430,290 L 430,198" marker-end="url(#ahfs)"/>
+        <text class="t-label t-stop" x="350" y="312" text-anchor="middle">יש BLOCKER ← לתקן</text>
+      </svg>
+    <figcaption>FLOW של משימה חדשה. בכתום — עצירות לאישור שלך וחזרה כשיש BLOCKER. השלבים מסומנים
+    ב-<code>FLOW.md</code> בתיקיית המשימה, לכן סשן חדש ממשיך מהמקום שבו עצרת.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><b>לא נתקע.</b> <code>/tl-init</code> מגדיר מגבלות זמן ל-MCP; כל שאילתה לבסיס הנתונים
+    יוצאת עם הגנה (<code>LOCK_TIMEOUT</code>, <code>QUERY_GOVERNOR_COST_LIMIT</code>,
+    <code>WITH UR</code>) ומתחילה בבדיקה קטנה; לסוכנים ולכל לולאה יש גבול. בגבול Claude עוצר
+    ואומר מה נעשה ומה נשאר.</p>
+    <p><b>שאלות</b> — בכפתורים, התשובה המומלצת ראשונה. אין צורך ב-<code>/init</code> המובנה:
+    את העבודה שלו עושה <code>/tl-init</code>.</p>
+  </div>
+</section>
 
 <!-- ============ 1. SCHEMA ============ -->
 <section id="schema">
@@ -188,12 +285,12 @@ td:first-child { width: 42%; }
       <rect class="box" x="310" y="160" width="650" height="62" rx="6"/>
       <text class="t-title ltr" x="944" y="184" text-anchor="end">CORE.md</text>
       <text class="t-sub" x="870" y="184">מתחבר דרך ⁦.claude/CLAUDE.md⁩</text>
-      <text class="t-sub" x="944" y="206">⁦SMALL/LARGE/SPEC/ANALYSIS⁩ · 12 כללים · שפה · MCP · מפת ידע · Definition of Done</text>
+      <text class="t-sub" x="944" y="206">מסלול וגודל · 12 כללים · שפה · מקורות נתונים · מפת ידע · Definition of Done</text>
 
       <text class="t-band" x="960" y="250">2 · נקודות כניסה (אתה כותב)</text>
       <rect class="box" x="310" y="258" width="650" height="50" rx="6"/>
-      <text class="t-mono ltr" x="635" y="280" text-anchor="middle" style="font-size:12px">/tl-init   /tl-spec   /tl-design   /tl-implement   /tl-review   /tl-sql   /tl-debt</text>
-      <text class="t-mono ltr" x="635" y="299" text-anchor="middle" style="font-size:12px">/tl-project-doc   /tl-an-learn   /tl-an   /tl-publish   /oleg-skill-hesber</text>
+      <text class="t-mono ltr" x="635" y="280" text-anchor="middle" style="font-size:12px">/tl-go   /tl-init   /tl-spec   /tl-design   /tl-implement   /tl-sql   /tl-review</text>
+      <text class="t-mono ltr" x="635" y="299" text-anchor="middle" style="font-size:12px">/tl-an   /tl-explain   /tl-debt   /tl-publish</text>
 
       <text class="t-band" x="960" y="336">3 · ידע לפי נושא (נטען כשצריך)</text>
       <rect class="box-accent" x="876" y="344" width="84" height="70" rx="6"/>
@@ -246,10 +343,10 @@ td:first-child { width: 42%; }
       <text class="t-title" x="371" y="554" text-anchor="middle" style="font-size:12px">מבקר אפיון</text>
       <text class="t-mono ltr" x="371" y="572" text-anchor="middle" style="font-size:9px">tl-spec-skeptic</text>
 
-      <text class="t-band ltr" x="255" y="336" text-anchor="end">SQL MCP</text>
+      <text class="t-band" x="255" y="336">מקורות נתונים</text>
       <rect class="box" x="20" y="344" width="235" height="70" rx="6"/>
-      <text class="t-mono ltr" x="138" y="372" text-anchor="middle">meet-checkov</text>
-      <text class="t-mono ltr" x="138" y="394" text-anchor="middle">meet-chequemis</text>
+      <text class="t-mono ltr" x="138" y="372" text-anchor="middle">MCP / sqlcmd / db2</text>
+      <text class="t-mono ltr" x="138" y="394" text-anchor="middle">data-sources.json</text>
       <rect class="box-stop" x="20" y="440" width="235" height="56" rx="6"/>
       <text class="t-title t-stop ltr" x="138" y="464" text-anchor="middle">PROD</text>
       <text class="t-sub" x="138" y="484" text-anchor="middle">רק SELECT</text>
@@ -351,7 +448,7 @@ td:first-child { width: 42%; }
     <div class="eyebrow">תרשים 3</div>
     <h2>מסלול משימה: SMALL ו-LARGE</h2>
   </div>
-  <p>Claude מסווג כל משימה כ-SMALL או LARGE וכותב זאת בשורה אחת. משימת LARGE היא מודול, שירות
+  <p>בתוך המסלול Claude מסווג את המשימה כ-SMALL או LARGE וכותב זאת בשורה אחת. משימת LARGE היא מודול, שירות
   או endpoint חדשים, שינוי בסכמת בסיס הנתונים, אינטגרציה או שינוי ביותר מ-3 קבצים. משימה כזו
   לא מגיעה לקוד בלי "מאשר" ממך.</p>
 
@@ -424,19 +521,25 @@ td:first-child { width: 42%; }
     <table>
       <thead><tr><th>מצב</th><th>מה לכתוב ל-Claude</th></tr></thead>
       <tbody>
-        <tr><td>פתחת לראשונה פרויקט עם ה-kit</td><td><code>/tl-init</code>. Claude ישאל איזה שרת הוא PROD ואיזה TEST.</td></tr>
-        <tr><td>הגיעה בקשה מהעסק, צריך אפיון לפני פיתוח</td><td><code>/tl-spec new &lt;שם&gt;</code> ← למלא טופס דרישה ← <code>/tl-spec SPEC-001</code> ← לקרוא ← "מאשר"</td></tr>
+        <tr><td>לא יודע מאיפה להתחיל</td><td><code>/tl-go &lt;מה צריך, במילים שלך&gt;</code> — ה-kit יציע מסלול</td></tr>
+        <tr><td>חוזר לעבודה אחרי הפסקה</td><td><code>/tl-go</code> — איפה עצרת ומה הלאה</td></tr>
+        <tr><td>משימה חדשה בכמה שורות (למשל שירות חדש)</td><td><code>/tl-go new &lt;בקשה&gt;</code> — דרישה ← (תכנון) ← קוד ← בדיקה, עצירה רק לאישורים</td></tr>
+        <tr><td>פתחת לראשונה פרויקט עם ה-kit</td><td><code>/tl-init</code>. Claude ימצא את מקורות הנתונים וישאל איזה הוא PROD ואיזה TEST.</td></tr>
+        <tr><td>הגיעה בקשה מהעסק, צריך אפיון לפני פיתוח</td><td><code>/tl-spec new &lt;בקשה&gt;</code> — כותבים יחד לפי סעיפים ← "מאשר"</td></tr>
+        <tr><td>יש אפיון, אבל הוא לא שלם</td><td><code>/tl-spec complete SPEC-001</code></td></tr>
         <tr><td>חבר צוות כתב אפיון, צריך לבדוק לפני פיתוח</td><td><code>/tl-spec check &lt;קובץ md או docx&gt;</code></td></tr>
         <tr><td>המסמך אושר, שהצוות וכל הסוכנים יראו אותו</td><td><code>/tl-publish</code>, ואחר כך commit רגיל</td></tr>
         <tr><td>באג קטן, שינוי קטן</td><td>פשוט לתאר את המשימה, או <code>/tl-implement &lt;משימה&gt;</code></td></tr>
         <tr><td>פיצ'ר, שירות או endpoint חדש, שינוי בטבלאות</td><td><code>/tl-design &lt;משימה או SPEC-001&gt;</code> ← לקרוא ← "מאשר" ← <code>/tl-implement &lt;נתיב לתכנון&gt;</code></td></tr>
         <tr><td>לממש אפיון מאושר (שינוי קטן)</td><td><code>/tl-implement SPEC-001</code>: כל AC הופך לבדיקה</td></tr>
-        <tr><td>שאילתה איטית, פרוצדורה חדשה, אינדקס</td><td><code>/tl-sql &lt;משימה&gt;</code></td></tr>
+        <tr><td>לכתוב שאילתה או פרוצדורה לפי דרישה</td><td><code>/tl-sql build &lt;דרישה או SPEC-001&gt;</code></td></tr>
+        <tr><td>לבדוק שה-SQL נכון ותקין</td><td><code>/tl-sql check &lt;קובץ או פרוצדורה&gt;</code></td></tr>
+        <tr><td>שאילתה או דוח איטיים</td><td><code>/tl-sql tune &lt;שאילתה&gt;</code> — DBA יציע חלופות</td></tr>
         <tr><td>לפני commit או מסירה</td><td><code>/tl-review</code> (בלי פרמטרים בודק את השינויים שעוד לא נכנסו ל-commit)</td></tr>
         <tr><td>פעם בספרינט או לפני refactoring</td><td><code>/tl-debt &lt;תיקייה או מודול&gt;</code></td></tr>
-        <tr><td>צריך להסביר מודול, תהליך או מערכת עם תרשימים</td><td><code>/oleg-skill-hesber &lt;מה להסביר&gt;</code></td></tr>
-        <tr><td>צריך מסמך פרויקט מלא</td><td><code>/tl-project-doc</code> (עברית כברירת מחדל; <code>ru</code> / <code>en</code>, <code>html</code> — עם תרשימים)</td></tr>
-        <tr><td>נושא חדש לניתוח (תהליך, מדד)</td><td><code>/tl-an-learn &lt;נושא&gt; &lt;הסבר, מסמכים&gt;</code> — פעם אחת לכל נושא</td></tr>
+        <tr><td>צריך להסביר מודול, תהליך או מערכת עם תרשימים</td><td><code>/tl-explain &lt;מה להסביר&gt;</code></td></tr>
+        <tr><td>צריך מסמך פרויקט מלא</td><td><code>/tl-explain project</code> (עברית כברירת מחדל; <code>ru</code> / <code>en</code>; HTML עם תרשימים)</td></tr>
+        <tr><td>נושא חדש לניתוח (תהליך, מדד)</td><td><code>/tl-an learn &lt;נושא&gt; &lt;הסבר, מסמכים&gt;</code> — פעם אחת לכל נושא</td></tr>
         <tr><td>איך לשפר מדד, להעריך רעיון במספרים</td><td><code>/tl-an &lt;שאלה&gt;</code></td></tr>
         <tr><td>האם הקוד עונה למשימה ומה הוא ייתן</td><td><code>/tl-an בדוק שה-git diff עונה למשימה &lt;קובץ משימה&gt; והערך את ההשפעה</code></td></tr>
       </tbody>
@@ -631,7 +734,7 @@ td:first-child { width: 42%; }
     <div class="skill-body">
       <div class="facts">
         <div class="fact"><span class="k">מתי נכנס לפעולה</span><span class="v">"איך לשפר", "תעריך רעיון", "כמה הקוד ישפר", "האם הקוד עונה למשימה", שאלות על נתונים</span></div>
-        <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-an-learn &lt;נושא&gt;</code> פעם אחת, אחר כך <code>/tl-an &lt;משימה&gt;</code></span></div>
+        <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-an learn &lt;נושא&gt;</code> פעם אחת, אחר כך <code>/tl-an &lt;משימה&gt;</code></span></div>
         <div class="fact"><span class="k">מה מקבלים</span><span class="v">דוח ברוסית: תשובה עם גבול טעות ופסק דין, מה נדחה ולמה, הטמעה, משימה מוכנה ל-<code>/tl-design</code></span></div>
       </div>
       <div class="steps" aria-label="שלבים">
@@ -651,13 +754,13 @@ td:first-child { width: 42%; }
   <article class="skill" aria-labelledby="s7">
     <div class="skill-id">
       <h3 id="s7">מסמך פרויקט</h3>
-      <div class="name">/tl-project-doc</div>
+      <div class="name">/tl-explain project</div>
       <div class="note">תיאור מלא של הפרויקט לפי הקוד, בסיסי הנתונים והמסמכים האמיתיים.</div>
     </div>
     <div class="skill-body">
       <div class="facts">
         <div class="fact"><span class="k">מתי</span><span class="v">איש צוות חדש, העברת פרויקט, ביקורת, "איך כל זה בנוי"</span></div>
-        <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-project-doc [מודול] [ru|en] [html]</code></span></div>
+        <div class="fact"><span class="k">איך מפעילים</span><span class="v"><code>/tl-explain project [מודול] [ru|en]</code></span></div>
         <div class="fact"><span class="k">מה מקבלים</span><span class="v"><code>tl-memory/project-doc/PROJECT_DOC.md</code> (עברית כברירת מחדל), ולפי בקשה HTML עם תרשימים</span></div>
       </div>
       <div class="steps" aria-label="שלבים">
@@ -667,7 +770,7 @@ td:first-child { width: 42%; }
         <span class="step">HTML</span><span class="arr">←</span>
         <span class="step">בדיקה עצמית של 5 טענות</span>
       </div>
-      <div class="example"><span class="prompt">&gt;</span> /tl-project-doc html</div>
+      <div class="example"><span class="prompt">&gt;</span> /tl-explain project</div>
       <p class="note">פרקים: מטרה, ארכיטקטורה, מודולים, תהליכים עיקריים, מודל נתונים, אינטגרציות, תצורה (בלי סודות),
       בנייה ובדיקות, תפעול, אבטחה, סיכונים, מילון מונחים, שאלות פתוחות. לכל טענה יש הוכחה: קובץ, טבלה או מסמך.</p>
     </div>
@@ -715,7 +818,7 @@ td:first-child { width: 42%; }
       </defs>
       <text class="t-band" x="980" y="24">1 · לימוד הנושא (פעם אחת)</text>
       <rect class="box-accent" x="780" y="34" width="200" height="60" rx="6"/>
-      <text class="t-title ltr" x="880" y="60" text-anchor="middle">/tl-an-learn</text>
+      <text class="t-title ltr" x="880" y="60" text-anchor="middle">/tl-an learn</text>
       <text class="t-sub" x="880" y="80" text-anchor="middle">הסבר + מסמכים</text>
       <path class="wire" d="M 780,64 L 738,64" marker-end="url(#ah5)"/>
       <rect class="box" x="584" y="34" width="150" height="60" rx="6"/>
@@ -923,7 +1026,7 @@ td:first-child { width: 42%; }
       <tbody>
         <tr><td><code>tl-architect-reviewer</code></td><td>לוגיקה ומקרי קצה, שכבות וגבולות, חוזים של API, פרוצדורות ו-copybooks, שגיאות ולוגים, אבטחה, בדיקות; התאמה לאפיון מאושר (REQ, טבלאות החלטה, AC) ול-ADR שהתקבלו</td></tr>
         <tr><td><code>tl-sql-reviewer</code></td><td>כל שאילתה מושווית לאינדקסים האמיתיים דרך MCP, וגם טיפוסי פרמטרים, NULL, טרנזקציות, נעילות, תאימות 2019/2022 והשפעה על packages ב-DB2</td></tr>
-        <tr><td><code>tl-researcher</code></td><td>חוקר תחום אחד — קוד, נתונים או מסמכים — ומחזיר עובדות עם הוכחות. משמש את האנליסט, את <code>/tl-spec</code> ואת <code>/tl-project-doc</code></td></tr>
+        <tr><td><code>tl-researcher</code></td><td>חוקר תחום אחד — קוד, נתונים או מסמכים — ומחזיר עובדות עם הוכחות. משמש את האנליסט, את <code>/tl-spec</code> ואת <code>/tl-explain</code>; עובד בתקציב שאילתות ומחזיר תוצאה חלקית במקום להיתקע</td></tr>
         <tr><td><code>tl-an-skeptic</code></td><td>מנסה להפריך את מסקנות האנליסט: מחשב מחדש את המספרים העיקריים ב-SQL משלו, מחפש דליפות מהעתיד, התאמת־יתר וחודשים לא יציבים</td></tr>
         <tr><td><code>tl-spec-skeptic</code></td><td>קורא את האפיון בעיני המפתח והבודק: בודק בעצמו מונחים, שדות, גבולות ומספרים מול הקוד והנתונים, ומחפש סתירות, חורים בטבלאות החלטה, דליפות וצרכנים שנשכחו</td></tr>
       </tbody>
@@ -940,14 +1043,14 @@ td:first-child { width: 42%; }
     <h2>בדיקה שהכול עובד</h2>
   </div>
   <ul class="checklist">
-    <li><code>/</code><span>רואים את הפקודות <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-review</code>, <code>/tl-sql</code>, <code>/tl-debt</code>, <code>/tl-project-doc</code>, <code>/tl-an-learn</code>, <code>/tl-an</code>, <code>/tl-publish</code></span></li>
-    <li><code>/skills</code><span>ברשימה יש את ששת ה-skills של <code>tl-</code> (כולל <code>tl-analytics</code> ו-<code>tl-requirements</code>) ואת <code>oleg-skill-hesber</code></span></li>
+    <li><code>/</code><span>רואים את הפקודות <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code></span></li>
+    <li><code>/skills</code><span>ברשימה יש את ששת ה-skills של <code>tl-</code> (בתפריט "/" הם מוסתרים — Claude טוען אותם לבד) ואת <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>ברשימה יש <code>.claude/CLAUDE.md</code> עם ייבוא של CORE.md</span></li>
     <li><code>/agents</code><span>יש <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code></span></li>
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — כל השורות <code>ok</code></span></li>
-    <li><code>/mcp</code><span><code>meet-checkov</code> ו-<code>meet-chequemis</code> מחוברים</span></li>
+    <li><code>/mcp</code><span>שרתי MCP של בסיסי הנתונים של הפרויקט מחוברים (אם יש); <code>/tl-init</code> רושם אותם ב-<code>data-sources.json</code></span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_knowledge.py index</code> — יוצר את המפה <code>KNOWLEDGE.md</code></span></li>
-    <li><code>/tl-init</code><span>נוצרו <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> ו-<code>KNOWLEDGE.md</code>; בדוח יש בדיקה עצמית של ה-kit</span></li>
+    <li><code>/tl-init</code><span>נוצרו <code>.claude/tl-memory/PROJECT_CONTEXT.md</code> ו-<code>KNOWLEDGE.md</code>; בדוח יש בדיקה עצמית של ה-kit ומגבלות זמן</span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_doctor.py</code> — 0 שגיאות; אזהרות הן מה שעלול לעבוד במקום ה-kit</span></li>
   </ul>
   <p class="note">אם הפקודות לא מופיעות, צריך לעדכן את התוסף Claude Code ב-VS Code ולפתוח סשן חדש.</p>

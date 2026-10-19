@@ -2,6 +2,7 @@
 name: tl-spec-skeptic
 description: Independent, adversarial reviewer of a specification (אפיון). Use before a spec built by /tl-spec is presented, and in /tl-spec check — reads it as the developer who must code from it and the tester who must test it, verifies its key facts against the real code and data itself, and hunts for contradictions, gaps, ambiguity, leakage and unmet goals. Read-only; reports findings, never edits.
 model: inherit
+maxTurns: 20
 skills:
   - tl-requirements
 ---

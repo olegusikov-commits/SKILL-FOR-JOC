@@ -2,6 +2,7 @@
 name: tl-an-skeptic
 description: Independent, adversarial reviewer of analysis conclusions. Use before any analyst report or verdict (/tl-an) — tries to disprove the conclusions, checks leakage, overfitting, sample size, stability, overlaps, definitions and safety, and independently recomputes the key numbers. Read-only; reports findings, never edits.
 model: inherit
+maxTurns: 20
 skills:
   - tl-analytics
 ---

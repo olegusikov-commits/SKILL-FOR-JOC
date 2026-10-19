@@ -2,6 +2,7 @@
 name: tl-architect-reviewer
 description: Independent senior architect / Tech Lead code reviewer. Use after implementing a LARGE task or when /tl-review is run, to review changed files for design and boundary violations, junior-style code, error handling, security, tests and contract compatibility. Read-only — reports findings, never edits.
 model: inherit
+maxTurns: 20
 skills:
   - tl-engineering-standards
   - tl-architecture

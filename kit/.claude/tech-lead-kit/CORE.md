@@ -11,26 +11,24 @@ reviewer would approve without rework.
   columns) stay in **English** or follow the existing project convention.
 - Mainframe sources (COBOL, Natural, DB2 z/OS): Hebrew only if the file already has Hebrew and its
   encoding supports it (CCSID 424 / 12712); else English, and say so. Never change an encoding.
-- Exception: analysis memory and reports (`tl-memory/analysis/`) are written in **Russian**.
+- Exception: analysis memory and reports (`tl-memory/analysis/`) and task `FLOW.md` are in **Russian**.
 
-## Workflow: classify every task first
-Before writing code, state in one line: **SMALL**, **LARGE**, **SPEC** or **ANALYSIS** task, and why.
+## Workflow: pick the route, then the size
+State in one line the route (KIT_GUIDE "Routes"), the depth level (`mvp` / `standard` / `full`) and
+the size, and why. Requirement work (`/tl-spec`) and analysis (`/tl-an`) never change production
+code; analysis writes only under `.claude/tl-memory/analysis/`.
 
 - **LARGE** — any of: new module/service/endpoint; DB schema change (table, column, index,
   constraint); new or changed stored procedure contract; change touching more than 3 files or
   more than one layer/module; new dependency; change to integration with another system
   (web service, MQ, mainframe); anything with a migration or data fix.
-  → Do the design first (`tl-architecture` skill / `/tl-design`), then **STOP and wait for
-  the user's explicit approval** before writing production code.
+  → Design first (`tl-architecture` / `/tl-design`; at `mvp` a short solution part in the
+  spec), then **STOP and wait for the user's explicit approval** before writing production code.
 - **SMALL** — local bug fix, small refactor inside one unit, a query tweak with no schema
   change, tests, docs. → Implement directly, after loading the standards (next section).
-- **SPEC** — write or check a requirement / specification (אפיון) → `tl-requirements` skill
-  (`/tl-spec`). No production code changes; write only in the spec folder or the published spec.
-- **ANALYSIS** — improve/evaluate a metric, an idea or a code change in numbers, "does this
-  code meet the task", data questions, analysis reports. → `tl-analytics` skill (`/tl-an`).
-  **Do not modify production code**; write only under `.claude/tl-memory/analysis/`.
 
-When in doubt, it is LARGE.
+When in doubt, it is LARGE. Depth follows the task: no step, check or document that does not
+change the result (KIT_GUIDE "Depth levels"); every loop has a limit (KIT_GUIDE "Loop limits").
 
 ## Kit tools first — every task, with or without a command
 - **Before the first edit of any code** (SMALL too, plain-words requests too) load the
@@ -43,7 +41,8 @@ When in doubt, it is LARGE.
 
 ## Non-negotiable engineering rules
 1. **Read before you write.** Find the existing structure, conventions, and similar code first.
-   Follow the project's patterns; do not invent a parallel style.
+   Follow the project's patterns; do not invent a parallel style. Library APIs: check the
+   **installed** version's source/docs (`node_modules`, `site-packages`, NuGet cache), not memory.
 2. **Think about the next change, not just this one.** What is likely to change, who else calls
    this, what happens at 10x data, what fails at 2am. Write it down when it affects the design.
 3. **Boundaries over monoliths.** One responsibility per unit. No business logic in controllers, UI
@@ -55,7 +54,7 @@ When in doubt, it is LARGE.
 6. **Errors are designed, not ignored.** No empty catch, no `catch (Exception) { return null; }`.
    Fail fast on bugs, handle expected failures, keep the cause, log context without secrets/PII.
 7. **SQL is engineering.** Parameterized, set-based, written against the **real** schema and
-   indexes (SQL MCP, below). `tl-sql-engineering` for every query, procedure or schema change.
+   indexes (data sources, below). `tl-sql-engineering` for every query, procedure or schema change.
 8. **Tests are part of the change.** New logic gets tests; a bug fix gets a test that fails
    before the fix. Test behavior, not implementation details.
 9. **Security by default.** No secrets in code or logs, least privilege, validate and encode
@@ -67,32 +66,34 @@ When in doubt, it is LARGE.
 12. **Leave a trail.** Non-obvious decisions get a short "why" comment (Hebrew). Architecture
     decisions get an ADR. Debt you knowingly create goes into TECH_DEBT.md.
 
-## SQL MCP servers — safety protocol
-The project may have SQL MCP servers: **`meet-checkov`** and **`meet-chequemis`**.
-They are connected to both **PROD** and **TEST**.
+## Data sources — safety protocol
+Databases are reached only through the sources registered by `/tl-init` in
+`.claude/tl-memory/data-sources.json` (MCP servers or command-line clients; alias, engine, PROD/TEST)
+— never database files or ad-hoc drivers. A source not in the registry, or an unknown environment,
+is **PROD**. Before the first query, name the source, engine and environment.
 
-- **Databases only through the SQL MCP servers** — never database files or drivers from scripts.
-- **Before the first query, identify the target environment** (PROD or TEST) and engine
-  (SQL Server or DB2 z/OS). If you cannot tell, **treat it as PROD**.
-- **PROD: read-only, always.** Only `SELECT` against catalog/metadata and small, bounded
-  samples (`TOP (n)` / `FETCH FIRST n ROWS ONLY`). Never DML, DDL, `EXEC`, `CALL`, or anything
-  that can lock, modify, or load the server — even if the user seems to ask for it; ask again.
+- **PROD: read-only, always.** Only `SELECT` against catalog/metadata, small bounded samples
+  (`TOP (n)` / `FETCH FIRST n ROWS ONLY`) and approved aggregates. Never DML, DDL, `EXEC`, `CALL`,
+  or anything that can lock, modify, or load the server — even if the user seems to ask; ask again.
 - **TEST: changes allowed, but announced.** Show the exact statement and its expected effect
-  before running DML/DDL. Destructive operations (DROP, TRUNCATE, DELETE/UPDATE affecting more
-  than a handful of rows, ALTER on existing tables) require explicit user confirmation.
-- Never run heavy queries (full scans of large tables, cross joins, unbounded result sets) on
-  any environment without saying why and getting a yes.
-- **Analytical reads** (bounded, aggregated `SELECT`s over history for ANALYSIS tasks) follow
-  `tl-analytics/references/analytical-read-safety.md`: TEST first if its data is fresh enough;
-  on PROD the query plan is approved once per topic, then queries within it need no new approval.
+  before DML/DDL. Destructive operations (DROP, TRUNCATE, DELETE/UPDATE of more than a handful
+  of rows, ALTER on existing tables) require explicit user confirmation.
+- **No hanging queries:** size first (catalog row counts), then probe small (`TOP 20`, one day or
+  month), then expand. Read queries carry the engine guard from
+  `tl-sql-engineering/references/mcp-catalog-queries.md` (SQL Server `SET LOCK_TIMEOUT` +
+  `QUERY_GOVERNOR_COST_LIMIT`, DB2 `WITH UR` + `FETCH FIRST`). Database queries run in the main
+  conversation; a subagent gets a query budget. Slow or timed out → never the same or a bigger
+  query again; split or narrow.
+- **Analytical reads** follow `tl-analytics/references/analytical-read-safety.md`: TEST first if
+  fresh enough; on PROD the query plan is approved once per topic.
 - Schema changes for PROD are delivered as **reviewed script files**, never executed by you.
 
 ## Where things live
 - Skills (load before working in the area): `tl-engineering-standards`, `tl-architecture`,
   `tl-sql-engineering`, `tl-tech-debt`, `tl-requirements` (specs), `tl-analytics` (ANALYSIS),
   `oleg-skill-hesber` (explanation documents with diagrams: "הסבר", "схема", guides).
-- Commands: `/tl-init`, `/tl-spec`, `/tl-design`, `/tl-implement`, `/tl-review`, `/tl-sql`,
-  `/tl-debt`, `/tl-project-doc`, `/tl-an-learn`, `/tl-an`, `/tl-publish`.
+- Commands (routes): `/tl-go` (navigator), `/tl-init`, `/tl-spec`, `/tl-design`, `/tl-implement`,
+  `/tl-sql`, `/tl-review`, `/tl-an`, `/tl-explain`, `/tl-debt`, `/tl-publish`.
 - **At the start of every task** read `.claude/tl-memory/PROJECT_CONTEXT.md` (missing → suggest
   `/tl-init`) and `.claude/tl-memory/KNOWLEDGE.md` (missing → run the index below) — the map of all specs, ADRs, designs and
   analyses — and open the documents whose `area` touches the task. An approved spec and an
@@ -102,19 +103,18 @@ They are connected to both **PROD** and **TEST**.
   (no `;` in values); after writing one run `python .claude/tech-lead-kit/scripts/tl_knowledge.py index`.
 - **Publishing:** approved documents move to the project's `docs/` and the `AGENTS.md` block (`/tl-publish`;
   right after approval when `publish.json` has `"auto_publish": true`). The kit never commits.
-- Which command for which request, the usual path, where documents live:
+- Routes, depth levels, the task FLOW, questions, loop limits, step card, documents:
 @KIT_GUIDE.md
 
 ## Definition of done (check before saying "done")
-- [ ] Task classified; LARGE tasks have an approved design.
+- [ ] Route, level and size stated; LARGE tasks have an approved design.
 - [ ] `tl-engineering-standards` + language reference loaded before the first edit; code follows them.
 - [ ] No logic in the wrong layer, no new god class; errors deliberate; inputs validated at the boundary.
 - [ ] SQL verified against the real schema/indexes; parameterized; set-based.
-- [ ] Tests added/updated and passing (or you say clearly what you could not run and why).
-- [ ] Hebrew "why" comments where the reason is non-obvious.
+- [ ] Tests added/updated and passing (or say what you could not run and why); Hebrew "why" comments.
 - [ ] Behaviour covered by a spec changed → spec updated (back to review); by an accepted ADR →
       superseded by a new ADR (or the conflict reported); `tl-meta` present, index rebuilt.
 - [ ] For LARGE tasks: `/tl-review` was run and its blocking findings are fixed.
-- [ ] Report to the user in Russian: what changed, why, risks, what to verify manually.
-- [ ] ANALYSIS tasks: every number has a saved query or `an_stats.py` call; the baseline is
-      calibrated; `tl-an-skeptic` reviewed the conclusions; no production code changed.
+- [ ] Analysis: every number from a saved query or `an_stats.py`; baseline calibrated; no code changed.
+- [ ] Report in Russian: what changed, why, risks, what to verify manually; `FLOW.md` stage
+      ticked; reply ends with the step card (KIT_GUIDE).

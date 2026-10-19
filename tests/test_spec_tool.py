@@ -205,6 +205,15 @@ class NewTests(unittest.TestCase):
         self.assertNotIn("YYYY-MM-DD", text)
         self.assertNotIn("template:", text)
 
+    def test_creates_flow_with_level(self):
+        _, path = self.run_new("cheque-service", "--title", "שירות שליפת שיקים", "--level", "mvp")
+        with open(os.path.join(os.path.dirname(path), "FLOW.md"), encoding="utf-8") as f:
+            flow = f.read()
+        self.assertTrue(flow.startswith("<!-- tl-meta: type=flow; id=SPEC-001; status=active; level=mvp;"))
+        self.assertIn("- [ ] 4 Требование", flow)
+        self.assertIn("Дальше: /tl-spec SPEC-001", flow)
+        self.assertNotIn("LEVEL", flow)
+
     def test_numbering_counts_published_specs(self):
         os.makedirs(os.path.join(self.root, "docs", "specs"))
         open(os.path.join(self.root, "docs", "specs", "SPEC-004-x.md"), "w").close()

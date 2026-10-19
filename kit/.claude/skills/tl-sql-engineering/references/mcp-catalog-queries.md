@@ -1,8 +1,39 @@
-# Catalog queries for the SQL MCP (meet-checkov / meet-chequemis)
+# Catalog queries and the query guard (any registered data source)
 
-All queries in this file are **read-only `SELECT`s against the system catalog** and are safe
-on PROD. Replace `dbo.TableName` / `'SCHEMA'` / `'TABLE'` with real names.
+All catalog queries in this file are **read-only `SELECT`s against the system catalog** and are
+safe on PROD. Run them through a source from `.claude/tl-memory/data-sources.json` (MCP server or
+command-line client). Replace `dbo.TableName` / `'SCHEMA'` / `'TABLE'` with real names.
 Run only what you need; do not dump whole catalogs.
+
+---
+
+## Query guard — so a query never hangs
+
+A client-side cancel (Stop / Esc) does not stop the query on the server, so the guard lives in the
+query itself. Use it for every data read beyond the small catalog lookups.
+
+**SQL Server** — put in front of the query, in the same batch:
+```sql
+SET LOCK_TIMEOUT 5000;                 -- wait for a lock at most 5 s (default: forever)
+SET QUERY_GOVERNOR_COST_LIMIT 300;     -- refuse before running if the estimated cost is higher
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;  -- analytics / aggregates only (see SKILL rule 8)
+```
+Error 1222 = lock timeout, 8649 = cost limit: the query is too heavy as written — narrow the
+period, filter on an indexed column, or aggregate by month; never just raise the limit. If the
+source does not accept several statements in one call, use `WITH (NOLOCK)` per table for
+aggregates and keep `TOP (n)` / a bounded date range.
+
+**DB2 for z/OS** — end every read with:
+```sql
+... FETCH FIRST 100 ROWS ONLY WITH UR
+```
+Check `CARDF` / `NPAGESF` (below) before touching a table; `-1` = no statistics → size unknown,
+start with a one-day range. The DBA can bound the agent's user with RLF (`ASUTIME`) — recommend it
+once per project; agent users must not have SYSADM (exempt from RLF).
+
+**Probe → expand:** row count from the catalog → `TOP 20` / `FETCH FIRST 20` → one day or month →
+measure the time → the full period. Two minutes for a probe means the full query will not finish:
+change the plan (index, aggregation), not the patience.
 
 ---
 
