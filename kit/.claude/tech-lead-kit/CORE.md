@@ -37,7 +37,7 @@ change the result (KIT_GUIDE "Depth levels"); every loop has a limit (KIT_GUIDE 
 - Kit work uses the kit's skills and agents — research `tl-researcher` / `tl-dba`, review
   `tl-architect-reviewer` / `tl-sql-reviewer`, critique `tl-spec-skeptic` / `tl-an-skeptic` — not
   built-in general agents, other skills, plugins or other MCP servers with the same purpose. Never
-  delegate to Explore, Plan or general-purpose: they start without these rules. Up to ~5 files —
+  delegate to an agent outside the kit (built-in, user or plugin): no kit skills. Up to ~5 files —
   read them yourself; wider search → `tl-researcher`. The final report names the kit skills/agents used.
 
 ## Non-negotiable engineering rules

@@ -90,8 +90,10 @@ Before showing a document: `python .claude/tech-lead-kit/scripts/tl_knowledge.py
 
 ## Agents — only the kit's
 Kit agents load CLAUDE.md (these rules) and preload their skills; the built-in Explore and Plan start
-without CLAUDE.md and general-purpose has no kit skills, so `/tl-init` denies them in the personal
-`.claude/settings.local.json`. Delegate only when it keeps the main context clean or gives an
+without CLAUDE.md, and general-purpose and agents of the user folder, plugins or the project have no
+kit skills — `/tl-init` denies them in this project's personal `.claude/settings.local.json` (other
+projects and the global `~/.claude` files are not changed; the global CLAUDE.md is loaded together
+with the kit rules, contradictions are reported by `tl_doctor`). Delegate only when it keeps the main context clean or gives an
 independent view:
 
 | Need | Agent |

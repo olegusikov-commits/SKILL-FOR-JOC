@@ -17,10 +17,13 @@ Data:       database MCP servers and command-line clients (sqlcmd, db2) against 
 Limits:     Claude Code waits for an MCP call up to ~28 hours by default and never moves a subagent's
             MCP call to the background — a slow query looks like a hang.
 Agents:     the built-in Explore and Plan agents start WITHOUT CLAUDE.md (no kit rules), general-purpose
-            has no kit skills; kit agents (tl-*) load CLAUDE.md and preload their skills.
---apply-settings (alias --apply-limits) adds to .claude/settings.local.json (personal, hidden from git;
-            other keys kept): time and output limits for MCP calls, and permission rules that deny the
-            built-in agents Explore, Plan and general-purpose, so delegated work goes to kit agents.
+            has no kit skills; agents of the user folder, of plugins or of the project that are not the
+            kit's load CLAUDE.md but not the kit skills, and their own prompt may contradict the kit.
+            Kit agents (tl-*) load CLAUDE.md and preload their skills.
+--apply-settings (alias --apply-limits) [--keep-agent NAME ...] adds to .claude/settings.local.json
+            (personal, hidden from git; other keys kept; this project only): time and output limits for
+            MCP calls, and permission rules that deny the built-in agents and every agent that is not the
+            kit's (except --keep-agent ones), so delegated work goes to kit agents.
 Levels: ERROR — the kit does not work as designed; WARN — something may be used instead of the kit
 or contradict it, Claude must look at it with the user; INFO — facts. Exit code 1 if any ERROR.
 """
@@ -302,22 +305,72 @@ def settings_deny(root, home):
     return rules
 
 
+def agent_name(path, fallback):
+    m = re.search(r"^name:\s*[\"']?([^\"'\n]+?)[\"']?\s*$", read_text(path) or "", re.M)
+    return m.group(1).strip() if m else fallback
+
+
+def enabled_plugins(root, home):
+    names = set()
+    paths = ([os.path.join(home, "settings.json")] if home else []) + [
+        os.path.join(root, ".claude", "settings.json"), os.path.join(root, ".claude", "settings.local.json")]
+    for path in paths:
+        data = read_json(path)
+        if data and not data.get("__invalid__"):
+            names |= {k.split("@")[0] for k, on in (data.get("enabledPlugins") or {}).items() if on}
+    return names
+
+
+def foreign_agents(root, home):
+    """[(name, where)] of agents that are not the kit's: project, user folder, enabled plugins."""
+    found = {}
+    for where, claude_dir in (("project", os.path.join(root, ".claude")), ("user", home)):
+        if not claude_dir:
+            continue
+        for key, (path, _) in entities(claude_dir)["agent"].items():
+            name = agent_name(path, key)
+            if not is_kit_name("agent", name):
+                found.setdefault(name, where)
+    plugins = enabled_plugins(root, home)
+    base = os.path.join(home, "plugins") if home else None
+    if plugins and base and os.path.isdir(base):
+        for dirpath, _, files in os.walk(base):
+            if os.path.basename(dirpath) != "agents":
+                continue
+            parts = os.path.normpath(dirpath).split(os.sep)
+            plugin = next((p for p in reversed(parts) if p in plugins), None)
+            for f in sorted(files):
+                if plugin and f.endswith(".md"):
+                    found.setdefault(f"{plugin}:{agent_name(os.path.join(dirpath, f), f[:-3])}", "plugin")
+    return sorted(found.items())
+
+
+def agents_to_deny(root, home, keep=()):
+    names = list(BUILTIN_AGENTS) + [n for n, _ in foreign_agents(root, home)]
+    return [n for n in names if n not in set(keep)]
+
+
 def check_agents(root, home, rep):
     deny = {r.replace("Task(", "Agent(") for r in settings_deny(root, home)}
     if "Agent" in deny:
         return
-    open_agents = [a for a in BUILTIN_AGENTS if f"Agent({a})" not in deny]
-    if open_agents:
-        rep.add("WARN", "agents", f"built-in agents {', '.join(open_agents)} are allowed — Explore and Plan start "
+    open_builtin = [a for a in BUILTIN_AGENTS if f"Agent({a})" not in deny]
+    open_foreign = [f"{n} ({w})" for n, w in foreign_agents(root, home) if f"Agent({n})" not in deny]
+    if open_builtin:
+        rep.add("WARN", "agents", f"built-in agents {', '.join(open_builtin)} are allowed — Explore and Plan start "
                 "without CLAUDE.md (no kit rules) and none of them has the kit skills; run tl_doctor.py "
                 "--apply-settings so delegated work goes to the kit agents (tl-researcher, tl-dba, reviewers)")
-    else:
-        rep.add("INFO", "agents", "built-in agents denied — delegated work goes to kit agents")
+    if open_foreign:
+        rep.add("WARN", "agents", f"agents outside the kit are allowed here: {', '.join(open_foreign)} — they have "
+                "no kit skills and their own prompt may contradict the kit; run tl_doctor.py --apply-settings "
+                "(this project only; add --keep-agent NAME for one you want to keep)")
+    if not open_builtin and not open_foreign:
+        rep.add("INFO", "agents", "agents outside the kit denied in this project — delegated work goes to kit agents")
 
 
-def apply_limits(root):
-    """Add the missing LIMITS and the deny rules for BUILTIN_AGENTS to .claude/settings.local.json; keep every
-    other key. Returns what was added: {name: value}."""
+def apply_limits(root, home=None, keep=()):
+    """Add the missing LIMITS and deny rules for the built-in and foreign agents (except `keep`) to
+    .claude/settings.local.json; keep every other key. Returns what was added: {name: value}."""
     path = os.path.join(root, ".claude", "settings.local.json")
     data = read_json(path)
     if data is None:
@@ -328,7 +381,7 @@ def apply_limits(root):
     added = {k: v for k, v in LIMITS.items() if k not in env}
     env.update(added)
     deny = data.setdefault("permissions", {}).setdefault("deny", [])
-    for agent in BUILTIN_AGENTS:
+    for agent in agents_to_deny(root, home, keep):
         rule = f"Agent({agent})"
         if rule not in deny and f"Task({agent})" not in deny:
             deny.append(rule)
@@ -392,22 +445,25 @@ def main(argv=None):
     ap.add_argument("--home", help="user Claude folder (default: ~/.claude or CLAUDE_CONFIG_DIR)")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--apply-settings", "--apply-limits", dest="apply_limits", action="store_true",
-                    help="add MCP limits and deny the built-in agents in .claude/settings.local.json, then check")
+                    help="add MCP limits and deny agents outside the kit in .claude/settings.local.json, then check")
+    ap.add_argument("--keep-agent", action="append", default=[], metavar="NAME",
+                    help="with --apply-settings: do not deny this agent (repeatable)")
     args = ap.parse_args(argv)
     root = os.path.abspath(args.root) if args.root else find_root(os.getcwd())
+    home = args.home or default_home()
+    if os.path.normcase(os.path.abspath(home)) == os.path.normcase(os.path.join(root, ".claude")):
+        home = None  # the project is the home folder itself; nothing extra to check
+    home = home if home and os.path.isdir(home) else None
     if args.apply_limits:
         try:
-            added = apply_limits(root)
+            added = apply_limits(root, home, args.keep_agent)
         except ValueError as e:
             print(f"ERROR {e}")
             return 1
         print("Added to .claude/settings.local.json: " + (", ".join(f"{k}={v}" for k, v in added.items())
                                                            if added else "nothing (already set)"))
         print("Start a new Claude Code session so the settings take effect.\n")
-    home = args.home or default_home()
-    if os.path.normcase(os.path.abspath(home)) == os.path.normcase(os.path.join(root, ".claude")):
-        home = None  # the project is the home folder itself; nothing extra to check
-    rep = run(root, home if home and os.path.isdir(home) else None)
+    rep = run(root, home)
     if args.json:
         print(json.dumps(rep.items, ensure_ascii=False, indent=2))
     else:
