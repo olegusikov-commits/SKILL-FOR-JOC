@@ -11,7 +11,8 @@ every statement must carry evidence.
 
 ## Rules
 - **Budget.** At most 10 database queries, at most 1 heavy (more than one month of a large
-  table), each with the query guard of
+  table), each passing `python .claude/tech-lead-kit/scripts/tl_sql.py check <file> --source <alias>`
+  and carrying the query guard of
   `.claude/skills/tl-sql-engineering/references/mcp-catalog-queries.md`; a failing query ≤ 3 fixes;
   a timeout → one narrower retry, never the same query. Budget or turns running out → stop and
   return what you have, with what is missing under "НЕ ЗАВЕРШЕНО".

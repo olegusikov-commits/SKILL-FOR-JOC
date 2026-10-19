@@ -165,7 +165,7 @@ td:first-child { width: 42%; }
 <div class="page">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · версия 2.0.0</div>
+  <div class="eyebrow">Tech Lead Kit · версия 2.1.0</div>
   <h1>Путеводитель Tech Lead Kit</h1>
   <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
   в Claude Code в VS Code.</p>
@@ -274,7 +274,8 @@ td:first-child { width: 42%; }
   <div class="callout">
     <p><b>Не зависает.</b> <code>/tl-init</code> ставит лимиты времени для MCP; каждый запрос
     к базе идёт с защитой (<code>LOCK_TIMEOUT</code>, <code>QUERY_GOVERNOR_COST_LIMIT</code>,
-    <code>WITH UR</code>) и сначала маленькой пробой; у агентов и у каждого цикла есть предел.
+    <code>WITH UR</code>) и сначала маленькой пробой; <code>tl_sql.py</code> проверяет запрос до отправки и
+    останавливает зависший клиент командной строки по таймауту; у агентов и у каждого цикла есть предел.
     На пределе Claude останавливается и говорит, что сделано и что осталось.</p>
     <p><b>Вопросы</b> — кнопками, рекомендованный ответ первым. Встроенный <code>/init</code> не
     нужен: его работу делает <code>/tl-init</code>.</p>
@@ -419,11 +420,14 @@ td:first-child { width: 42%; }
   <p>Ставится в каждый проект отдельно. Обновление выполняется той же командой: файлы kit
   заменяются, а память проекта не трогается.</p>
   <div class="callout">
-    <p><b>Окно установки.</b> Двойной клик по <code>install.cmd</code> открывает окно: список проектов, где kit уже стоит,
-    с версиями; кнопка «Добавить проект…»; режим документов («утверждённые документы сразу становятся частью
-    проекта»: папка <code>docs</code> и <code>AGENTS.md</code>, commit делаешь ты) и кнопка «Установить / обновить» для всех
-    отмеченных проектов. При обновлении проекты со старой версией уже отмечены. Если PowerShell закрыт политикой,
-    работает текстовый режим: <code>install.cmd "C:\work\проект"</code>.</p>
+    <p><b>Окно установки.</b> Двойной клик по <code>install.cmd</code> открывает окно с таблицей проектов: версия,
+    статус («актуально», «обновить до …», «не установлен») и режим документов. Проекты добавляются кнопками
+    «Добавить папку…», «Найти проекты…» (все папки с <code>.git</code> в выбранной папке, например <code>C:\dev</code>),
+    «Недавние из VS Code», перетаскиванием папок в окно или путём в строке «Добавить». Там же: «Отметить с
+    обновлением», «Открыть папку», «Убрать из списка», «Удалить kit из проекта» и «Что нового». Режим документов
+    («утверждённые документы сразу становятся частью проекта»: папка <code>docs</code> и <code>AGENTS.md</code>, commit
+    делаешь ты) применяется к отмеченным проектам. Если PowerShell закрыт политикой, работает текстовый режим:
+    <code>install.cmd "C:\work\проект"</code>.</p>
     <p>После установки Claude в проекте всегда видит памятку <code>KIT_GUIDE.md</code>: какие есть команды, когда какую
     предлагать и где лежат документы. Первый запуск <code>/tl-init</code> создаёт структуру: карту проекта, карту документов
     и <code>AGENTS.md</code>.</p>
@@ -1071,6 +1075,7 @@ td:first-child { width: 42%; }
       <tbody>
         <tr><td><code>tl-architect-reviewer</code></td><td>Логику и крайние случаи, слои и границы, контракты API/процедур/copybooks, ошибки и логи, безопасность, тесты; соответствие утверждённой אפיון (REQ, таблицы решений, AC) и принятым ADR</td></tr>
         <tr><td><code>tl-sql-reviewer</code></td><td>Каждый запрос сверяется с реальными индексами через MCP, плюс типы параметров, NULL, транзакции, блокировки, совместимость 2019/2022, влияние на пакеты DB2</td></tr>
+        <tr><td><code>tl-dba</code></td><td>DBA-исследователь: размеры, статистика, планы, блокировки; причина и минимум три варианта решения с выигрышем, ценой и риском. Используют <code>/tl-sql tune</code>, дизайн и аналитик. Только чтение, бюджет запросов</td></tr>
         <tr><td><code>tl-researcher</code></td><td>Изучает одну область — код, данные или документы — и возвращает факты с доказательствами. Используют аналитик, <code>/tl-spec</code> и <code>/tl-explain</code>; работает с бюджетом запросов и возвращает частичный результат, а не зависает</td></tr>
         <tr><td><code>tl-an-skeptic</code></td><td>Пытается опровергнуть выводы аналитика: пересчитывает ключевые числа своим SQL, ищет утечки из будущего, переобучение, нестабильные месяцы</td></tr>
         <tr><td><code>tl-spec-skeptic</code></td><td>Читает אפיון глазами разработчика и тестировщика: сам проверяет термины, поля, границы и цифры по коду и данным, ищет противоречия, дыры в таблицах решений, утечки, пропущенных потребителей</td></tr>
@@ -1091,7 +1096,7 @@ td:first-child { width: 42%; }
     <li><code>/</code><span>видны команды <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code></span></li>
     <li><code>/skills</code><span>в списке шесть skills <code>tl-</code> (в меню «/» они скрыты — Claude загружает их сам) и <code>oleg-skill-hesber</code></span></li>
     <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md</span></li>
-    <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code></span></li>
+    <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code>, <code>tl-dba</code></span></li>
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — все строки <code>ok</code></span></li>
     <li><code>/mcp</code><span>подключены MCP-серверы баз проекта (если есть); <code>/tl-init</code> вносит их в <code>data-sources.json</code></span></li>
     <li><code>python</code><span><code>.claude\tech-lead-kit\scripts\tl_knowledge.py index</code> — создаёт карту <code>KNOWLEDGE.md</code></span></li>

@@ -16,6 +16,9 @@ nearest parent with .claude/tech-lead-kit or .claude/tl-memory); --root override
                           and the agents block. Never runs git.
   block                   rewrite the managed knowledge block in AGENTS.md (and make CLAUDE.md
                           import it) from the published documents + PROJECT_CONTEXT.md facts
+  style FILE...            writing-standard notes (WRITING.md) for any document, drafts too: empty
+                          words without a number, TBD / placeholders, empty sections, repeated
+                          paragraphs. Advice only — never blocks; `check` prints them as well
   status [--mark-init]    "where am I": open task flows (FLOW.md) and their next step, documents
                           waiting for approval, design plans with open tasks, kit updated since the
                           last /tl-init (+ what is new). --mark-init records the kit version (/tl-init)
@@ -57,6 +60,15 @@ KIT_CMD_RE = re.compile(r"(?<![\w/.-])/tl-[a-z][a-z-]*")
 LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
 # files in tl-memory that are documents and must carry tl-meta
 WAITING_STATUSES = {"draft", "review", "proposed"}
+# words that carry no information without a number or a condition next to them (WRITING.md)
+VAGUE_RE = re.compile(r"(?<![\w-])(significant(?:ly)?|substantial(?:ly)?|dramatic(?:ally)?|efficient(?:ly)?|optimal(?:ly)?|"
+                      r"robust|seamless(?:ly)?|best practices?|as needed|if necessary|reasonable|appropriate|etc\.|"
+                      r"משמעותי(?:ת|ים|ות)?|יעיל(?:ה|ים|ות)?|אופטימלי(?:ת)?|לפי הצורך|בהתאם לצורך|סביר(?:ה)?|וכו'|"
+                      r"значительн\w*|существенн\w*|эффективн\w*|оптимальн\w*|по необходимости|"
+                      r"при необходимости|разумн\w*|и т\.\s?д\.?)(?![\w-])", re.I)
+FILLER_RE = re.compile(r"(it is important to note|in conclusion|this document describes|חשוב לציין|לסיכום|"
+                       r"важно отметить|в заключение|данный документ описывает)", re.I)
+PLACEHOLDER_RE = re.compile(r"\bTBD\b|\bTODO\b|<[^<>\n]{2,40}>|\?\?\?")
 TASK_RE = re.compile(r"^\s*- \[( |x|X)\] ", re.M)
 NEXT_RE = re.compile(r"^(?:Дальше|Next)\s*:\s*(.+)$", re.M)
 EXPECTED_DOCS = [r"spec/[^/]+/SPEC\.md", r"design/[^/]+\.md", r"adr/[^/]+\.md", r"project-doc/[^/]+\.(md|html)",
@@ -295,6 +307,59 @@ def check_file(root, path, link_base=None):
     return issues
 
 
+# ------------------------------------------------------------------ style
+def style_issues(text):
+    """Writing-standard notes (advice, never blocking): [(line, message)]."""
+    notes = []
+    lines = text.splitlines()
+    in_fence = False
+    seen = {}
+    heading_at = None
+    body_since_heading = False
+    for no, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            body_since_heading = True
+            continue
+        if in_fence or stripped.startswith("<!--"):
+            continue
+        if stripped.startswith("#"):
+            if heading_at and not body_since_heading and stripped.count("#") <= heading_at[1]:
+                notes.append((heading_at[0], "empty section — delete it or write one line why it does not apply"))
+            heading_at = (no, len(stripped) - len(stripped.lstrip("#")))
+            body_since_heading = False
+            continue
+        if stripped:
+            body_since_heading = True
+        for m in VAGUE_RE.finditer(line):
+            if not re.search(r"\d", line):
+                notes.append((no, f"'{m.group(0)}' without a number — give the value or delete the word"))
+        m = FILLER_RE.search(line)
+        if m:
+            notes.append((no, f"filler '{m.group(0)}' — delete it"))
+        if PLACEHOLDER_RE.search(re.sub(r"`[^`]*`", "", line)) and not stripped.startswith(("<", "|")):
+            notes.append((no, "placeholder (TBD / <…> / ???) — fill it or turn it into a question Q-n"))
+        if len(stripped) > 80 and not stripped.startswith("|"):
+            key = re.sub(r"\W+", " ", stripped.lower())
+            if key in seen:
+                notes.append((no, f"repeats line {seen[key]}"))
+            else:
+                seen[key] = no
+    if heading_at and not body_since_heading:
+        notes.append((heading_at[0], "empty section — delete it or write one line why it does not apply"))
+    return notes
+
+
+def cmd_style(args):
+    for path in args.files:
+        notes = style_issues(read_text(path))
+        print(f"{path}: {'OK' if not notes else str(len(notes)) + ' note(s) (WRITING.md)'}")
+        for no, msg in notes:
+            print(f"  line {no:>4}  {msg}")
+    return 0
+
+
 def destination(root, cfg, path, meta):
     folder = published_dirs(root, cfg).get(meta.get("type", ""))
     if folder is None:
@@ -325,6 +390,8 @@ def cmd_check(args):
         print(f"{path}: {'OK' if not issues else str(len(issues)) + ' issue(s)'}")
         for no, msg in issues:
             print(f"  line {no:>4}  {msg}")
+        for no, msg in style_issues(read_text(path)):
+            print(f"  line {no:>4}  style: {msg}")
     return 1 if total else 0
 
 
@@ -557,6 +624,9 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("index", "block"):
         sub.add_parser(name).add_argument("--root")
+    p = sub.add_parser("style")
+    p.add_argument("files", nargs="+")
+    p.add_argument("--root")
     p = sub.add_parser("status")
     p.add_argument("--root")
     p.add_argument("--mark-init", action="store_true")
@@ -576,7 +646,8 @@ def main(argv=None):
     if args.cmd == "block":
         return 0 if cmd_block(args) is not None else 1
     return {"index": cmd_index, "next-id": cmd_next_id, "check": cmd_check,
-            "publish": cmd_publish, "status": cmd_status}[args.cmd](args)
+            "publish": cmd_publish, "status": cmd_status,
+            "style": cmd_style}[args.cmd](args)
 
 
 if __name__ == "__main__":

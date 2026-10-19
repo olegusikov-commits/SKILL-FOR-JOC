@@ -34,7 +34,7 @@ change the result (KIT_GUIDE "Depth levels"); every loop has a limit (KIT_GUIDE 
 - **Before the first edit of any code** (SMALL too, plain-words requests too) load the
   `tl-engineering-standards` skill (Skill tool; else Read its `SKILL.md`) and its reference for
   the language; SQL → also `tl-sql-engineering`. Never skip it because the change looks small.
-- Kit work uses the kit's skills and agents — research `tl-researcher`, review
+- Kit work uses the kit's skills and agents — research `tl-researcher` / `tl-dba`, review
   `tl-architect-reviewer` / `tl-sql-reviewer`, critique `tl-spec-skeptic` / `tl-an-skeptic` — not
   built-in general agents, other skills, plugins or other MCP servers with the same purpose. If
   another tool seems better, say so and ask. The final report names the kit skills/agents used.

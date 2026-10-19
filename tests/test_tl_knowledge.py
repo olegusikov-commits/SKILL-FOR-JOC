@@ -223,6 +223,37 @@ class KnowledgeTests(unittest.TestCase):
 
 
 
+class StyleTests(unittest.TestCase):
+    def test_style_notes(self):
+        text = ("<!-- tl-meta: type=design; id=; status=draft; date=2026-10-19; area=x; title=t -->\n"
+                "# תכנון\n## 1. רקע\nהשינוי ישפר משמעותית את הביצועים.\n"
+                "## 2. ריק\n## 3. מספרים\nזמן תגובה יורד משמעותית מ-900 ל-300 ms.\n"
+                "Значительно быстрее. TBD\nIt is important to note that it works.\n"
+                "```sql\nSELECT 1 -- efficient\n```\n")
+        notes = "\n".join(f"{no}: {m}" for no, m in tl_knowledge.style_issues(text))
+        self.assertIn("4: 'משמעותית' without a number", notes)
+        self.assertIn("5: empty section", notes)
+        self.assertIn("8: 'Значительно' without a number", notes)
+        self.assertIn("8: placeholder", notes)
+        self.assertIn("9: filler 'It is important to note'", notes)
+        self.assertNotIn("efficient", notes)
+        self.assertNotRegex(notes, r"(?m)^7: '")  # a number on the line makes the word acceptable
+
+    def test_style_is_advice_only(self):
+        root = tempfile.mkdtemp()
+        try:
+            path = os.path.join(root, "x.md")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("# t\nэто эффективно\n")
+            out = io.StringIO()
+            with redirect_stdout(out):
+                code = tl_knowledge.main(["style", path, "--root", root])
+            self.assertEqual(code, 0)
+            self.assertIn("1 note(s)", out.getvalue())
+        finally:
+            shutil.rmtree(root)
+
+
 class StatusTests(unittest.TestCase):
     """`status`: where am I — open flows, documents waiting for approval, open plan tasks, kit updated."""
 
