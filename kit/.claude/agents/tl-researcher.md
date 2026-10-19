@@ -1,6 +1,6 @@
 ---
 name: tl-researcher
-description: Read-only researcher that studies one focus area — code, data (catalog and bounded aggregates through the registered data sources) or documents — and returns compact, evidence-backed findings. Use from /tl-an, /tl-spec, /tl-explain and /tl-design to keep the main context clean; launch several in parallel with different focus. Never edits anything; works within a budget and returns partial results instead of running on.
+description: Read-only researcher that studies one focus area — code, data (catalog and bounded aggregates through the registered data sources) or documents — and returns compact, evidence-backed findings. Use proactively — instead of the built-in Explore or general-purpose agents — for any search wider than a few files (focus `search`), and from /tl-an, /tl-spec, /tl-explain and /tl-design to keep the main context clean; launch several in parallel with different focus. Never edits anything; works within a budget and returns partial results instead of running on.
 model: inherit
 maxTurns: 25
 ---
@@ -29,6 +29,12 @@ every statement must carry evidence.
 - Be compact: tables over prose. Do not paste large code or query outputs.
 - Documents `.docx/.xlsx/.pptx`: convert with
   `python .claude/skills/tl-analytics/scripts/an_doc2text.py <file>` (or `py -3 …`).
+
+## Focus `search` (replaces the built-in Explore agent)
+A question about where / how something is in the code or documents ("where is X decided", "who
+calls Y", "which files touch table Z"). Search by names, terms, table and column names; read only
+the excerpts you need. Output: the answer in 1–3 lines, then a table `what | file:line | note`,
+then what you did not find. At most 15 files read; no database queries unless asked.
 
 ## Focus `code`
 Find the logic for the given process: entry points, the decision function(s), every condition

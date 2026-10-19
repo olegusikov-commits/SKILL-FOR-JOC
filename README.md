@@ -81,7 +81,7 @@ SQL Server 2019/2022, DB2 for z/OS, stored procedures.
 ## Не зависает и не крутится вечно
 - **Лимиты времени MCP.** По умолчанию Claude Code ждёт ответа MCP до ~28 часов, а вызовы из
   субагентов не уходят в фон — медленный запрос выглядит как зависание. `/tl-init` (через
-  `tl_doctor.py --apply-limits`) записывает лимиты в `.claude/settings.local.json` (личный файл).
+  `tl_doctor.py --apply-settings`) записывает лимиты в `.claude/settings.local.json` (личный файл).
 - **Защита в каждом запросе:** SQL Server `SET LOCK_TIMEOUT` и `QUERY_GOVERNOR_COST_LIMIT`
   (тяжёлый запрос отклоняется до запуска), DB2 `FETCH FIRST … WITH UR`; сначала размер из
   каталога, потом маленькая проба, потом расширение.
@@ -139,6 +139,14 @@ kit/.claude/
 ### Kit, а не что-то другое
 - **Перед первой правкой кода** Claude загружает `tl-engineering-standards` и файл правил языка,
   даже для мелкой правки и без команды. Для исследования, ревью и критики — агенты `tl-`.
+- **Только агенты kit.** Встроенные агенты `Explore` и `Plan` запускаются **без CLAUDE.md** (не
+  видят правил kit), у `general-purpose` нет skills kit. Агенты kit загружают CLAUDE.md и свои
+  skills. Поэтому `/tl-init` записывает в личный `.claude/settings.local.json` (скрыт от git)
+  запрет встроенных агентов: `"deny": ["Agent(Explore)", "Agent(Plan)", "Agent(general-purpose)"]`.
+  Это обычное правило доступа, а не hook. Поиск по нескольким файлам Claude делает сам, широкий
+  поиск — `tl-researcher` (режим `search`). Глобальный `~/.claude/CLAUDE.md` kit не меняет: он
+  действует во всех проектах, а kit ставится в выбранные; `tl_doctor` только сообщает о
+  противоречиях в нём.
 - `/tl-init` запускает `tl_doctor.py`: kit подключён и скрыт от git; чужие skills, агенты,
   команды, `CLAUDE.md`, MCP-серверы, плагины и hooks, которые могут перехватить работу; базы,
   не внесённые в реестр; лимиты времени. Чужие файлы Claude не правит — спрашивает тебя.

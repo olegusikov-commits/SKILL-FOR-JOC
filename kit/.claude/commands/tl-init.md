@@ -27,9 +27,12 @@ Steps:
      the personal `~/.claude/CLAUDE.md`): read them and list every rule that contradicts CORE
      (language of comments, commits, database access, skipping tests…). Do not edit them; ask the
      user which rule wins and record the answer under "Known risks & observations".
-   - WARN "no time limit for MCP calls" → ask once (buttons, "применить (рекомендуется)") and run
-     `python .claude/tech-lead-kit/scripts/tl_doctor.py --apply-limits`; tell the user the limits
-     work from the next Claude Code session. Suggest a per-server `"timeout"` in `.mcp.json` for
+   - WARN "no time limit for MCP calls" or "built-in agents … are allowed" → run
+     `python .claude/tech-lead-kit/scripts/tl_doctor.py --apply-settings` (personal
+     `.claude/settings.local.json`, hidden from git): MCP time limits and deny rules for the built-in
+     agents Explore, Plan, general-purpose — they work without the kit rules, so delegated work goes
+     to the kit agents. Tell the user what was added, that it works from the next Claude Code
+     session, and that removing the lines from that file undoes it. Suggest a per-server `"timeout"` in `.mcp.json` for
      database servers (shorter for PROD) — the team's file, the user decides.
    - A root `CLAUDE.md` (e.g. from the built-in `/init`) is a source of build/test commands and
      conventions: use it in step 3 and list contradictions with CORE. The built-in `/init` is not

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Tech Lead Kit self-check: is the kit installed and loaded, and what else could Claude Code use
-instead of it. Standard library only (Python 3.8+). Read-only, except --apply-limits.
+instead of it. Standard library only (Python 3.8+). Read-only, except --apply-settings.
 
   python .claude/tech-lead-kit/scripts/tl_doctor.py [--root DIR] [--home DIR] [--json]
-  python .claude/tech-lead-kit/scripts/tl_doctor.py --apply-limits   # time limits for MCP calls
+  python .claude/tech-lead-kit/scripts/tl_doctor.py --apply-settings  # MCP limits + kit agents only
 
 Kit:        VERSION, .claude/CLAUDE.md imports CORE, CORE imports KIT_GUIDE, every command / skill /
             agent named in CORE and KIT_GUIDE exists, the kit is hidden from git, Python version.
@@ -15,8 +15,12 @@ Competitors (things Claude may pick instead of the kit):
 Data:       database MCP servers and command-line clients (sqlcmd, db2) against the registry
             .claude/tl-memory/data-sources.json that /tl-init writes.
 Limits:     Claude Code waits for an MCP call up to ~28 hours by default and never moves a subagent's
-            MCP call to the background — a slow query looks like a hang. --apply-limits adds time and
-            output limits to .claude/settings.local.json (personal, not committed; other keys kept).
+            MCP call to the background — a slow query looks like a hang.
+Agents:     the built-in Explore and Plan agents start WITHOUT CLAUDE.md (no kit rules), general-purpose
+            has no kit skills; kit agents (tl-*) load CLAUDE.md and preload their skills.
+--apply-settings (alias --apply-limits) adds to .claude/settings.local.json (personal, hidden from git;
+            other keys kept): time and output limits for MCP calls, and permission rules that deny the
+            built-in agents Explore, Plan and general-purpose, so delegated work goes to kit agents.
 Levels: ERROR — the kit does not work as designed; WARN — something may be used instead of the kit
 or contradict it, Claude must look at it with the user; INFO — facts. Exit code 1 if any ERROR.
 """
@@ -33,11 +37,13 @@ SQL_CLIENTS = ("sqlcmd", "db2", "db2cmd", "clpplus")
 LIMITS = {"MCP_TOOL_TIMEOUT": "180000", "CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT": "120000",
           "MAX_MCP_OUTPUT_TOKENS": "20000"}
 MAX_TOOL_TIMEOUT_MS = 600000
+# built-in agents that work outside the kit: Explore / Plan skip CLAUDE.md, general-purpose has no kit skills
+BUILTIN_AGENTS = ("Explore", "Plan", "general-purpose")
 DB_HINT_RE = re.compile(r"sql|db2|database|postgres|mysql|oracle|sqlite|odbc|jdbc|mssql", re.I)
 EXCLUDE_LINES = [".claude/tech-lead-kit/", ".claude/skills/tl-*/", ".claude/commands/tl-*.md",
                  ".claude/agents/tl-*.md", ".claude/tl-memory/"]
 # permission rules that would stop kit tools (scripts, skills, subagents, SQL MCP reads)
-BLOCKING_DENY_RE = re.compile(r"^(Skill|Task|Agent|Bash\((python|py)\b)", re.I)
+BLOCKING_DENY_RE = re.compile(r"^((Skill|Task|Agent)(\(\*?\))?$|(Task|Agent)\(tl-|Bash\((python|py)\b)", re.I)
 
 
 def configure_stdout():
@@ -282,11 +288,36 @@ def check_limits(root, home, rep):
         rep.add("INFO", "limits", f"MCP_TOOL_TIMEOUT = {value} ms")
     else:
         rep.add("WARN", "limits", "no time limit for MCP calls (default ~28 hours) — a slow or blocked query "
-                "looks like a hang; run tl_doctor.py --apply-limits")
+                "looks like a hang; run tl_doctor.py --apply-settings")
+
+
+def settings_deny(root, home):
+    rules = []
+    paths = ([os.path.join(home, "settings.json")] if home else []) + [
+        os.path.join(root, ".claude", "settings.json"), os.path.join(root, ".claude", "settings.local.json")]
+    for path in paths:
+        data = read_json(path)
+        if data and not data.get("__invalid__"):
+            rules += [str(r) for r in (data.get("permissions") or {}).get("deny") or []]
+    return rules
+
+
+def check_agents(root, home, rep):
+    deny = {r.replace("Task(", "Agent(") for r in settings_deny(root, home)}
+    if "Agent" in deny:
+        return
+    open_agents = [a for a in BUILTIN_AGENTS if f"Agent({a})" not in deny]
+    if open_agents:
+        rep.add("WARN", "agents", f"built-in agents {', '.join(open_agents)} are allowed — Explore and Plan start "
+                "without CLAUDE.md (no kit rules) and none of them has the kit skills; run tl_doctor.py "
+                "--apply-settings so delegated work goes to the kit agents (tl-researcher, tl-dba, reviewers)")
+    else:
+        rep.add("INFO", "agents", "built-in agents denied — delegated work goes to kit agents")
 
 
 def apply_limits(root):
-    """Add the missing LIMITS to .claude/settings.local.json; keep every other key. Returns what was added."""
+    """Add the missing LIMITS and the deny rules for BUILTIN_AGENTS to .claude/settings.local.json; keep every
+    other key. Returns what was added: {name: value}."""
     path = os.path.join(root, ".claude", "settings.local.json")
     data = read_json(path)
     if data is None:
@@ -295,9 +326,15 @@ def apply_limits(root):
         raise ValueError(f"{path} is not valid JSON — fix it first")
     env = data.setdefault("env", {})
     added = {k: v for k, v in LIMITS.items() if k not in env}
+    env.update(added)
+    deny = data.setdefault("permissions", {}).setdefault("deny", [])
+    for agent in BUILTIN_AGENTS:
+        rule = f"Agent({agent})"
+        if rule not in deny and f"Task({agent})" not in deny:
+            deny.append(rule)
+            added[rule] = "deny"
     if not added:
         return {}
-    env.update(added)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -339,6 +376,7 @@ def run(root, home):
     check_mcp(root, home, rep)
     check_settings(root, home, rep)
     check_limits(root, home, rep)
+    check_agents(root, home, rep)
     return rep
 
 
@@ -353,8 +391,8 @@ def main(argv=None):
     ap.add_argument("--root", help="project folder (default: found from the current folder)")
     ap.add_argument("--home", help="user Claude folder (default: ~/.claude or CLAUDE_CONFIG_DIR)")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--apply-limits", action="store_true",
-                    help="add MCP time/output limits to .claude/settings.local.json, then check")
+    ap.add_argument("--apply-settings", "--apply-limits", dest="apply_limits", action="store_true",
+                    help="add MCP limits and deny the built-in agents in .claude/settings.local.json, then check")
     args = ap.parse_args(argv)
     root = os.path.abspath(args.root) if args.root else find_root(os.getcwd())
     if args.apply_limits:
@@ -364,8 +402,8 @@ def main(argv=None):
             print(f"ERROR {e}")
             return 1
         print("Added to .claude/settings.local.json: " + (", ".join(f"{k}={v}" for k, v in added.items())
-                                                           if added else "nothing (limits already set)"))
-        print("Start a new Claude Code session so the limits take effect.\n")
+                                                           if added else "nothing (already set)"))
+        print("Start a new Claude Code session so the settings take effect.\n")
     home = args.home or default_home()
     if os.path.normcase(os.path.abspath(home)) == os.path.normcase(os.path.join(root, ".claude")):
         home = None  # the project is the home folder itself; nothing extra to check

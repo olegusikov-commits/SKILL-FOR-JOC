@@ -82,11 +82,27 @@ timeout; database work follows CORE "Data sources".
 Database queries: `python .claude/tech-lead-kit/scripts/tl_sql.py check` before sending, `guard` for
 MCP, `run` for command-line sources (hard timeout, CSV, journal `tl-memory/sql-journal.csv`).
 A query hangs: the user presses Stop / Esc, then `/tasks` to stop a background task; the server may
-still run it — ask the DBA to kill the session. `tl_doctor.py --apply-limits` (in `/tl-init`) sets
+still run it — ask the DBA to kill the session. `tl_doctor.py --apply-settings` (in `/tl-init`) sets
 time limits for MCP calls.
 
 Before showing a document: `python .claude/tech-lead-kit/scripts/tl_knowledge.py style <file>`
 (WRITING.md notes; advice, fix what is true).
+
+## Agents — only the kit's
+Kit agents load CLAUDE.md (these rules) and preload their skills; the built-in Explore and Plan start
+without CLAUDE.md and general-purpose has no kit skills, so `/tl-init` denies them in the personal
+`.claude/settings.local.json`. Delegate only when it keeps the main context clean or gives an
+independent view:
+
+| Need | Agent |
+|---|---|
+| search wider than ~5 files; code / data / documents research | `tl-researcher` (focus `search`, `code`, `data`, `docs`) |
+| sizes, plans, blocking, options for a slow or big data problem | `tl-dba` |
+| independent code review | `tl-architect-reviewer`, `tl-sql-reviewer` (SQL) |
+| challenge a spec / an analysis | `tl-spec-skeptic`, `tl-an-skeptic` |
+
+Everything else — reading a few files, planning, small edits — you do yourself, without an agent.
+Give every agent the task, the paths, its budget and what to return.
 
 ## Step card — the end of every command reply
 ```
