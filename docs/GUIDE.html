@@ -165,7 +165,7 @@ td:first-child { width: 42%; }
 <div class="page">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · версия 2.3.0</div>
+  <div class="eyebrow">Tech Lead Kit · версия 2.4.0</div>
   <h1>Путеводитель Tech Lead Kit</h1>
   <p class="lede">Как устроен kit, как его установить и обновить через USB и как работать с каждым skill
   в Claude Code в VS Code.</p>
@@ -179,6 +179,7 @@ td:first-child { width: 42%; }
     <a href="#analyst">Аналитик</a>
     <a href="#spec">מנתח מערכות</a>
     <a href="#knowledge">Знания для всех агентов</a>
+    <a href="#learning">Kit учится в проекте</a>
     <a href="#review">Ревьюеры</a>
     <a href="#check">Проверка установки</a>
   </nav>
@@ -209,6 +210,7 @@ td:first-child { width: 42%; }
         <tr><td><code>/tl-explain</code> объяснение</td><td>как устроено X; документ проекта</td><td><code>project</code> · что объяснить</td><td>HTML со схемами</td></tr>
         <tr><td><code>/tl-debt</code> здоровье кода</td><td>что плохо в коде, что чинить первым</td><td>путь / модуль</td><td>реестр долга с приоритетами</td></tr>
         <tr><td><code>/tl-publish</code> публикация</td><td>отдать утверждённое команде</td><td>—</td><td><code>docs/</code> + <code>AGENTS.md</code>; commit твой</td></tr>
+        <tr><td><code>/tl-retro</code> обучение</td><td>«опять не так», «запомни…», «что ты знаешь о проекте?»</td><td>без слов · <code>show [kit]</code> · <code>term</code> · <code>forget</code> · <code>share</code></td><td>уроки, термины, профиль, skills <code>tlp-</code> — после твоего «да»</td></tr>
       </tbody>
     </table>
   </div>
@@ -592,6 +594,7 @@ td:first-child { width: 42%; }
         <tr><td>Нужен полный документ проекта</td><td><code>/tl-explain project</code> (по умолчанию иврит; <code>ru</code> / <code>en</code>; HTML со схемами)</td></tr>
         <tr><td>Новая тема для анализа (процесс, метрика)</td><td><code>/tl-an learn &lt;тема&gt; &lt;объяснение, документы&gt;</code> — один раз на тему</td></tr>
         <tr><td>Как улучшить метрику, оценить идею в цифрах</td><td><code>/tl-an &lt;вопрос&gt;</code></td></tr>
+        <tr><td>Claude повторяет ту же ошибку или должен что-то запомнить</td><td>«запомни: …» — или <code>/tl-retro</code>: разбор наблюдений, предложения кнопками</td></tr>
         <tr><td>Отвечает ли код задаче и что он даст</td><td><code>/tl-an Проверь, что git diff отвечает задаче &lt;файл задачи&gt;, и оцени эффект</code></td></tr>
       </tbody>
     </table>
@@ -1065,6 +1068,74 @@ td:first-child { width: 42%; }
   </figure>
 </section>
 
+<!-- ============ 5b. LEARNING ============ -->
+<section id="learning">
+  <div class="section-head">
+    <div class="eyebrow">Обучение</div>
+    <h2>Kit учится в проекте</h2>
+  </div>
+  <p>Kit запоминает, где ошибся и как ты его поправил, твои термины, стиль и привычки. Ничего не меняется
+  тайно: наблюдения копятся в <code>.claude/tl-memory/learn/INBOX.md</code>, <code>/tl-retro</code> превращает их
+  в предложения, ты принимаешь или отклоняешь кнопками. Утверждённое собирается в <code>ACTIVE.md</code>, который
+  CORE импортирует, поэтому его знают и Claude, и агенты kit — в каждой задаче, даже без команды.</p>
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 290" role="img" aria-label="Цикл обучения: наблюдения, INBOX.md, /tl-retro с утверждением, память проекта, ACTIVE.md, каждая задача">
+      <defs>
+        <marker id="ah8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="box" x="20" y="30" width="280" height="80" rx="6"/>
+      <text class="t-title" x="160" y="56" text-anchor="middle">Наблюдения</text>
+      <text class="t-sub" x="160" y="76" text-anchor="middle">поправки, свои ошибки, термины</text>
+      <text class="t-mono ltr" x="160" y="96" text-anchor="middle">tl_learn.py note · harvest</text>
+      <path class="wire" d="M300,70 L356,70" marker-end="url(#ah8)"/>
+      <rect class="box" x="360" y="30" width="280" height="80" rx="6"/>
+      <text class="t-title" x="500" y="56" text-anchor="middle">INBOX.md</text>
+      <text class="t-sub" x="500" y="76" text-anchor="middle">сырьё: одна строка — одно событие</text>
+      <text class="t-sub" x="500" y="96" text-anchor="middle">без секретов и личных данных</text>
+      <path class="wire" d="M640,70 L696,70" marker-end="url(#ah8)"/>
+      <rect class="box-accent" x="700" y="30" width="280" height="80" rx="6"/>
+      <text class="t-title" x="840" y="56" text-anchor="middle">/tl-retro</text>
+      <text class="t-sub" x="840" y="76" text-anchor="middle">до 8 предложений кнопками</text>
+      <text class="t-sub" x="840" y="96" text-anchor="middle">ты принимаешь или отклоняешь</text>
+      <path class="wire" d="M840,110 L840,176" marker-end="url(#ah8)"/>
+      <text class="t-label" x="852" y="148">принято</text>
+      <rect class="box-ok" x="700" y="180" width="280" height="80" rx="6"/>
+      <text class="t-title" x="840" y="206" text-anchor="middle">Память проекта</text>
+      <text class="t-mono ltr" x="840" y="226" text-anchor="middle">LESSONS · PROFILE</text>
+      <text class="t-mono ltr" x="840" y="246" text-anchor="middle">GLOSSARY · skills tlp-*</text>
+      <path class="wire" d="M700,220 L644,220" marker-end="url(#ah8)"/>
+      <rect class="box-ok" x="360" y="180" width="280" height="80" rx="6"/>
+      <text class="t-title" x="500" y="206" text-anchor="middle">ACTIVE.md</text>
+      <text class="t-sub" x="500" y="226" text-anchor="middle">до 60 строк, импорт в CORE</text>
+      <text class="t-sub" x="500" y="246" text-anchor="middle">CORE главнее любого урока</text>
+      <path class="wire" d="M360,220 L304,220" marker-end="url(#ah8)"/>
+      <rect class="box" x="20" y="180" width="280" height="80" rx="6"/>
+      <text class="t-title" x="160" y="206" text-anchor="middle">Каждая задача</text>
+      <text class="t-sub" x="160" y="226" text-anchor="middle">Claude и агенты kit</text>
+      <text class="t-sub" x="160" y="246" text-anchor="middle">уже знают выученное</text>
+      <path class="wire-dash" d="M160,180 L160,114" marker-end="url(#ah8)"/>
+      <text class="t-label" x="172" y="148">новые наблюдения</text>
+    </svg>
+    <figcaption>Урок может только добавить или сузить правило CORE, не ослабить: тесты, утверждения, PROD, commit и язык комментариев не меняются. Без вопроса применяется только то, о чём ты попросил прямо: длина и формат ответа, язык чата.</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Что kit выучивает</th><th>Где хранится</th><th>Пример</th></tr></thead>
+      <tbody>
+        <tr><td>Урок из своей ошибки или твоей поправки</td><td><code>LESSONS.md</code>: когда → правило, «видели N×»</td><td>отчёт по клиентам → «активный» = <code>status IN (1,4)</code></td></tr>
+        <tr><td>Твои термины и жаргон</td><td><code>GLOSSARY.md</code> (иврит; можно отдать команде: <code>/tl-retro share</code>)</td><td>«לקוח פעיל» → колонка и таблица</td></tr>
+        <tr><td>Стиль и привычки, постоянные ответы</td><td><code>PROFILE.md</code> (до 12 пунктов)</td><td>ответ коротко, сначала вывод; уровень <code>mvp</code></td></tr>
+        <tr><td>Работа, повторённая 3+ раза</td><td>skill проекта <code>.claude/skills/tlp-…</code></td><td>ежемесячный отчёт по одним и тем же шагам</td></tr>
+        <tr><td>Где мешает сам kit</td><td>урок с областью <code>kit</code> — <code>/tl-retro show kit</code> для автора kit</td><td>команда не предложила нужный режим</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">То, что Claude не записал сам, находит <code>tl_learn.py harvest</code>: поправки в истории сессий
+  Claude Code этого проекта, причину отказа от действия, упавшие и зависшие запросы, одинаковые ответы в разных
+  אפיונים. Встроенную auto memory Claude Code (пишет заметки без утверждения) <code>/tl-init</code> выключает в проекте.
+  Обновление kit память и skills <code>tlp-</code> не трогает.</p>
+</section>
+
 <!-- ============ 6. REVIEW ============ -->
 <section id="review">
   <div class="section-head">
@@ -1098,9 +1169,9 @@ td:first-child { width: 42%; }
     <h2>Проверка, что всё работает</h2>
   </div>
   <ul class="checklist">
-    <li><code>/</code><span>видны команды <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code></span></li>
+    <li><code>/</code><span>видны команды <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code>, <code>/tl-retro</code></span></li>
     <li><code>/skills</code><span>в списке шесть skills <code>tl-</code> (в меню «/» они скрыты — Claude загружает их сам) и <code>oleg-skill-hesber</code></span></li>
-    <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md</span></li>
+    <li><code>/memory</code><span>в списке есть <code>.claude/CLAUDE.md</code> с импортом CORE.md, а также <code>tl-memory/learn/ACTIVE.md</code></span></li>
     <li><code>/agents</code><span>есть <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code>, <code>tl-dba</code></span></li>
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — все строки <code>ok</code></span></li>
     <li><code>/mcp</code><span>подключены MCP-серверы баз проекта (если есть); <code>/tl-init</code> вносит их в <code>data-sources.json</code></span></li>

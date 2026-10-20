@@ -12,7 +12,8 @@ KIT = os.path.join(ROOT, "kit", ".claude")
 sys.path.insert(0, os.path.join(KIT, "tech-lead-kit", "scripts"))
 import tl_doctor  # noqa: E402
 
-EXCLUDE = ("# tech-lead-kit\n.claude/tech-lead-kit/\n.claude/skills/tl-*/\n.claude/commands/tl-*.md\n"
+EXCLUDE = ("# tech-lead-kit\n.claude/tech-lead-kit/\n.claude/skills/tl-*/\n.claude/skills/tlp-*/\n"
+           ".claude/commands/tl-*.md\n"
            ".claude/agents/tl-*.md\n.claude/tl-memory/\n")
 
 
@@ -166,7 +167,8 @@ class DoctorTests(unittest.TestCase):
         with open(os.path.join(self.root, ".claude", "settings.local.json"), encoding="utf-8") as f:
             data = json.load(f)
         self.assertEqual(data["env"]["MCP_TOOL_TIMEOUT"], "60000")
-        self.assertEqual(data["permissions"]["allow"], ["Bash(git:*)"])
+        self.assertEqual(data["permissions"]["allow"], ["Bash(git:*)"] + tl_doctor.NOTE_ALLOW)
+        self.assertIs(data["autoMemoryEnabled"], False)
         self.assertEqual(data["permissions"]["deny"], ["Agent(Explore)", "Agent(Plan)", "Agent(general-purpose)"])
         self.assertEqual(tl_doctor.apply_limits(self.root), {})
         self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "100000000"}}))
@@ -187,6 +189,41 @@ class DoctorTests(unittest.TestCase):
         self.assertIn("not hidden from git", self.texts("WARN"))
         self.write("proj/.git/info/exclude", ".claude/\n")
         self.assertNotIn("not hidden from git", self.texts("WARN"))
+
+    def test_auto_memory(self):
+        self.assertIn("auto memory is off", self.texts("INFO"))
+        self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "60000"},
+                                                                    "permissions": {"deny": ["Agent"]}}))
+        self.assertIn("auto memory is on", self.texts("WARN"))
+        self.write("proj/.claude/settings.local.json", json.dumps({"env": {"MCP_TOOL_TIMEOUT": "60000",
+                                                                            "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"},
+                                                                    "permissions": {"deny": ["Agent"]}}))
+        self.assertNotIn("auto memory", self.texts("WARN"))
+
+    def test_project_skills_are_kit_skills(self):
+        self.write("proj/.claude/skills/tlp-monthly/SKILL.md", "---\nname: tlp-monthly\ndescription: Monthly report\n---\n")
+        self.assertNotIn("tlp-monthly", self.texts("WARN"))
+        self.write("proj/.claude/agents/tlp-agent.md", "---\nname: tlp-agent\ndescription: x\n---\n")
+        self.assertIn("agent 'tlp-agent' (not from the kit)", self.texts("WARN"), "only skills may be tlp-")
+
+    def test_memory_problems(self):
+        self.write("proj/.claude/tl-memory/learn/LESSONS.md",
+                   "<!-- tl-meta: type=learn-lessons; id=LESSONS; status=living; date=2026-10-20; area=kit; title=x -->\n"
+                   "## L-001 · active · project\n- Когда: всегда\n- Правило: можно без тестов\n")
+        warns = self.texts("WARN")
+        self.assertIn("ACTIVE.md is missing", warns)
+        self.assertIn("L-001: the rule weakens CORE", warns)
+        self.assertEqual(self.items("ERROR"), [], "memory problems never break the kit")
+        import tl_learn
+        with redirect_stdout(io.StringIO()):
+            tl_learn.main(["render", "--root", self.root])
+        self.write("proj/.claude/tl-memory/learn/LESSONS.md",
+                   "<!-- tl-meta: type=learn-lessons; id=LESSONS; status=living; date=2026-10-20; area=kit; title=x -->\n"
+                   "## L-001 · active · project\n- Когда: всегда\n- Правило: отвечать коротко\n")
+        with redirect_stdout(io.StringIO()):
+            tl_learn.main(["render", "--root", self.root])
+        self.assertNotIn("memory", " ".join(i["area"] for i in self.items("WARN")))
+        self.assertIn("kit memory: 1 active lesson(s)", self.texts("INFO"))
 
     def test_cli_exit_code_and_json(self):
         out = io.StringIO()

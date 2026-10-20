@@ -28,12 +28,14 @@ Steps:
      (language of comments, commits, database access, skipping tests…). Do not edit them; ask the
      user which rule wins and record the answer under "Known risks & observations".
    - WARN "no time limit for MCP calls" / "built-in agents … are allowed" / "agents outside the kit
-     are allowed here" → show the foreign agents with their descriptions and ask once (buttons):
+     are allowed here" / "auto memory is on" → show the foreign agents with their descriptions and ask once (buttons):
      "запретить всех в этом проекте (рекомендуется) / оставить некоторых / оставить всех". Then run
      `python .claude/tech-lead-kit/scripts/tl_doctor.py --apply-settings [--keep-agent NAME …]`
      (personal `.claude/settings.local.json`, hidden from git, this project only): MCP time limits
      and deny rules for the built-in agents (Explore and Plan work without CLAUDE.md) and for the
-     user / plugin / project agents outside the kit (no kit skills). "Оставить всех" → add every
+     user / plugin / project agents outside the kit (no kit skills); Claude Code's own auto memory
+     off (it writes notes without the user's approval — the kit's memory is `/tl-retro`, notes it
+     already wrote are collected by `tl_learn.py harvest`); `tl_learn.py note` allowed without a prompt. "Оставить всех" → add every
      foreign agent as `--keep-agent`. Tell the user what was added, that the global files and other
      projects are not changed, that it works from the next session, and how to undo it. Suggest a per-server `"timeout"` in `.mcp.json` for
      database servers (shorter for PROD) — the team's file, the user decides.
@@ -80,6 +82,8 @@ Steps:
    from the content — and rebuild. Also run this after every kit update. If `publish.json` has
    `"auto_publish": true`, also run `tl_knowledge.py block` so `AGENTS.md` gets the project facts
    from the first day, and tell the user which files to commit.
+   Then the learning memory: `python .claude/tech-lead-kit/scripts/tl_learn.py render` (creates the
+   missing files in `.claude/tl-memory/learn/` and `ACTIVE.md`, which CORE imports) and `tl_learn.py lint`.
 7. Record the kit version: `python .claude/tech-lead-kit/scripts/tl_knowledge.py status --mark-init`.
 8. Report to the user in Russian: the kit self-check (version, limits, conflicts found and what
    you recommend), data sources (PROD/TEST), a short summary, the questions you need answered,

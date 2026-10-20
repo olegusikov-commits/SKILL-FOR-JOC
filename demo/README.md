@@ -20,7 +20,7 @@
 uv tool install mcp-server-sqlite --with "mcp<2"
 python demo/run_demo.py setup /tmp/demo
 python demo/run_demo.py run /tmp/demo init        # затем любой сценарий: python demo/run_demo.py list
-python demo/run_demo.py run-all /tmp/demo 4        # или все 18 сценариев по зависимостям, 4 параллельно
+python demo/run_demo.py run-all /tmp/demo 4        # или все сценарии по зависимостям, 4 параллельно
 python demo/reference_answers.py /tmp/demo/base/chequemis.db
 ```
 Базы в демо — SQLite, а не SQL Server / DB2: аналитик сам адаптирует диалект. Это проверяет и

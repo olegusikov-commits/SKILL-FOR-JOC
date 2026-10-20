@@ -143,7 +143,7 @@ td:first-child { width: 42%; }
 <div class="page" dir="rtl" lang="he">
 
 <header class="intro">
-  <div class="eyebrow">Tech Lead Kit · גרסה 2.3.0</div>
+  <div class="eyebrow">Tech Lead Kit · גרסה 2.4.0</div>
   <h1>מדריך Tech Lead Kit</h1>
   <p class="lede">איך ה-kit בנוי, איך מתקינים ומעדכנים אותו דרך USB, ואיך עובדים עם כל skill
   ב-Claude Code בתוך VS Code.</p>
@@ -157,6 +157,7 @@ td:first-child { width: 42%; }
     <a href="#analyst">אנליסט</a>
     <a href="#spec">מנתח מערכות</a>
     <a href="#knowledge">ידע לכל הסוכנים</a>
+    <a href="#learning">ה-kit לומד בפרויקט</a>
     <a href="#review">סוקרים</a>
     <a href="#check">בדיקת ההתקנה</a>
   </nav>
@@ -186,6 +187,7 @@ td:first-child { width: 42%; }
         <tr><td><code>/tl-explain</code> הסבר</td><td>איך X עובד; מסמך פרויקט</td><td><code>project</code> · מה להסביר</td><td>HTML עם תרשימים</td></tr>
         <tr><td><code>/tl-debt</code> בריאות הקוד</td><td>מה רע בקוד ומה לתקן קודם</td><td>נתיב / מודול</td><td>מרשם חוב עם עדיפויות</td></tr>
         <tr><td><code>/tl-publish</code> פרסום</td><td>למסור לצוות את מה שאושר</td><td>—</td><td><code>docs/</code> + <code>AGENTS.md</code>; ה-commit שלך</td></tr>
+        <tr><td><code>/tl-retro</code> למידה</td><td>"שוב לא נכון", "תזכור ש…", "מה אתה יודע על הפרויקט?"</td><td>בלי מילים · <code>show [kit]</code> · <code>term</code> · <code>forget</code> · <code>share</code></td><td>לקחים, מונחים, פרופיל, skills של <code>tlp-</code> — אחרי ה"כן" שלך</td></tr>
       </tbody>
     </table>
   </div>
@@ -537,6 +539,7 @@ td:first-child { width: 42%; }
         <tr><td>יש אפיון, אבל הוא לא שלם</td><td><code>/tl-spec complete SPEC-001</code></td></tr>
         <tr><td>חבר צוות כתב אפיון, צריך לבדוק לפני פיתוח</td><td><code>/tl-spec check &lt;קובץ md או docx&gt;</code></td></tr>
         <tr><td>המסמך אושר, שהצוות וכל הסוכנים יראו אותו</td><td><code>/tl-publish</code>, ואחר כך commit רגיל</td></tr>
+        <tr><td>Claude חוזר על אותה טעות, או שצריך שיזכור משהו</td><td>"תזכור: …" — או <code>/tl-retro</code>: סקירת התצפיות, הצעות בכפתורים</td></tr>
         <tr><td>באג קטן, שינוי קטן</td><td>פשוט לתאר את המשימה, או <code>/tl-implement &lt;משימה&gt;</code></td></tr>
         <tr><td>פיצ'ר, שירות או endpoint חדש, שינוי בטבלאות</td><td><code>/tl-design &lt;משימה או SPEC-001&gt;</code> ← לקרוא ← "מאשר" ← <code>/tl-implement &lt;נתיב לתכנון&gt;</code></td></tr>
         <tr><td>לממש אפיון מאושר (שינוי קטן)</td><td><code>/tl-implement SPEC-001</code>: כל AC הופך לבדיקה</td></tr>
@@ -1020,6 +1023,74 @@ td:first-child { width: 42%; }
   </figure>
 </section>
 
+<!-- ============ 5b. LEARNING ============ -->
+<section id="learning">
+  <div class="section-head">
+    <div class="eyebrow">למידה</div>
+    <h2>ה-kit לומד בפרויקט</h2>
+  </div>
+  <p>ה-kit זוכר איפה טעה ואיך תיקנת אותו, את המונחים שלך, הסגנון וההרגלים. שום דבר לא משתנה בסתר: התצפיות
+  נאספות ב-<code>.claude/tl-memory/learn/INBOX.md</code>, <code>/tl-retro</code> הופך אותן להצעות, ואתה מאשר או דוחה
+  בכפתורים. מה שאושר נאסף ל-<code>ACTIVE.md</code>, ש-CORE מייבא, ולכן Claude וסוכני ה-kit מכירים אותו בכל
+  משימה, גם בלי פקודה.</p>
+  <figure class="plate" style="margin:0">
+    <svg viewBox="0 0 1000 290" role="img" aria-label="מחזור הלמידה: תצפיות, INBOX.md, /tl-retro עם אישור, זיכרון הפרויקט, ACTIVE.md, כל משימה">
+      <defs>
+        <marker id="ah8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="box" x="700" y="30" width="280" height="80" rx="6"/>
+      <text class="t-title" x="840" y="56" text-anchor="middle">תצפיות</text>
+      <text class="t-sub" x="840" y="76" text-anchor="middle">תיקונים, טעויות, מונחים</text>
+      <text class="t-mono ltr" x="840" y="96" text-anchor="middle">tl_learn.py note · harvest</text>
+      <path class="wire" d="M 700,70 L 644,70" marker-end="url(#ah8)"/>
+      <rect class="box" x="360" y="30" width="280" height="80" rx="6"/>
+      <text class="t-title ltr" x="500" y="56" text-anchor="middle">INBOX.md</text>
+      <text class="t-sub" x="500" y="76" text-anchor="middle">חומר גלם: שורה לכל אירוע</text>
+      <text class="t-sub" x="500" y="96" text-anchor="middle">בלי סודות ובלי מידע אישי</text>
+      <path class="wire" d="M 360,70 L 304,70" marker-end="url(#ah8)"/>
+      <rect class="box-accent" x="20" y="30" width="280" height="80" rx="6"/>
+      <text class="t-title ltr" x="160" y="56" text-anchor="middle">/tl-retro</text>
+      <text class="t-sub" x="160" y="76" text-anchor="middle">עד 8 הצעות בכפתורים</text>
+      <text class="t-sub" x="160" y="96" text-anchor="middle">אתה מאשר או דוחה</text>
+      <path class="wire" d="M 160,110 L 160,176" marker-end="url(#ah8)"/>
+      <text class="t-label" x="148" y="148">אושר</text>
+      <rect class="box-ok" x="20" y="180" width="280" height="80" rx="6"/>
+      <text class="t-title" x="160" y="206" text-anchor="middle">זיכרון הפרויקט</text>
+      <text class="t-mono ltr" x="160" y="226" text-anchor="middle">LESSONS · PROFILE</text>
+      <text class="t-mono ltr" x="160" y="246" text-anchor="middle">GLOSSARY · skills tlp-*</text>
+      <path class="wire" d="M 300,220 L 356,220" marker-end="url(#ah8)"/>
+      <rect class="box-ok" x="360" y="180" width="280" height="80" rx="6"/>
+      <text class="t-title ltr" x="500" y="206" text-anchor="middle">ACTIVE.md</text>
+      <text class="t-sub" x="500" y="226" text-anchor="middle">עד 60 שורות, מיובא ל-CORE</text>
+      <text class="t-sub" x="500" y="246" text-anchor="middle">CORE גובר על כל לקח</text>
+      <path class="wire" d="M 640,220 L 696,220" marker-end="url(#ah8)"/>
+      <rect class="box" x="700" y="180" width="280" height="80" rx="6"/>
+      <text class="t-title" x="840" y="206" text-anchor="middle">כל משימה</text>
+      <text class="t-sub" x="840" y="226" text-anchor="middle">Claude וסוכני ה-kit</text>
+      <text class="t-sub" x="840" y="246" text-anchor="middle">כבר יודעים מה נלמד</text>
+      <path class="wire-dash" d="M 840,180 L 840,114" marker-end="url(#ah8)"/>
+      <text class="t-label" x="828" y="148">תצפיות חדשות</text>
+    </svg>
+    <figcaption>לקח יכול רק להוסיף כלל או לצמצם אותו, לא להחליש את CORE: בדיקות, אישורים, PROD, commit ושפת ההערות לא משתנים. בלי שאלה מוחל רק מה שביקשת במפורש: אורך ותבנית התשובה, שפת השיחה.</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מה ה-kit לומד</th><th>איפה זה נשמר</th><th>דוגמה</th></tr></thead>
+      <tbody>
+        <tr><td>לקח מטעות שלו או מתיקון שלך</td><td><code>LESSONS.md</code>: מתי ← כלל, "נראה N פעמים"</td><td>דוח לקוחות ← "פעיל" = <code>status IN (1,4)</code></td></tr>
+        <tr><td>המונחים והז'רגון שלך</td><td><code>GLOSSARY.md</code> (בעברית; אפשר למסור לצוות: <code>/tl-retro share</code>)</td><td>"לקוח פעיל" ← עמודה וטבלה</td></tr>
+        <tr><td>סגנון, הרגלים, תשובות קבועות</td><td><code>PROFILE.md</code> (עד 12 פריטים)</td><td>תשובה קצרה, קודם המסקנה; רמה <code>mvp</code></td></tr>
+        <tr><td>עבודה שחוזרת 3 פעמים ויותר</td><td>skill של הפרויקט <code>.claude/skills/tlp-…</code></td><td>דוח חודשי באותם צעדים</td></tr>
+        <tr><td>איפה ה-kit עצמו מפריע</td><td>לקח בתחום <code>kit</code> — <code>/tl-retro show kit</code> לכותב ה-kit</td><td>פקודה לא הציעה את המצב הנכון</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">מה ש-Claude לא רשם בעצמו מוצא <code>tl_learn.py harvest</code>: תיקונים בהיסטוריית השיחות של Claude Code
+  בפרויקט, הסיבה לדחיית פעולה, שאילתות שנכשלו או נתקעו, אותה תשובה בכמה אפיונים. את ה-auto memory המובנה של
+  Claude Code (רושם הערות בלי אישור) <code>/tl-init</code> מכבה בפרויקט. עדכון ה-kit לא נוגע בזיכרון וב-skills
+  של <code>tlp-</code>.</p>
+</section>
+
 <!-- ============ 6. REVIEW ============ -->
 <section id="review">
   <div class="section-head">
@@ -1052,9 +1123,9 @@ td:first-child { width: 42%; }
     <h2>בדיקה שהכול עובד</h2>
   </div>
   <ul class="checklist">
-    <li><code>/</code><span>רואים את הפקודות <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code></span></li>
+    <li><code>/</code><span>רואים את הפקודות <code>/tl-go</code>, <code>/tl-init</code>, <code>/tl-spec</code>, <code>/tl-design</code>, <code>/tl-implement</code>, <code>/tl-sql</code>, <code>/tl-review</code>, <code>/tl-an</code>, <code>/tl-explain</code>, <code>/tl-debt</code>, <code>/tl-publish</code>, <code>/tl-retro</code></span></li>
     <li><code>/skills</code><span>ברשימה יש את ששת ה-skills של <code>tl-</code> (בתפריט "/" הם מוסתרים — Claude טוען אותם לבד) ואת <code>oleg-skill-hesber</code></span></li>
-    <li><code>/memory</code><span>ברשימה יש <code>.claude/CLAUDE.md</code> עם ייבוא של CORE.md</span></li>
+    <li><code>/memory</code><span>ברשימה יש <code>.claude/CLAUDE.md</code> עם ייבוא של CORE.md, וגם <code>tl-memory/learn/ACTIVE.md</code></span></li>
     <li><code>/agents</code><span>יש <code>tl-architect-reviewer</code>, <code>tl-sql-reviewer</code>, <code>tl-researcher</code>, <code>tl-an-skeptic</code>, <code>tl-spec-skeptic</code>, <code>tl-dba</code></span></li>
     <li><code>python</code><span><code>.claude\skills\tl-analytics\scripts\an_stats.py --selftest</code> — כל השורות <code>ok</code></span></li>
     <li><code>/mcp</code><span>שרתי MCP של בסיסי הנתונים של הפרויקט מחוברים (אם יש); <code>/tl-init</code> רושם אותם ב-<code>data-sources.json</code></span></li>

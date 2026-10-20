@@ -17,14 +17,16 @@ kit/.claude/            ← то, что install.cmd копирует в <про
   tech-lead-kit/CORE.md   правила, загружаются ВСЕГДА — держать ≤ 120 строк
   tech-lead-kit/KIT_GUIDE.md  маршруты, уровни, FLOW, вопросы, пределы циклов (тоже всегда в контексте)
   tech-lead-kit/WRITING.md    стандарт письма документов; CHANGELOG.md — что нового (по версиям)
+  tech-lead-kit/LEARNING.md   обучение kit в проекте (/tl-retro); templates/ — шаблон skill проекта
   tech-lead-kit/VERSION   semver; повышать при каждом изменении kit
   tech-lead-kit/scripts/  tl_knowledge.py — карта знаний KNOWLEDGE.md и публикация в проект
                           tl_doctor.py — самопроверка kit и поиск того, что конкурирует с ним
                           tl_sql.py — проверка запроса, защита, запуск через CLI с таймаутом, кэш схемы
+                          tl_learn.py — память kit: наблюдения, harvest, ACTIVE.md, lint
   skills/ commands/ agents/
 install.cmd, uninstall.cmd   Windows-установщик (CRLF!)
 installer/install-gui.ps1    окно установки (PowerShell 5.1, UTF-8 с BOM, CRLF)
-docs/                   BRIEF.md, ANALYST_DESIGN.md, SPEC_DESIGN.md, GUIDE.html, GUIDE.he.html
+docs/                   BRIEF.md, ANALYST_DESIGN.md, SPEC_DESIGN.md, LEARNING_DESIGN.md, GUIDE.html, GUIDE.he.html
 tests/                  автотесты (stdlib unittest), в ZIP не входят
 demo/                   учебный проект + прогон всех команд в headless Claude Code, в ZIP не входит
 ```
@@ -32,7 +34,10 @@ demo/                   учебный проект + прогон всех ко
 ## Правила изменения kit
 - **Имена:** skills, commands, agents — с префиксом `tl-`. Установщик прячет от git и удаляет по
   маскам `tl-*`. Исключение — `oleg-skill-hesber`, он прописан в `install.cmd`/`uninstall.cmd`
-  явно; новое исключение = правка обоих скриптов.
+  явно; новое исключение = правка обоих скриптов. `tlp-*` — skills, которые `/tl-retro` строит в
+  проекте: установщик их не удаляет, деинсталлятор переносит в `tl-memory/skills-disabled/`.
+- **Память kit** (`tl-memory/learn/`) меняется только после «да» пользователя; урок не может ослабить
+  CORE (`tl_learn.py lint`). `ACTIVE.md` импортируется в CORE — держать ≤ 60 строк.
 - **Без плагинов и hooks.** Только обычные файлы в `.claude/`.
 - **Python-скрипты kit** — только стандартная библиотека, Python 3.8+ (на работе 3.12+). Вывод в
   UTF-8 (`sys.stdout.reconfigure`), потому что консоль Windows и иврит.
@@ -60,7 +65,7 @@ demo/                   учебный проект + прогон всех ко
 
 ## Проверка перед commit
 ```
-python -m unittest discover -s tests          # структура kit, an_stats, an_doc2text, spec_tool, tl_knowledge, tl_doctor
+python -m unittest discover -s tests          # структура kit, an_stats, an_doc2text, spec_tool, tl_knowledge, tl_doctor, tl_learn
 ```
 Большие изменения поведения — прогнать демо (`demo/README.md`) и обновить `demo/RESULTS.md`:
 ```

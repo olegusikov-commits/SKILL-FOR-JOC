@@ -19,7 +19,10 @@ BASH_WRITES_RE = re.compile(r"write_text\(|open\([^)]*['\"][wa]['\"]|sed -i|>\s*
 BASH_SKILL_RE = re.compile(r"\bskills/([\w-]+)/SKILL\.md")
 GIT_COMMIT_RE = re.compile(r"(^|&&|;|\|\||\n)\s*git\s+commit\b")
 ANALYSIS = {"an-learn", "an-improve", "an-verify", "projdoc", "hesber", "debt", "review", "sql", "design",
-            "sql-check", "go-where"}
+            "sql-check", "go-where", "retro", "retro-next"}
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "kit", ".claude",
+                                "tech-lead-kit", "scripts"))
+import tl_learn  # noqa: E402
 
 
 def scan(work, name):
@@ -81,7 +84,21 @@ def scan(work, name):
             "standards_first": standards_first, "commits": commits,
             "knowledge": sum(1 for line in open(knowledge, encoding="utf-8") if line.startswith("| ") and "---" not in line) - 1
             if os.path.exists(knowledge) else None,
-            "agents_md": os.path.exists(os.path.join(project, "AGENTS.md"))}
+            "agents_md": os.path.exists(os.path.join(project, "AGENTS.md")),
+            "learn": learned(project)}
+
+
+def learned(project):
+    """What the kit memory holds after the run (2.4): lessons, terms, profile items, inbox, ACTIVE.md size."""
+    active = os.path.join(project, ".claude", "tl-memory", "learn", "ACTIVE.md")
+    if not os.path.exists(active):
+        return None
+    with open(active, encoding="utf-8") as f:
+        lines = len(f.read().splitlines())
+    return {"lessons": sum(1 for l in tl_learn.lessons(project) if l["status"] == "active"),
+            "terms": len(tl_learn.glossary_terms(project)), "profile": len(tl_learn.profile_items(project)),
+            "inbox_new": sum(1 for done, _ in tl_learn.inbox_items(project) if not done),
+            "active_lines": lines, "lint": [m for lvl, _, _, m in tl_learn.lint(project) if lvl == "ERROR"]}
 
 
 def main(argv):
@@ -101,6 +118,8 @@ def main(argv):
         print(f"   changed files: {r['changed'] or 'none'}")
         print(f"   KNOWLEDGE.md rows: {r['knowledge'] if r['knowledge'] is not None else 'no file'} · "
               f"AGENTS.md: {'yes' if r['agents_md'] else 'no'}")
+        if r["learn"]:
+            print(f"   kit memory: {r['learn']}")
     print(f"TOTAL ${total:.2f}")
 
 

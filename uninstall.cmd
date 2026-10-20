@@ -3,8 +3,10 @@ rem ============================================================
 rem  Tech Lead Kit for Claude Code - uninstaller (Windows)
 rem  Usage:  uninstall.cmd "C:\path\to\project"
 rem  Removes kit files and the import line from .claude\CLAUDE.md.
-rem  Project memory (.claude\tl-memory - ADRs, designs, tech debt)
-rem  is KEPT. Delete it manually if you no longer need it.
+rem  Project memory (.claude\tl-memory - ADRs, designs, tech debt,
+rem  what the kit learned) is KEPT. Project skills made by /tl-retro
+rem  (skills\tlp-*) need the kit, so they move to
+rem  tl-memory\skills-disabled and come back with the next install.
 rem ============================================================
 setlocal EnableExtensions
 
@@ -33,7 +35,9 @@ for /d %%D in ("%C%\skills\tl-*") do rmdir /s /q "%%D"
 if exist "%C%\skills\oleg-skill-hesber\" rmdir /s /q "%C%\skills\oleg-skill-hesber"
 del /q "%C%\commands\tl-*.md" 2>nul
 del /q "%C%\agents\tl-*.md" 2>nul
-echo [OK] Kit files removed
+if not exist "%C%\tl-memory\skills-disabled\" mkdir "%C%\tl-memory\skills-disabled"
+for /d %%D in ("%C%\skills\tlp-*") do move /y "%%D" "%C%\tl-memory\skills-disabled\" >nul
+echo [OK] Kit files removed (project skills tlp-*, if any: .claude\tl-memory\skills-disabled\)
 
 set "CLAUDE_MD=%C%\CLAUDE.md"
 if exist "%CLAUDE_MD%" (
