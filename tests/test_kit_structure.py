@@ -127,7 +127,8 @@ class TemplateMetaTests(unittest.TestCase):
                  "skills/oleg-skill-hesber/references/template.html",
                  "skills/tl-requirements/references/spec-template.md",
                  "skills/tl-requirements/references/intake-form.md",
-                 "skills/tl-requirements/references/flow-template.md"]
+                 "skills/tl-requirements/references/flow-template.md",
+                 "tech-lead-kit/templates/project-skill.md"]
 
     def test_templates_carry_tl_meta(self):
         for rel in self.TEMPLATES:
@@ -147,6 +148,17 @@ class CoreAndDocsTests(unittest.TestCase):
         for path in kit_files("commands", r".+\.md"):
             with self.subTest(cmd=path):
                 self.assertIn("/" + os.path.basename(path)[:-3], guide)
+
+    def test_core_imports_what_the_kit_learned(self):
+        core = read(os.path.join(KIT, "tech-lead-kit", "CORE.md"))
+        self.assertTrue(core.rstrip("\n").split("## Definition of done")[0].rstrip().endswith(
+            "@KIT_GUIDE.md\n@../tl-memory/learn/ACTIVE.md"), "ACTIVE.md is imported right after KIT_GUIDE.md")
+        self.assertIn("`tlp-*`", core.split("## Kit tools first", 1)[1].split("\n## ", 1)[0],
+                      "project skills count as kit skills")
+        guide = read(os.path.join(KIT, "tech-lead-kit", "KIT_GUIDE.md"))
+        learning = guide.split("## Learning", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("scripts/tl_learn.py note", learning)
+        self.assertIn("CORE wins", learning)
 
     def test_version_is_semver(self):
         self.assertRegex(read(os.path.join(KIT, "tech-lead-kit", "VERSION")).strip(), r"^\d+\.\d+\.\d+$")
@@ -199,7 +211,7 @@ class GeneralityAndLimitsTests(unittest.TestCase):
     def test_guide_defines_shared_protocols(self):
         guide = read(os.path.join(KIT, "tech-lead-kit", "KIT_GUIDE.md"))
         for section in ("## Routes", "## Depth levels", "## FLOW of a new task", "## Questions",
-                        "## Loop limits", "## Agents", "## Step card"):
+                        "## Loop limits", "## Agents", "## Learning", "## Step card"):
             self.assertIn(section, guide)
         for path in kit_files("commands", r".+\.md"):
             with self.subTest(cmd=path):
@@ -221,8 +233,8 @@ class InstallerTests(unittest.TestCase):
         self.assertNotIn("goto :eof", block)
 
     def test_excludes_cover_kit(self):
-        for pattern in (".claude/tech-lead-kit/", ".claude/skills/tl-*/", ".claude/commands/tl-*.md",
-                        ".claude/agents/tl-*.md", ".claude/tl-memory/"):
+        for pattern in (".claude/tech-lead-kit/", ".claude/skills/tl-*/", ".claude/skills/tlp-*/",
+                        ".claude/commands/tl-*.md", ".claude/agents/tl-*.md", ".claude/tl-memory/"):
             self.assertIn(pattern, self.text)
         for skill in EXPLICIT_SKILLS:
             self.assertIn(f".claude/skills/{skill}/", self.text)
@@ -248,8 +260,17 @@ class InstallerTests(unittest.TestCase):
         self.assertNotIn("tl-memory", self.text[clean - 400:copy].replace("never touches tl-memory", ""))
 
     def test_memory_folders(self):
-        for sub in ("adr", "design", "analysis", "spec"):
+        for sub in ("adr", "design", "analysis", "spec", "learn"):
             self.assertIn(f"tl-memory\\{sub}", self.text)
+        copy = self.text.index("robocopy")
+        self.assertGreater(self.text.index("learn\\ACTIVE.md"), copy, "CORE imports ACTIVE.md: a stub after the copy")
+
+    def test_project_skills_survive_update_and_uninstall(self):
+        clean = self.text.split("rem ---- 1.", 1)[1].split("robocopy", 1)[0]
+        self.assertNotIn("tlp-", clean, "an update never removes project skills")
+        self.assertIn('skills-disabled\\tlp-*") do move /y "%%D" "%C%\\skills\\"', self.text)
+        un = read(os.path.join(ROOT, "uninstall.cmd"))
+        self.assertIn('skills\\tlp-*") do move /y "%%D" "%C%\\tl-memory\\skills-disabled\\"', un)
 
     def test_uninstall_covers_explicit_skills(self):
         un = read(os.path.join(ROOT, "uninstall.cmd"))

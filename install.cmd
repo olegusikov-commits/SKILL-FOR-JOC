@@ -72,6 +72,12 @@ if not exist "%TARGET%\.claude\tl-memory\adr\"    mkdir "%TARGET%\.claude\tl-mem
 if not exist "%TARGET%\.claude\tl-memory\design\" mkdir "%TARGET%\.claude\tl-memory\design"
 if not exist "%TARGET%\.claude\tl-memory\analysis\" mkdir "%TARGET%\.claude\tl-memory\analysis"
 if not exist "%TARGET%\.claude\tl-memory\spec\" mkdir "%TARGET%\.claude\tl-memory\spec"
+if not exist "%TARGET%\.claude\tl-memory\learn\" mkdir "%TARGET%\.claude\tl-memory\learn"
+rem CORE.md imports ACTIVE.md (what the kit learned here); /tl-init and /tl-retro fill it
+set "ACTIVE=%TARGET%\.claude\tl-memory\learn\ACTIVE.md"
+if not exist "%ACTIVE%" > "%ACTIVE%" echo # What the kit learned in this project: nothing yet - run /tl-init
+rem project skills made by /tl-retro come back if an uninstall put them aside
+for /d %%D in ("%TARGET%\.claude\tl-memory\skills-disabled\tlp-*") do move /y "%%D" "%C%\skills\" >nul
 echo [OK] Project memory folder: .claude\tl-memory\
 
 rem ---- 2b. how kit documents become part of the project (asked once per project) ----
@@ -132,6 +138,7 @@ call :add_exclude "%EXCLUDE_HEADER%"
 call :add_exclude ".claude/tech-lead-kit/"
 call :add_exclude ".claude/skills/tl-*/"
 call :add_exclude ".claude/skills/oleg-skill-hesber/"
+call :add_exclude ".claude/skills/tlp-*/"
 call :add_exclude ".claude/commands/tl-*.md"
 call :add_exclude ".claude/agents/tl-*.md"
 call :add_exclude ".claude/tl-memory/"

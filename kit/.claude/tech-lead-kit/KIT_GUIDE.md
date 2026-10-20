@@ -18,6 +18,7 @@ command that does it next time. Never force a command on a small question.
 | Explanation `/tl-explain` | "explain how X works", project document, onboarding | `project [module] [he\|ru\|en]` · `<what to explain>` | HTML with SVG diagrams + Markdown |
 | Code health `/tl-debt` | "what is bad in the existing code, what first" | path / module | debt register with priorities |
 | Publish `/tl-publish` | share approved documents with the team and every agent | paths / ids | `docs/` + block in `AGENTS.md` (automatic when `auto_publish` is on) |
+| Learning `/tl-retro` | "you keep doing X wrong", "remember that…", "what have you learned here?" | no args → observations → proposals (buttons) · `show [kit]` · `term <word>` · `forget <id>` · `share` (glossary to the team) | lessons, terms, profile, project skills `tlp-*` → `ACTIVE.md` |
 
 Choosing: **the smallest route that safely closes the task**; risk, an unclear goal or a wide reach
 move it one step up (code → design → requirement). The built-in `/init` is not needed: `/tl-init`
@@ -75,6 +76,7 @@ Unanswered → proposed answer as `[הנחה]`; never block other work on an ans
 | Lint → fix | ≤ 3 passes | remaining findings in the reply |
 | Code → test → fix | ≤ 3 tries per red test | stop: test, error, hypothesis |
 | Review → fix → re-review | ≤ 2 rounds for BLOCKERs | list what is left, ask |
+| Retro proposals | ≤ 8 per round (2 question calls); a rejected one again only with new evidence | the rest waits in `INBOX.md` |
 
 At a limit: stop and report what is done, what is left and why — never continue silently. Before a
 step that may take long, tell the user in one line what you are starting. Long shell commands get a
@@ -105,6 +107,19 @@ independent view:
 
 Everything else — reading a few files, planning, small edits — you do yourself, without an agent.
 Give every agent the task, the paths, its budget and what to return.
+
+## Learning — the kit gets better in this project
+The last import of CORE (`ACTIVE.md`) is what the user approved: follow it like the user's own words;
+CORE wins over it. Note an observation — one line, once per event, no secrets or personal data:
+`python .claude/tech-lead-kit/scripts/tl_learn.py note <kind> <scope> "<what happened>"` — when the user
+corrects you or rewrites your result (`correction`), a check finds your own mistake: a BLOCKER in code you
+wrote, a red test after "done" (`mistake`), the user uses a term you did not know (`term`), asks for another
+language, length or format (`style`), makes the same choice again (`habit`) or repeats the same steps
+(`procedure`), or the kit itself got in your way (`kit`). Scope: `project`, `route:/tl-sql`,
+`skill:<name>`, `agent:<name>`, `area:<topic>`, `kit`. Failed queries are collected by `harvest`, not noted.
+"Remember …" / "запомни …" / "תזכור …" is an approval: write it at once (`/tl-retro` rules), then `render`.
+When `note` or `ACTIVE.md` says observations wait, add `· /tl-retro` to the `Дальше:` line. Memory files
+change only through `/tl-retro` or such a request (`.claude/tech-lead-kit/LEARNING.md`).
 
 ## Step card — the end of every command reply
 ```

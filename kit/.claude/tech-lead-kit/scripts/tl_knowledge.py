@@ -38,7 +38,7 @@ DEFAULTS = {
     "docs_root": "docs",
     "folders": {"spec": "specs", "adr": "adr", "design": "design", "project-doc": "project",
                 "explain": "explain", "analysis-report": "analysis", "spec-check": "specs/checks",
-                "tech-debt": "."},
+                "tech-debt": ".", "glossary": "project"},
     "agents_file": "AGENTS.md",
     "claude_md_import": True,
     "auto_publish": False,  # true: documents are published right after approval (CORE "Publishing")
@@ -46,7 +46,7 @@ DEFAULTS = {
 TYPE_LABELS = {"spec": "אפיון", "request": "טופס דרישה", "spec-check": "בדיקת אפיון", "adr": "ADR",
                "design": "תכנון", "project-doc": "מסמך פרויקט", "explain": "הסבר",
                "analysis-topic": "נושא ניתוח", "analysis-report": "דוח ניתוח", "tech-debt": "חוב טכני",
-               "project-context": "הקשר הפרויקט", "flow": "מסלול משימה"}
+               "project-context": "הקשר הפרויקט", "flow": "מסלול משימה", "glossary": "מילון מונחים"}
 TYPE_ORDER = list(TYPE_LABELS)
 ID_TYPES = {"ADR": "adr", "SPEC": "spec"}
 FINAL_STATUSES = {"approved", "accepted", "final", "superseded", "deprecated", "living"}
@@ -185,6 +185,8 @@ def collect(root, cfg):
     for path in walk_docs(mem):
         if os.path.basename(path) == "KNOWLEDGE.md":
             continue
+        if rel(mem, path).startswith("learn/") and os.path.basename(path) != "GLOSSARY.md":
+            continue  # the kit's working memory (tl_learn.py), not project documents
         entry = doc_entry(root, path, "local")
         if entry:
             entries.append(entry)
@@ -616,6 +618,10 @@ def cmd_status(args):
             print(f"- {e['id'] or e['title']}: {done}/{total} задач · {e['path']} → /tl-implement {e['path']}")
     if missing:
         print(f"\n{len(missing)} документ(ов) без tl-meta → tl_knowledge.py index")
+    inbox = os.path.join(mem, "learn", "INBOX.md")
+    new = len(re.findall(r"^- \[ \] ", read_text(inbox), re.M)) if os.path.exists(inbox) else 0
+    if new:
+        print(f"\nНаблюдений для разбора: {new} → /tl-retro (что kit выучит в этом проекте)")
     return 0
 
 def main(argv=None):

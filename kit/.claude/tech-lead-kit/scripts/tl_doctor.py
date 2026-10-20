@@ -16,6 +16,8 @@ Data:       database MCP servers and command-line clients (sqlcmd, db2) against 
             .claude/tl-memory/data-sources.json that /tl-init writes.
 Limits:     Claude Code waits for an MCP call up to ~28 hours by default and never moves a subagent's
             MCP call to the background — a slow query looks like a hang.
+Memory:     what the kit learned here (.claude/tl-memory/learn/, tl_learn.py lint), ACTIVE.md in place;
+            Claude Code's own auto memory, which writes notes without the user's approval and competes with it.
 Agents:     the built-in Explore and Plan agents start WITHOUT CLAUDE.md (no kit rules), general-purpose
             has no kit skills; agents of the user folder, of plugins or of the project that are not the
             kit's load CLAUDE.md but not the kit skills, and their own prompt may contradict the kit.
@@ -23,7 +25,8 @@ Agents:     the built-in Explore and Plan agents start WITHOUT CLAUDE.md (no kit
 --apply-settings (alias --apply-limits) [--keep-agent NAME ...] adds to .claude/settings.local.json
             (personal, hidden from git; other keys kept; this project only): time and output limits for
             MCP calls, and permission rules that deny the built-in agents and every agent that is not the
-            kit's (except --keep-agent ones), so delegated work goes to kit agents.
+            kit's (except --keep-agent ones), so delegated work goes to kit agents; turns Claude Code's auto
+            memory off (the kit's memory is approved by the user) and allows `tl_learn.py note` without a prompt.
 Levels: ERROR — the kit does not work as designed; WARN — something may be used instead of the kit
 or contradict it, Claude must look at it with the user; INFO — facts. Exit code 1 if any ERROR.
 """
@@ -35,6 +38,7 @@ import shutil
 import sys
 
 KIT_SKILLS_EXTRA = {"oleg-skill-hesber"}       # kit skills without the tl- prefix
+PROJECT_SKILL_PREFIX = "tlp-"                  # skills /tl-retro made for this project — kit skills too
 SQL_CLIENTS = ("sqlcmd", "db2", "db2cmd", "clpplus")
 # env limits for Claude Code (ms / tokens); the defaults let one MCP call run for a day
 LIMITS = {"MCP_TOOL_TIMEOUT": "180000", "CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT": "120000",
@@ -43,8 +47,11 @@ MAX_TOOL_TIMEOUT_MS = 600000
 # built-in agents that work outside the kit: Explore / Plan skip CLAUDE.md, general-purpose has no kit skills
 BUILTIN_AGENTS = ("Explore", "Plan", "general-purpose")
 DB_HINT_RE = re.compile(r"sql|db2|database|postgres|mysql|oracle|sqlite|odbc|jdbc|mssql", re.I)
-EXCLUDE_LINES = [".claude/tech-lead-kit/", ".claude/skills/tl-*/", ".claude/commands/tl-*.md",
-                 ".claude/agents/tl-*.md", ".claude/tl-memory/"]
+EXCLUDE_LINES = [".claude/tech-lead-kit/", ".claude/skills/tl-*/", ".claude/skills/tlp-*/",
+                 ".claude/commands/tl-*.md", ".claude/agents/tl-*.md", ".claude/tl-memory/"]
+# `tl_learn.py note` runs whenever the user corrects Claude — it must not ask for permission every time
+NOTE_ALLOW = ["Bash(python .claude/tech-lead-kit/scripts/tl_learn.py note:*)",
+              "Bash(py -3 .claude/tech-lead-kit/scripts/tl_learn.py note:*)"]
 # permission rules that would stop kit tools (scripts, skills, subagents, SQL MCP reads)
 BLOCKING_DENY_RE = re.compile(r"^((Skill|Task|Agent)(\(\*?\))?$|(Task|Agent)\(tl-|Bash\((python|py)\b)", re.I)
 
@@ -116,7 +123,8 @@ def entities(claude_dir):
 
 
 def is_kit_name(kind, name):
-    return name.startswith("tl-") or (kind == "skill" and name in KIT_SKILLS_EXTRA)
+    return name.startswith("tl-") or (kind == "skill" and (name in KIT_SKILLS_EXTRA
+                                                          or name.startswith(PROJECT_SKILL_PREFIX)))
 
 
 class Report:
@@ -369,8 +377,9 @@ def check_agents(root, home, rep):
 
 
 def apply_limits(root, home=None, keep=()):
-    """Add the missing LIMITS and deny rules for the built-in and foreign agents (except `keep`) to
-    .claude/settings.local.json; keep every other key. Returns what was added: {name: value}."""
+    """Add the missing LIMITS, deny rules for the built-in and foreign agents (except `keep`), auto memory
+    off and the allow rule for `tl_learn.py note` to .claude/settings.local.json; keep every other key (a
+    value the user set, e.g. autoMemoryEnabled: true, stays). Returns what was added: {name: value}."""
     path = os.path.join(root, ".claude", "settings.local.json")
     data = read_json(path)
     if data is None:
@@ -380,7 +389,15 @@ def apply_limits(root, home=None, keep=()):
     env = data.setdefault("env", {})
     added = {k: v for k, v in LIMITS.items() if k not in env}
     env.update(added)
-    deny = data.setdefault("permissions", {}).setdefault("deny", [])
+    if "autoMemoryEnabled" not in data:
+        data["autoMemoryEnabled"] = False
+        added["autoMemoryEnabled"] = "false"
+    allow = data.setdefault("permissions", {}).setdefault("allow", [])
+    for rule in NOTE_ALLOW:
+        if rule not in allow:
+            allow.append(rule)
+            added[rule] = "allow"
+    deny = data["permissions"].setdefault("deny", [])
     for agent in agents_to_deny(root, home, keep):
         rule = f"Agent({agent})"
         if rule not in deny and f"Task({agent})" not in deny:
@@ -421,6 +438,48 @@ def check_settings(root, home, rep):
         rep.add("INFO", "settings", f"{os.path.join(home, 'plugins')} exists — installed plugins may add skills")
 
 
+def settings_value(root, home, key):
+    """The value of a top-level settings key, later files win (user < project < local)."""
+    value = None
+    paths = ([os.path.join(home, "settings.json")] if home else []) + [
+        os.path.join(root, ".claude", "settings.json"), os.path.join(root, ".claude", "settings.local.json")]
+    for path in paths:
+        data = read_json(path)
+        if data and not data.get("__invalid__") and key in data:
+            value = data[key]
+    return value
+
+
+def check_memory(root, home, rep):
+    env = settings_env(root, home)
+    off_env = (env.get("CLAUDE_CODE_DISABLE_AUTO_MEMORY") or os.environ.get("CLAUDE_CODE_DISABLE_AUTO_MEMORY", "")) \
+        in ("1", "true", "yes")
+    if settings_value(root, home, "autoMemoryEnabled") is False or off_env:
+        rep.add("INFO", "memory", "Claude Code auto memory is off in this project — the kit's memory is the only one")
+    else:
+        rep.add("WARN", "memory", "Claude Code auto memory is on — Claude writes its own notes without your approval "
+                "next to the kit's memory (/tl-retro); run tl_doctor.py --apply-settings to turn it off here")
+    learn = os.path.join(root, ".claude", "tl-memory", "learn")
+    if not os.path.isdir(learn):
+        return
+    if not os.path.exists(os.path.join(learn, "ACTIVE.md")):
+        rep.add("WARN", "memory", "tl-memory/learn/ACTIVE.md is missing — run tl_learn.py render (CORE imports it)")
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import tl_learn
+        issues = tl_learn.lint(root)
+    except Exception as exc:  # the memory check must never stop the self-check
+        rep.add("WARN", "memory", f"tl_learn.py lint failed: {exc}")
+        return
+    for level, path, line, msg in issues:
+        rep.add("WARN", "memory", f"{path}:{line} {msg} ({level.lower()} in tl_learn.py lint)")
+    if not issues:
+        lessons = sum(1 for l in tl_learn.lessons(root) if l["status"] == "active")
+        new = sum(1 for done, _ in tl_learn.inbox_items(root) if not done)
+        rep.add("INFO", "memory", f"kit memory: {lessons} active lesson(s), {len(tl_learn.glossary_terms(root))} "
+                f"term(s), {len(tl_learn.project_skills(root))} project skill(s), {new} observation(s) waiting")
+
+
 def run(root, home):
     rep = Report()
     check_kit(root, rep)
@@ -430,6 +489,7 @@ def run(root, home):
     check_settings(root, home, rep)
     check_limits(root, home, rep)
     check_agents(root, home, rep)
+    check_memory(root, home, rep)
     return rep
 
 

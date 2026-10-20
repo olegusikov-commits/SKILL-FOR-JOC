@@ -38,6 +38,9 @@ SPEC_ANSWER = ("На вопросы: принимаю твои предложе�
 PLAIN_CODE = ("Чеки с датой поступления received_at в будущем (позже текущего момента) должны уходить "
               "к פקיד с причиной FUTURE_DATE. Сделай это.")
 CHANGE_LIMIT = "Подними лимит суммы для постоянных плательщиков-организаций до 8 000 ₪."
+RETRO_CORRECTION = ("Слишком длинно. Отвечай мне короче: сначала ответ одной строкой, потом не больше 3 пунктов. "
+                    "И запомни: «זהב» у нас в отделе — это плательщики-организации (payer_type COMPANY или "
+                    "GOVERNMENT).")
 
 SCENARIOS = {
     # name: (start state, patch or None, [prompts...])
@@ -112,6 +115,14 @@ SCENARIOS = {
         "/tl-init",
         "На твои вопросы: принимаю твои рекомендации. Закончи по процедуре.",
         PLAIN_CODE]),
+    # 2.4: learning — a correction (style + a term), then /tl-retro; retro-next is a NEW session that
+    # must already answer short and know the term (ACTIVE.md is imported by CORE)
+    "retro": ("init", None, [
+        "Какой максимальный размер чека для авто-разрешения и где это задано?",
+        RETRO_CORRECTION,
+        "/tl-retro",
+        "Принимаю все твои предложения."]),
+    "retro-next": ("retro", None, ["Сколько у нас плательщиков «זהב»?"]),
 }
 
 
@@ -122,8 +133,12 @@ def sh(cmd, cwd=None, check=True):
 def install_kit(project):
     """Linux equivalent of install.cmd."""
     shutil.copytree(KIT, os.path.join(project, ".claude"), dirs_exist_ok=True)
-    for sub in ("adr", "design", "analysis", "spec"):
+    for sub in ("adr", "design", "analysis", "spec", "learn"):
         os.makedirs(os.path.join(project, ".claude", "tl-memory", sub), exist_ok=True)
+    active = os.path.join(project, ".claude", "tl-memory", "learn", "ACTIVE.md")
+    if not os.path.exists(active):  # CORE imports it; install.cmd writes the same stub
+        with open(active, "w", encoding="utf-8") as f:
+            f.write("# What the kit learned in this project: nothing yet - run /tl-init\n")
     claude_md = os.path.join(project, ".claude", "CLAUDE.md")
     if not os.path.exists(claude_md):
         with open(claude_md, "w", encoding="utf-8") as f:
